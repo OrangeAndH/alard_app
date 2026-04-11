@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,8 +15,12 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
+    // Wait 3 seconds, then go to login screen
     Timer(const Duration(seconds: 3), () {
-      // TODO: navigate to login screen later
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
     });
   }
 
