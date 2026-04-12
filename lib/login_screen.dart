@@ -1,3 +1,4 @@
+import 'package:alard_app/forgot_password.dart';
 import 'package:flutter/material.dart';
 import 'main_screen.dart';
 
@@ -22,11 +23,17 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void login() {
-    final email = emailController.text.trim();
+void login() {
+  final email = emailController.text.trim();
   final password = passwordController.text.trim();
 
-  if (email == 'hamzamonjed.com' && password == '12345') {
+  if (email.isEmpty || password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Please fill all fields')),
+    );
+    return;
+  }
+  if (email == 'hamza@monjed.com' && password == '12345') {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -40,7 +47,21 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-  }
+}
+
+void loginWithGoogle() {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => const MainScreen()),
+  );
+}
+
+void loginWithFacebook() {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => const MainScreen()),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -214,7 +235,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-
+                 Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 30),
+  child: Align(
+    alignment: Alignment.centerRight,
+    child: GestureDetector(
+      onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const ForgotPasswordScreen(),
+    ),
+  );
+},
+      child: const Text(
+        "Forgot password?",
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFFF0E7DE),
+        ),
+      ),
+    ),
+  ),
+),
                 const SizedBox(height: 20),
 
                 Padding(
@@ -283,7 +327,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     GestureDetector(
-                      onTap: () {},
+                      onTap: loginWithGoogle,
                       child: Container(
                         width: 100,
                         height: 45,
@@ -298,7 +342,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(width: 20),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: loginWithFacebook,
                       child: Container(
                         width: 100,
                         height: 45,
