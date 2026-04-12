@@ -1,30 +1,63 @@
 import 'package:flutter/material.dart';
+import 'main_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  bool isTrader = true;
+  bool obscurePassword = true;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  void login() {
+    final email = emailController.text.trim();
+  final password = passwordController.text.trim();
+
+  if (email == 'hamzamonjed.com' && password == '12345') {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MainScreen(),
+      ),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Invalid email or password'),
+      ),
+    );
+  }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-
-          // Background
           SizedBox.expand(
             child: Image.asset(
               "assets/loginscreen_background.png",
               fit: BoxFit.cover,
             ),
           ),
-
-          // Scrollable content
           SingleChildScrollView(
             child: Column(
               children: [
-
                 const SizedBox(height: 60),
 
-                // Logo (circular)
                 Center(
                   child: ClipOval(
                     child: Image.asset(
@@ -48,50 +81,64 @@ class LoginScreen extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                // Trader / Regular User Row
                 Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-
-    GestureDetector(
-      onTap: () {},
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFFCEB04B),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            Image.asset("assets/trader.png", width: 36),
-            const SizedBox(width: 6),
-            const Text("Trader"),
-          ],
-        ),
-      ),
-    ),
-
-    const SizedBox(width: 12),
-
-    GestureDetector(
-      onTap: () {},
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFFCEB04B),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            Image.asset("assets/regular.png", width: 36),
-            const SizedBox(width: 6),
-            const Text("Regular user"),
-          ],
-        ),
-      ),
-    ),
-  ],
-),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isTrader = true;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isTrader
+                              ? const Color(0xFFCEB04B)
+                              : const Color(0xFFE6D8A6),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset("assets/trader.png", width: 36),
+                            const SizedBox(width: 6),
+                            const Text("Trader"),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isTrader = false;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: !isTrader
+                              ? const Color(0xFFCEB04B)
+                              : const Color(0xFFE6D8A6),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset("assets/regular.png", width: 36),
+                            const SizedBox(width: 6),
+                            const Text("Regular user"),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
 
                 const SizedBox(height: 20),
 
@@ -106,19 +153,19 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox(height: 5),
 
                 const Text(
-  "Log in or create an account to continue",
-  style: TextStyle(
-    fontWeight: FontWeight.w600,
-    color: Color(0xFFF5E2E2),
-  ),
-),
+                  "Log in or create an account to continue",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFF5E2E2),
+                  ),
+                ),
 
                 const SizedBox(height: 20),
 
-                // Email Input
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: TextField(
+                    controller: emailController,
                     decoration: InputDecoration(
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -136,27 +183,24 @@ class LoginScreen extends StatelessWidget {
 
                 const SizedBox(height: 15),
 
-                // Password Input
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: TextField(
-                    obscureText: true,
+                    controller: passwordController,
+                    obscureText: obscurePassword,
                     decoration: InputDecoration(
-                      suffix: GestureDetector(
-  onTap: () {
-    // TODO: navigate to forgot password page
-  },
-  child: const Padding(
-    padding: EdgeInsets.only(right: 10),
-    child: Text(
-      "Forgot password?",
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-      ),
-    ),
-  ),
-),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
+                        icon: Icon(
+                          obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                      ),
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Image.asset("assets/password.png"),
@@ -173,108 +217,102 @@ class LoginScreen extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // Log In Button
-               Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 30),
-  child: SizedBox(
-    width: double.infinity,
-    child: ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color.fromARGB(255, 62, 70, 14),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
-        ),
-      ),
-      child: const Text(
-  "Log In",
-  style: TextStyle(
-    color: Color(0xFFE4DFC1),
-    fontWeight: FontWeight.bold,
-  ),
-),
-    ),
-  ),
-),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 62, 70, 14),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child: const Text(
+                        "Log In",
+                        style: TextStyle(
+                          color: Color(0xFFE4DFC1),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
 
                 const SizedBox(height: 10),
 
-                // Create Account Button
                 Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 30),
-  child: SizedBox(
-    width: double.infinity,
-    child: ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFA2B52D),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
-        ),
-      ),
-      child: const Text(
-  "Create New Account",
-  style: TextStyle(
-    color: Color(0xFFE4DFC1),
-    fontWeight: FontWeight.bold,
-  ),
-),
-    ),
-  ),
-),
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFA2B52D),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child: const Text(
+                        "Create New Account",
+                        style: TextStyle(
+                          color: Color(0xFFE4DFC1),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
 
                 const SizedBox(height: 20),
 
                 const Text(
-  "Or log in with",
-  style: TextStyle(
-    fontWeight: FontWeight.w600,
-    color: Color(0xFFF0E7DE),
-  ),
-),
+                  "Or log in with",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFF0E7DE),
+                  ),
+                ),
 
                 const SizedBox(height: 10),
 
-                // Social Login
                 Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-
-    GestureDetector(
-      onTap: () {},
-      child: Container(
-        width: 100,
-        height: 45,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE4DFC1),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Center(
-          child: Image.asset("assets/google.png", width: 100),
-        ),
-      ),
-    ),
-
-    const SizedBox(width: 20),
-
-    GestureDetector(
-      onTap: () {},
-      child: Container(
-        width: 100,
-        height: 45,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE4DFC1),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Center(
-          child: Image.asset("assets/facebook.png", width: 45),
-        ),
-      ),
-    ),
-  ],
-),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        width: 100,
+                        height: 45,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE4DFC1),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Center(
+                          child: Image.asset("assets/google.png", width: 100),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        width: 100,
+                        height: 45,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE4DFC1),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Center(
+                          child: Image.asset("assets/facebook.png", width: 45),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
 
                 const SizedBox(height: 30),
               ],

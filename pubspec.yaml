@@ -68,6 +68,20 @@ flutter:
     - assets/loginscreen_background.png
     - assets/regular.png
     - assets/trader.png
+    - assets/home.png
+    - assets/shop.png
+    - assets/recipes.png
+    - assets/feedback.png
+    - assets/photo2.png
+    - assets/virgin_oil.png
+    - assets/Zaata.png
+    - assets/Dried_sage.png
+    - assets/green_olive.png
+    - assets/10.png
+    - assets/11.png
+    - assets/12.png
+    - assets/13.png
+    - assets/123.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'splash_screen.dart';
+import 'login_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const AlardApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class AlardApp extends StatelessWidget {
+  const AlardApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: SplashScreen(),
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
+      home: const LoginScreen(),
     );
   }
 }
