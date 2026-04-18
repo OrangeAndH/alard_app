@@ -13,7 +13,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0; // يبدأ على Home
+  int _selectedIndex = 0;
 
   final List<Widget> _pages = const [
     HomeScreen(),
@@ -55,12 +55,14 @@ class _MainScreenState extends State<MainScreen> {
               activeIcon: Icons.shopping_bag,
               label: 'Shop',
             ),
-            _buildNavItem(
+
+            // Recipes بالصورة بدل الأيقونة
+            _buildImageNavItem(
               index: 2,
-              icon: Icons.restaurant_menu_outlined,
-              activeIcon: Icons.restaurant_menu,
+              imagePath: 'assets/images/recipes.png',
               label: 'Recipes',
             ),
+
             _buildNavItem(
               index: 3,
               icon: Icons.feedback_outlined,
@@ -102,6 +104,54 @@ class _MainScreenState extends State<MainScreen> {
               isSelected ? activeIcon : icon,
               color: Colors.black,
               size: 26,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageNavItem({
+    required int index,
+    required String imagePath,
+    required String label,
+  }) {
+    final bool isSelected = _selectedIndex == index;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+      },
+      child: SizedBox(
+        width: 70,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: isSelected
+                  ? BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 1.5),
+                      borderRadius: BorderRadius.circular(10),
+                    )
+                  : null,
+              child: Image.asset(
+                imagePath,
+                width: 28,
+                height: 28,
+                fit: BoxFit.contain,
+              ),
             ),
             const SizedBox(height: 4),
             Text(

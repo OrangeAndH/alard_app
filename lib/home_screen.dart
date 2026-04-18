@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'Discover_our_Story.dart';
+import 'cart_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -69,9 +71,9 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTopBar(),
+              _buildTopBar(context),
               const SizedBox(height: 8),
-              _buildHeroSection(),
+              _buildHeroSection(context),
               const SizedBox(height: 14),
               _buildProductsGrid(products),
               const SizedBox(height: 22),
@@ -85,7 +87,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -96,7 +98,7 @@ class HomeScreen extends StatelessWidget {
           ),
           const Spacer(),
           Image.asset(
-            'assets/alard_logo.png',
+            'assets/alard_icon.png',
             height: 50,
             errorBuilder: (context, error, stackTrace) {
               return const Text(
@@ -115,7 +117,14 @@ class HomeScreen extends StatelessWidget {
             icon: const Icon(Icons.search, size: 28),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CartScreen(),
+                ),
+              );
+            },
             icon: const Icon(Icons.shopping_cart_outlined, size: 28),
           ),
         ],
@@ -123,7 +132,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroSection() {
+  Widget _buildHeroSection(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ClipRRect(
@@ -171,7 +180,14 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 14),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DiscoverOurStory(),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFCEB04B),
                         foregroundColor: Colors.black,
@@ -287,7 +303,13 @@ class HomeScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 36,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${product['name']} added to cart'),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF7A8D2F),
                       foregroundColor: Colors.white,

@@ -1,71 +1,146 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'login_screen.dart';
+import 'profile_pages.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final profileItems = [
-      {
-        'title': 'Personal Details',
-        'icon': Icons.person,
-      },
-      {
-        'title': 'Shipping Addresses',
-        'icon': Icons.location_on,
-      },
-      {
-        'title': 'Order History',
-        'icon': Icons.receipt_long,
-      },
-      {
-        'title': 'My Favorites',
-        'icon': Icons.favorite,
-      },
-      {
-        'title': 'Payment Methods',
-        'icon': Icons.credit_card,
-      },
-      {
-        'title': 'Notifications',
-        'icon': Icons.notifications,
-      },
-      {
-        'title': 'Help & Support',
-        'icon': Icons.public,
-      },
-      {
-        'title': 'Settings',
-        'icon': Icons.settings,
-      },
-    ];
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
+class _ProfileScreenState extends State<ProfileScreen> {
+  File? _profileImage;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickProfileImage() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  void _logout() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
+  void _openPage(Widget page) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F3EE),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 20),
           child: Column(
             children: [
-              _buildTopBar(),
-              const SizedBox(height: 8),
-              _buildHeaderImage(),
-              const SizedBox(height: 12),
-              _buildProfileInfo(),
+              _buildCoverPhoto(),
+              const SizedBox(height: 14),
+              _buildProfileHeader(),
               const SizedBox(height: 18),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
-                  children: profileItems.map((item) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: _buildProfileTile(
-                        title: item['title'] as String,
-                        icon: item['icon'] as IconData,
-                        onTap: () {},
+                  children: [
+                    _buildOptionTile(
+                      icon: Icons.person,
+                      title: 'Personal Details',
+                      onTap: () => _openPage(
+                        const PersonalDetailsPage(),
                       ),
-                    );
-                  }).toList(),
+                    ),
+                    _buildOptionTile(
+                      icon: Icons.location_on,
+                      title: 'Shipping Addresses',
+                      onTap: () => _openPage(
+                        const ShippingAddressesPage(),
+                      ),
+                    ),
+                    _buildOptionTile(
+                      icon: Icons.receipt_long,
+                      title: 'Order History',
+                      onTap: () => _openPage(
+                        const OrderHistoryPage(),
+                      ),
+                    ),
+                    _buildOptionTile(
+                      icon: Icons.favorite,
+                      title: 'My Favorites',
+                      onTap: () => _openPage(
+                        const FavoritesPage(),
+                      ),
+                    ),
+                    _buildOptionTile(
+                      icon: Icons.credit_card,
+                      title: 'Payment Methods',
+                      onTap: () => _openPage(
+                        const PaymentMethodsPage(),
+                      ),
+                    ),
+                    _buildOptionTile(
+                      icon: Icons.notifications,
+                      title: 'Notifications',
+                      onTap: () => _openPage(
+                        const NotificationsPage(),
+                      ),
+                    ),
+                    _buildOptionTile(
+                      icon: Icons.support_agent,
+                      title: 'Help & Support',
+                      onTap: () => _openPage(
+                        const HelpSupportPage(),
+                      ),
+                    ),
+                    _buildOptionTile(
+                      icon: Icons.settings,
+                      title: 'Settings',
+                      onTap: () => _openPage(
+                        const SettingsPage(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        onPressed: _logout,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF7A8D2F),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                        icon: const Icon(Icons.logout),
+                        label: const Text(
+                          'Log Out',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
             ],
@@ -75,164 +150,125 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTopBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.menu, size: 30),
-          ),
-          const Spacer(),
-          Image.asset(
-            'assets/alard_logo.png',
-            height: 55,
-            errorBuilder: (context, error, stackTrace) {
-              return const Text(
-                "AL'ARD",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF5D6B1F),
-                ),
-              );
-            },
-          ),
-          const Spacer(),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.notifications_none, size: 30),
-          ),
-        ],
+  Widget _buildCoverPhoto() {
+    return SizedBox(
+      width: double.infinity,
+      height: 170,
+      child: Image.asset(
+        'assets/photo2.png',
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: const Color(0xFFD8D2C8),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildHeaderImage() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(26),
-        child: SizedBox(
-          width: double.infinity,
-          height: 145,
-          child: Image.asset(
-            'assets/123.png',
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                color: const Color(0xFFD8D2C8),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileInfo() {
+  Widget _buildProfileHeader() {
     return Column(
-      children: const [
-        CircleAvatar(
-          radius: 34,
-          backgroundColor: Colors.black,
-          child: CircleAvatar(
-            radius: 31,
-            backgroundColor: Color(0xFFF7F3EE),
-            child: Icon(
-              Icons.person_outline,
-              size: 42,
-              color: Colors.black,
-            ),
-          ),
-        ),
-        SizedBox(height: 10),
-        Text(
-          'Mohammed',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        SizedBox(height: 3),
-        Text(
-          'Mohammed@gmail.com',
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey,
-          ),
-        ),
-        SizedBox(height: 4),
-        Text(
-          'Palestine',
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey,
-          ),
-        ),
-        SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Stack(
           children: [
-            Icon(
-              Icons.phone_enabled_outlined,
-              size: 14,
-              color: Colors.grey,
+            CircleAvatar(
+              radius: 48,
+              backgroundColor: const Color(0xFFE4EAD0),
+              backgroundImage:
+                  _profileImage != null ? FileImage(_profileImage!) : null,
+              child: _profileImage == null
+                  ? const Icon(
+                      Icons.person,
+                      size: 52,
+                      color: Color(0xFF7A8D2F),
+                    )
+                  : null,
             ),
-            SizedBox(width: 6),
-            Text(
-              '+970 23456789',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey,
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: _pickProfileImage,
+                child: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF7A8D2F),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          'Mohammed',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Mohammed@gmail.com',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.black54,
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Palestine',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.black54,
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          '+970 23456789',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.black54,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildProfileTile({
-    required String title,
+  Widget _buildOptionTile({
     required IconData icon,
+    required String title,
     required VoidCallback onTap,
   }) {
-    return Material(
-      color: const Color(0xFFF0E8DF),
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Container(
-          height: 54,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                color: Colors.black,
-                size: 24,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 22,
-                color: Colors.black,
-              ),
-            ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1EDE6),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: Colors.black, size: 24),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
           ),
         ),
+        trailing: const Icon(
+          Icons.arrow_forward_ios,
+          size: 18,
+          color: Colors.black,
+        ),
+        onTap: onTap,
       ),
     );
   }
