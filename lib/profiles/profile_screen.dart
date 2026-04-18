@@ -1,8 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'login_screen.dart';
-import 'profile_pages.dart';
+import '../login_screen.dart';
+import 'pages/personal_details_page.dart';
+import 'pages/personal_details_page.dart';
+import 'pages/shipping_addresses_page.dart';
+import 'pages/order_history_page.dart';
+import 'pages/favorites_page.dart';
+import 'pages/payment_methods_page.dart';
+import 'pages/notifications_page.dart';
+import 'pages/help_support_page.dart';
+import 'pages/settings_page.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

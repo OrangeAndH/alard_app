@@ -3,7 +3,7 @@ import 'home_screen.dart';
 import 'shop_screen.dart';
 import 'recipes_screen.dart';
 import 'feedback_screen.dart';
-import 'profile_screen.dart';
+import 'profiles/profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -59,7 +59,7 @@ class _MainScreenState extends State<MainScreen> {
             // Recipes بالصورة بدل الأيقونة
             _buildImageNavItem(
               index: 2,
-              imagePath: 'assets/images/recipes.png',
+              imagePath: 'assets/recipes.png',
               label: 'Recipes',
             ),
 
