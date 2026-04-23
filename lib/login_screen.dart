@@ -1,6 +1,8 @@
 import 'package:alard_app/forgot_password.dart';
 import 'package:flutter/material.dart';
+import 'auth_service.dart';
 import 'main_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,8 +15,10 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  final AuthService _authService = AuthService();
   bool isTrader = true;
   bool obscurePassword = true;
+  bool _isProcessing = false;
 
   @override
   void dispose() {
@@ -23,17 +27,30 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-void login() {
+  Future<void> login() async {
+  if (_isProcessing) return;
+
   final email = emailController.text.trim();
   final password = passwordController.text.trim();
 
   if (email.isEmpty || password.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please fill all fields')),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+    }
     return;
   }
-  if (email == 'hamza@monjed.com' && password == '12345') {
+
+  setState(() => _isProcessing = true);
+
+  // Call the dedicated service for authentication logic
+  final AuthResponse response = await _authService.login(
+      email: email, password: password, isTrader: isTrader);
+
+  if (mounted) setState(() => _isProcessing = false);
+
+  if (response.isSuccess && mounted) {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -41,26 +58,58 @@ void login() {
       ),
     );
   } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Invalid email or password'),
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(response.message ?? 'Login failed'),
       ),
     );
   }
 }
 
-void loginWithGoogle() {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => const MainScreen()),
+Future<void> loginWithGoogle() async {
+  if (_isProcessing) return;
+  setState(() => _isProcessing = true);
+
+  final AuthResponse response = await _authService.loginWithSocial(
+    provider: 'Google',
+    isTrader: isTrader,
   );
+  
+  if (mounted) setState(() => _isProcessing = false);
+
+  if (response.isSuccess && mounted) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const MainScreen()),
+    );
+  } else if (mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(response.message ?? 'Google Login failed')),
+    );
+  }
 }
 
-void loginWithFacebook() {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => const MainScreen()),
+Future<void> loginWithFacebook() async {
+  if (_isProcessing) return;
+  setState(() => _isProcessing = true);
+
+  final AuthResponse response = await _authService.loginWithSocial(
+    provider: 'Facebook',
+    isTrader: isTrader,
   );
+
+  if (mounted) setState(() => _isProcessing = false);
+
+  if (response.isSuccess && mounted) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const MainScreen()),
+    );
+  } else if (mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(response.message ?? 'Facebook Login failed')),
+    );
+  }
 }
 
   @override
@@ -292,7 +341,14 @@ void loginWithFacebook() {
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterScreen(),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFA2B52D),
                         padding: const EdgeInsets.symmetric(vertical: 14),
