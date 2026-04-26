@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'app_state.dart';
+import 'app_state_scope.dart';
+import 'cart_screen.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -9,6 +12,7 @@ class ShopScreen extends StatefulWidget {
 
 class _ShopScreenState extends State<ShopScreen> {
   int _selectedCategory = 0;
+  String _searchQuery = '';
 
   final List<String> _categories = const [
     'All',
@@ -17,58 +21,22 @@ class _ShopScreenState extends State<ShopScreen> {
     'Olives',
   ];
 
-  final List<Map<String, dynamic>> _products = [
-    {
-      'name': 'Virgin Olive Oil',
-      'subtitle': '1 liter plastic bottle',
-      'price': 15,
-      'rating': 4.9,
-      'category': 'Oil',
-      'image': 'assets/virgin_oil.png',
-      'isBestSeller': true,
-    },
-    {
-      'name': 'Palestinian Zaatar',
-      'subtitle': '1KG premium blend',
-      'price': 10,
-      'rating': 4.8,
-      'category': 'Herbs',
-      'image': 'assets/Zaata.png',
-      'isBestSeller': false,
-    },
-    {
-      'name': 'Dried Sage',
-      'subtitle': '100g mountain-picked sage',
-      'price': 4,
-      'rating': 4.7,
-      'category': 'Herbs',
-      'image': 'assets/Dried_sage.png',
-      'isBestSeller': false,
-    },
-    {
-      'name': 'Green Olives',
-      'subtitle': '220g local Palestinian olives',
-      'price': 4,
-      'rating': 4.6,
-      'category': 'Olives',
-      'image': 'assets/green_olive.png',
-      'isBestSeller': true,
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final selected = _categories[_selectedCategory];
-    final visibleProducts = selected == 'All'
-        ? _products
-        : _products.where((p) => p['category'] == selected).toList();
+    final state = AppStateScope.of(context);
+    final selectedCategory = _categories[_selectedCategory];
+
+    final products = state.filteredProducts(
+      category: selectedCategory,
+      query: _searchQuery,
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F3EE),
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(state),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -92,7 +60,7 @@ class _ShopScreenState extends State<ShopScreen> {
                           ),
                         ),
                         Text(
-                          '${visibleProducts.length} items',
+                          '${products.length} items',
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -103,7 +71,7 @@ class _ShopScreenState extends State<ShopScreen> {
                     ),
                     const SizedBox(height: 14),
                     GridView.builder(
-                      itemCount: visibleProducts.length,
+                      itemCount: products.length,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
@@ -114,11 +82,9 @@ class _ShopScreenState extends State<ShopScreen> {
                         childAspectRatio: 0.62,
                       ),
                       itemBuilder: (context, index) {
-                        return _buildProductCard(visibleProducts[index]);
+                        return _buildProductCard(products[index], state);
                       },
                     ),
-                    const SizedBox(height: 20),
-                    _buildDeliveryCard(),
                   ],
                 ),
               ),
@@ -129,7 +95,7 @@ class _ShopScreenState extends State<ShopScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppState state) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
       child: Column(
@@ -160,28 +126,59 @@ class _ShopScreenState extends State<ShopScreen> {
                   ],
                 ),
               ),
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE9E1D5),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.shopping_cart_outlined,
-                  color: Colors.black,
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CartScreen(),
+                    ),
+                  );
+                },
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE9E1D5),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(Icons.shopping_cart_outlined),
+                    ),
+                    if (state.cartCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: CircleAvatar(
+                          radius: 9,
+                          backgroundColor: const Color(0xFF7A8D2F),
+                          child: Text(
+                            state.cartCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 14),
           TextField(
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+              });
+            },
             decoration: InputDecoration(
               hintText: 'Search products',
               prefixIcon: const Icon(Icons.search),
               filled: true,
               fillColor: const Color(0xFFF1ECE5),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(18),
                 borderSide: BorderSide.none,
@@ -201,40 +198,16 @@ class _ShopScreenState extends State<ShopScreen> {
         borderRadius: BorderRadius.circular(22),
         gradient: const LinearGradient(
           colors: [Color(0xFF7A8D2F), Color(0xFFB5983B)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         ),
       ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Special offer',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Get premium taste from Palestine in every order',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              height: 1.25,
-            ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Fresh, local, and prepared with care.',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-            ),
-          ),
-        ],
+      child: const Text(
+        'Get premium taste from Palestine in every order',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          height: 1.25,
+        ),
       ),
     );
   }
@@ -248,6 +221,7 @@ class _ShopScreenState extends State<ShopScreen> {
         separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final isSelected = _selectedCategory == index;
+
           return GestureDetector(
             onTap: () {
               setState(() {
@@ -279,7 +253,7 @@ class _ShopScreenState extends State<ShopScreen> {
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product) {
+  Widget _buildProductCard(Product product, AppState state) {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -290,156 +264,64 @@ class _ShopScreenState extends State<ShopScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8E1D7),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  child: Image.asset(
-                    product['image'] as String,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                if (product['isBestSeller'] == true)
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFCEB04B),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Text(
-                        'Best seller',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
+            child: Image.asset(
+              product.image,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 50),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
-            product['name'] as String,
+            product.name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 4),
           Text(
-            product['subtitle'] as String,
+            product.subtitle,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.black54,
-              height: 1.25,
-            ),
+            style: const TextStyle(fontSize: 12, color: Colors.black54),
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(
-                Icons.star_rounded,
-                color: Color(0xFFCEB04B),
-                size: 18,
-              ),
+              const Icon(Icons.star_rounded, color: Color(0xFFCEB04B), size: 18),
               const SizedBox(width: 4),
-              Text(
-                product['rating'].toString(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                ),
-              ),
+              Text(product.rating.toString()),
               const Spacer(),
               Text(
-                '\$${product['price']}',
+                '\$${product.price.toStringAsFixed(2)}',
                 style: const TextStyle(
-                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF6B7A2B),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
             height: 38,
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                state.addToCart(product);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${product.name} added to cart'),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+
+                setState(() {});
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF7A8D2F),
                 foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
               ),
               icon: const Icon(Icons.add_shopping_cart, size: 18),
               label: const Text('Add'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeliveryCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFECE6DB),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: const Row(
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: Color(0xFFDCE3C2),
-            child: Icon(
-              Icons.local_shipping_outlined,
-              color: Color(0xFF6B7A2B),
-            ),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Fast delivery',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Order your favorite products and enjoy quick delivery with quality packaging.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
-                    height: 1.3,
-                  ),
-                ),
-              ],
             ),
           ),
         ],

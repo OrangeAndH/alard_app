@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../login_screen.dart';
 import 'pages/personal_details_page.dart';
-import 'pages/personal_details_page.dart';
 import 'pages/shipping_addresses_page.dart';
 import 'pages/order_history_page.dart';
 import 'pages/favorites_page.dart';

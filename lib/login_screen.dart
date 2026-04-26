@@ -58,11 +58,13 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   } else {
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(response.message ?? 'Login failed'),
       ),
     );
+    }
   }
 }
 
