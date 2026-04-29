@@ -1,36 +1,33 @@
 import 'package:flutter/material.dart';
-import '../../app_setting.dart';
 
 class AppPageScaffold extends StatelessWidget {
   final String title;
   final Widget child;
+  final Widget? floatingActionButton;
 
   const AppPageScaffold({
     super.key,
     required this.title,
     required this.child,
+    this.floatingActionButton,
   });
 
   @override
   Widget build(BuildContext context) {
-    final settings = AppSettingsScope.of(context);
-    final isDark = settings.isDarkMode;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF7F3EE),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      floatingActionButton: floatingActionButton,
       appBar: AppBar(
-        backgroundColor:
-            isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF7F3EE),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(
-          color: isDark ? Colors.white : Colors.black,
-        ),
+        iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
         title: Text(
           title,
           style: TextStyle(
-            color: isDark ? Colors.white : const Color(0xFF4E5C1E),
+            color: theme.colorScheme.primary,
             fontWeight: FontWeight.bold,
           ),
         ),

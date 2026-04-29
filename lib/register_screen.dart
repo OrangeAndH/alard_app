@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'auth_service.dart';
 import 'main_screen.dart';
-
+import 'app_state.dart';
+import 'app_state_scope.dart';
+  
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -30,43 +32,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> register() async {
-    if (_isProcessing) return;
+  if (_isProcessing) return;
 
-    final username = usernameController.text.trim();
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-    final confirmPassword = confirmPasswordController.text.trim();
+  final username = usernameController.text.trim();
+  final email = emailController.text.trim();
+  final password = passwordController.text.trim();
+  final confirmPassword = confirmPasswordController.text.trim();
 
-    if (username.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      _showSnackBar('Please fill all fields');
-      return;
-    }
+  if (username.isEmpty ||
+      email.isEmpty ||
+      password.isEmpty ||
+      confirmPassword.isEmpty) {
+    _showSnackBar('Please fill all fields');
+    return;
+  }
 
-    if (password != confirmPassword) {
-      _showSnackBar('Passwords do not match');
-      return;
-    }
+  if (password != confirmPassword) {
+    _showSnackBar('Passwords do not match');
+    return;
+  }
 
-    setState(() => _isProcessing = true);
+  setState(() => _isProcessing = true);
 
-    final response = await _authService.register(
-      username: username,
-      email: email,
-      password: password,
-      isTrader: isTrader,
+  final response = await _authService.register(
+    username: username,
+    email: email,
+    password: password,
+    isTrader: isTrader,
+  );
+
+  if (mounted) setState(() => _isProcessing = false);
+
+  if (response.isSuccess && mounted) {
+    AppStateScope.of(context).setCurrentUser(
+      AppUser(
+        name: username,
+        email: email,
+        phone: 'No phone added',
+        location: 'Palestine',
+        isTrader: isTrader,
+      ),
     );
 
-    if (mounted) setState(() => _isProcessing = false);
-
-    if (response.isSuccess && mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
-    } else if (mounted) {
-      _showSnackBar(response.message ?? 'Registration failed');
-    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const MainScreen()),
+    );
+  } else if (mounted) {
+    _showSnackBar(response.message ?? 'Registration failed');
   }
+}
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));

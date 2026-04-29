@@ -108,7 +108,7 @@ class _ShopScreenState extends State<ShopScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Al’Ard Shop',
+                      "Al'Ard Shop",
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -118,10 +118,7 @@ class _ShopScreenState extends State<ShopScreen> {
                     SizedBox(height: 2),
                     Text(
                       'Authentic Palestinian products',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 13, color: Colors.black54),
                     ),
                   ],
                 ),
@@ -130,9 +127,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const CartScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const CartScreen()),
                   );
                 },
                 child: Stack(
@@ -218,6 +213,7 @@ class _ShopScreenState extends State<ShopScreen> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _categories.length,
+        // FIX: was (_, _) — duplicate parameter name is a compile error in Dart
         separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final isSelected = _selectedCategory == index;
@@ -267,7 +263,7 @@ class _ShopScreenState extends State<ShopScreen> {
             child: Image.asset(
               product.image,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 50),
+              errorBuilder: (_, _, _) => const Icon(Icons.image, size: 50),
             ),
           ),
           const SizedBox(height: 8),
@@ -286,7 +282,8 @@ class _ShopScreenState extends State<ShopScreen> {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.star_rounded, color: Color(0xFFCEB04B), size: 18),
+              const Icon(Icons.star_rounded,
+                  color: Color(0xFFCEB04B), size: 18),
               const SizedBox(width: 4),
               Text(product.rating.toString()),
               const Spacer(),
@@ -306,14 +303,12 @@ class _ShopScreenState extends State<ShopScreen> {
             child: ElevatedButton.icon(
               onPressed: () {
                 state.addToCart(product);
-
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('${product.name} added to cart'),
                     duration: const Duration(seconds: 1),
                   ),
                 );
-
                 setState(() {});
               },
               style: ElevatedButton.styleFrom(

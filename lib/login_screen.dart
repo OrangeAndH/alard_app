@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'auth_service.dart';
 import 'main_screen.dart';
 import 'register_screen.dart';
+import 'app_state.dart';
+import 'app_state_scope.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> login() async {
+Future<void> login() async {
   if (_isProcessing) return;
 
   final email = emailController.text.trim();
@@ -44,13 +46,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   setState(() => _isProcessing = true);
 
-  // Call the dedicated service for authentication logic
   final AuthResponse response = await _authService.login(
-      email: email, password: password, isTrader: isTrader);
+    email: email,
+    password: password,
+    isTrader: isTrader,
+  );
 
   if (mounted) setState(() => _isProcessing = false);
 
   if (response.isSuccess && mounted) {
+    final nameFromEmail = email.split('@').first;
+
+    AppStateScope.of(context).setCurrentUser(
+      AppUser(
+        name: nameFromEmail.isEmpty ? 'Alard User' : nameFromEmail,
+        email: email,
+        phone: 'No phone added',
+        location: 'Palestine',
+        isTrader: isTrader,
+      ),
+    );
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -60,26 +76,37 @@ class _LoginScreenState extends State<LoginScreen> {
   } else {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(response.message ?? 'Login failed'),
-      ),
-    );
+        SnackBar(
+          content: Text(response.message ?? 'Login failed'),
+        ),
+      );
     }
   }
 }
 
 Future<void> loginWithGoogle() async {
   if (_isProcessing) return;
+
   setState(() => _isProcessing = true);
 
   final AuthResponse response = await _authService.loginWithSocial(
     provider: 'Google',
     isTrader: isTrader,
   );
-  
+
   if (mounted) setState(() => _isProcessing = false);
 
   if (response.isSuccess && mounted) {
+    AppStateScope.of(context).setCurrentUser(
+      AppUser(
+        name: 'Google User',
+        email: 'google.user@alard.com',
+        phone: 'No phone added',
+        location: 'Palestine',
+        isTrader: isTrader,
+      ),
+    );
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const MainScreen()),
@@ -93,6 +120,7 @@ Future<void> loginWithGoogle() async {
 
 Future<void> loginWithFacebook() async {
   if (_isProcessing) return;
+
   setState(() => _isProcessing = true);
 
   final AuthResponse response = await _authService.loginWithSocial(
@@ -103,6 +131,16 @@ Future<void> loginWithFacebook() async {
   if (mounted) setState(() => _isProcessing = false);
 
   if (response.isSuccess && mounted) {
+    AppStateScope.of(context).setCurrentUser(
+      AppUser(
+        name: 'Facebook User',
+        email: 'facebook.user@alard.com',
+        phone: 'No phone added',
+        location: 'Palestine',
+        isTrader: isTrader,
+      ),
+    );
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const MainScreen()),

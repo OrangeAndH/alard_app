@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'Discover_our_Story.dart';
+import 'app_state.dart';
+import 'app_state_scope.dart';
 import 'cart_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -7,28 +9,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final products = [
-      {
-        'name': 'Virgin olive oil\n1 liter plastic',
-        'price': '\$15',
-        'image': 'assets/virgin_oil.png',
-      },
-      {
-        'name': '1KG Premium\nPalestinian Zaatar',
-        'price': '\$10',
-        'image': 'assets/Zaata.png',
-      },
-      {
-        'name': '100g Dried Sage\nfrom the Mountains of Palestine',
-        'price': '\$4',
-        'image': 'assets/Dried_sage.png',
-      },
-      {
-        'name': '220g Local Palestinian\nGreen Olives',
-        'price': '\$4',
-        'image': 'assets/green_olive.png',
-      },
-    ];
+    // FIX: Connect to AppState so cart updates are real and reflected everywhere
+    final state = AppStateScope.of(context);
 
     final whyAlardItems = [
       {
@@ -52,7 +34,7 @@ class HomeScreen extends StatelessWidget {
       {
         'title': 'Authentic Palestinian Taste',
         'desc':
-            'Traditional recipes like za’atar, sumac, and olive oil that represent the rich heritage of Palestine.',
+            "Traditional recipes like za'atar, sumac, and olive oil that represent the rich heritage of Palestine.",
         'icon': Icons.restaurant_menu_outlined,
       },
       {
@@ -71,11 +53,11 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTopBar(context),
+              _buildTopBar(context, state),
               const SizedBox(height: 8),
               _buildHeroSection(context),
               const SizedBox(height: 14),
-              _buildProductsGrid(products),
+              _buildProductsGrid(context, state),
               const SizedBox(height: 22),
               _buildSectionTitle("Why Al'Ard?"),
               const SizedBox(height: 12),
@@ -87,7 +69,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTopBar(BuildContext context) {
+  Widget _buildTopBar(BuildContext context, AppState state) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -116,16 +98,37 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {},
             icon: const Icon(Icons.search, size: 28),
           ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CartScreen(),
+          // FIX: Cart icon now shows live cart count badge
+          Stack(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CartScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.shopping_cart_outlined, size: 28),
+              ),
+              if (state.cartCount > 0)
+                Positioned(
+                  right: 4,
+                  top: 4,
+                  child: CircleAvatar(
+                    radius: 9,
+                    backgroundColor: const Color(0xFF7A8D2F),
+                    child: Text(
+                      state.cartCount.toString(),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
-              );
-            },
-            icon: const Icon(Icons.shopping_cart_outlined, size: 28),
+            ],
           ),
         ],
       ),
@@ -147,9 +150,7 @@ class HomeScreen extends StatelessWidget {
                 'assets/photo2.png',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: const Color(0xFFD8D2C8),
-                  );
+                  return Container(color: const Color(0xFFD8D2C8));
                 },
               ),
               Container(
@@ -225,7 +226,10 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProductsGrid(List<Map<String, String>> products) {
+  // FIX: Products now come from AppState and Add to Cart actually updates the cart
+  Widget _buildProductsGrid(BuildContext context, AppState state) {
+    final products = state.products;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: GridView.builder(
@@ -256,14 +260,11 @@ class HomeScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: const Color(0xFFE8E1D7),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
-                    ),
+                    border: Border.all(color: Colors.white, width: 2),
                   ),
                   child: Center(
                     child: Image.asset(
-                      product['image']!,
+                      product.image,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return const Icon(
@@ -277,7 +278,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  product['name']!,
+                  product.name,
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -288,9 +289,17 @@ class HomeScreen extends StatelessWidget {
                     color: Colors.black87,
                   ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  product.subtitle,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 11, color: Colors.black54),
+                ),
                 const SizedBox(height: 8),
                 Text(
-                  product['price']!,
+                  '\$${product.price.toStringAsFixed(2)}',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 16,
@@ -304,9 +313,12 @@ class HomeScreen extends StatelessWidget {
                   height: 36,
                   child: ElevatedButton(
                     onPressed: () {
+                      // FIX: actually adds to real cart state
+                      state.addToCart(product);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('${product['name']} added to cart'),
+                          content: Text('${product.name} added to cart'),
+                          duration: const Duration(seconds: 1),
                         ),
                       );
                     },

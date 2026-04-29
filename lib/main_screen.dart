@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
-import 'shop_screen.dart';
-import 'recipes_screen.dart';
+
 import 'feedback_screen.dart';
+import 'home_screen.dart';
 import 'profiles/profile_screen.dart';
+import 'recipes_screen.dart';
+import 'shop_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -25,18 +26,21 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
         height: 85,
-        decoration: const BoxDecoration(
-          color: Color(0xFFF3EEE7),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF3EEE7),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black12,
+              color: isDark ? Colors.black54 : Colors.black12,
               blurRadius: 8,
-              offset: Offset(0, -2),
+              offset: const Offset(0, -2),
             ),
           ],
         ),
@@ -55,14 +59,11 @@ class _MainScreenState extends State<MainScreen> {
               activeIcon: Icons.shopping_bag,
               label: 'Shop',
             ),
-
-            // Recipes بالصورة بدل الأيقونة
             _buildImageNavItem(
               index: 2,
               imagePath: 'assets/recipes.png',
               label: 'Recipes',
             ),
-
             _buildNavItem(
               index: 3,
               icon: Icons.feedback_outlined,
@@ -87,7 +88,12 @@ class _MainScreenState extends State<MainScreen> {
     required IconData activeIcon,
     required String label,
   }) {
-    final bool isSelected = _selectedIndex == index;
+    final theme = Theme.of(context);
+    final isSelected = _selectedIndex == index;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final selectedColor = theme.colorScheme.primary;
+    final unselectedColor = isDark ? Colors.white70 : Colors.black87;
 
     return GestureDetector(
       onTap: () {
@@ -102,7 +108,7 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             Icon(
               isSelected ? activeIcon : icon,
-              color: Colors.black,
+              color: isSelected ? selectedColor : unselectedColor,
               size: 26,
             ),
             const SizedBox(height: 4),
@@ -111,7 +117,7 @@ class _MainScreenState extends State<MainScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: Colors.black,
+                color: isSelected ? selectedColor : unselectedColor,
               ),
             ),
           ],
@@ -125,7 +131,12 @@ class _MainScreenState extends State<MainScreen> {
     required String imagePath,
     required String label,
   }) {
-    final bool isSelected = _selectedIndex == index;
+    final theme = Theme.of(context);
+    final isSelected = _selectedIndex == index;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final selectedColor = theme.colorScheme.primary;
+    final unselectedColor = isDark ? Colors.white70 : Colors.black87;
 
     return GestureDetector(
       onTap: () {
@@ -142,7 +153,7 @@ class _MainScreenState extends State<MainScreen> {
               padding: const EdgeInsets.all(2),
               decoration: isSelected
                   ? BoxDecoration(
-                      border: Border.all(color: Colors.black, width: 1.5),
+                      border: Border.all(color: selectedColor, width: 1.5),
                       borderRadius: BorderRadius.circular(10),
                     )
                   : null,
@@ -159,7 +170,7 @@ class _MainScreenState extends State<MainScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: Colors.black,
+                color: isSelected ? selectedColor : unselectedColor,
               ),
             ),
           ],
