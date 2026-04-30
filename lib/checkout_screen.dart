@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'app_state_scope.dart';
 import 'main_screen.dart';
 
@@ -12,7 +11,6 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
@@ -25,11 +23,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     final state = AppStateScope.of(context);
     final user = state.currentUser;
     final address = state.defaultShippingAddress;
-
     _nameController.text = user?.name ?? '';
     _phoneController.text = user?.phone == 'No phone added' ? '' : user?.phone ?? '';
     _addressController.text = address.details;
@@ -73,42 +69,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              _input(
-                controller: _nameController,
-                label: 'Full Name',
-                icon: Icons.person_outline,
-              ),
+              _input(controller: _nameController, label: 'Full Name', icon: Icons.person_outline),
               const SizedBox(height: 12),
-              _input(
-                controller: _phoneController,
-                label: 'Phone Number',
-                icon: Icons.phone_outlined,
-                keyboardType: TextInputType.phone,
-              ),
+              _input(controller: _phoneController, label: 'Phone Number', icon: Icons.phone_outlined, keyboardType: TextInputType.phone),
               const SizedBox(height: 12),
-              _input(
-                controller: _addressController,
-                label: 'Delivery Address',
-                icon: Icons.location_on_outlined,
-                maxLines: 2,
-              ),
+              _input(controller: _addressController, label: 'Delivery Address', icon: Icons.location_on_outlined, maxLines: 2),
               const SizedBox(height: 12),
-              _input(
-                controller: _mailboxController,
-                label: 'Mailbox Address',
-                icon: Icons.markunread_mailbox_outlined,
-                maxLines: 2,
-              ),
+              _input(controller: _mailboxController, label: 'Mailbox Address', icon: Icons.markunread_mailbox_outlined, maxLines: 2),
               const SizedBox(height: 12),
               _paymentDropdown(context),
               const SizedBox(height: 12),
-              _input(
-                controller: _noteController,
-                label: 'Order Note (Optional)',
-                icon: Icons.note_alt_outlined,
-                maxLines: 2,
-                requiredField: false,
-              ),
+              _input(controller: _noteController, label: 'Order Note (Optional)', icon: Icons.note_alt_outlined, maxLines: 2, requiredField: false),
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.all(16),
@@ -118,15 +89,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 child: Column(
                   children: [
-                    _row('Subtotal', '\$${state.subtotal.toStringAsFixed(2)}'),
+                    _row('Subtotal', '₪${state.subtotal.toStringAsFixed(2)}'),
                     const SizedBox(height: 8),
-                    _row('Delivery', '\$${state.delivery.toStringAsFixed(2)}'),
+                    _row('Delivery', '₪${state.delivery.toStringAsFixed(2)}'),
                     const Divider(height: 24),
-                    _row(
-                      'Total',
-                      '\$${state.total.toStringAsFixed(2)}',
-                      bold: true,
-                    ),
+                    _row('Total', '₪${state.total.toStringAsFixed(2)}', bold: true),
                   ],
                 ),
               ),
@@ -138,37 +105,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ? null
                       : () async {
                           if (!_formKey.currentState!.validate()) return;
-
                           setState(() => _isPlacingOrder = true);
-
                           state.placeOrder(
                             customerName: _nameController.text.trim(),
                             phone: _phoneController.text.trim(),
                             deliveryAddress: _addressController.text.trim(),
                             mailboxAddress: _mailboxController.text.trim(),
                             note: _noteController.text.trim(),
-                            paymentMethod:
-                                _selectedPaymentMethod ?? 'Cash on Delivery',
+                            paymentMethod: _selectedPaymentMethod ?? 'Cash on Delivery',
                           );
-
-                          await Future.delayed(
-                            const Duration(milliseconds: 500),
-                          );
-
+                          await Future.delayed(const Duration(milliseconds: 500));
                           if (!mounted) return;
-
                           Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => const MainScreen(),
-                            ),
+                            MaterialPageRoute(builder: (_) => const MainScreen()),
                             (route) => false,
                           );
-
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content:
-                                  const Text('Order placed successfully! 🎉'),
+                              content: const Text('Order placed successfully! 🎉'),
                               backgroundColor: theme.colorScheme.primary,
                             ),
                           );
@@ -182,15 +137,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : const Text(
-                          'Place Order',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                      : const Text('Place Order', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -204,29 +153,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final state = AppStateScope.of(context);
     final methods = state.paymentMethods;
     final theme = Theme.of(context);
-
     return DropdownButtonFormField<String>(
       value: _selectedPaymentMethod,
       items: methods.map((method) {
-        return DropdownMenuItem(
-          value: method.title,
-          child: Text(method.title),
-        );
+        return DropdownMenuItem(value: method.title, child: Text(method.title));
       }).toList(),
-      onChanged: (value) {
-        setState(() {
-          _selectedPaymentMethod = value;
-        });
-      },
+      onChanged: (value) => setState(() => _selectedPaymentMethod = value),
       decoration: InputDecoration(
         labelText: 'Payment Method',
         prefixIcon: const Icon(Icons.payment),
         filled: true,
         fillColor: theme.cardColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide.none,
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
       ),
     );
   }
@@ -240,16 +178,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     bool requiredField = true,
   }) {
     final theme = Theme.of(context);
-
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
       validator: requiredField
           ? (value) {
-              if (value == null || value.trim().isEmpty) {
-                return '$label is required';
-              }
+              if (value == null || value.trim().isEmpty) return '$label is required';
               return null;
             }
           : null,
@@ -258,10 +193,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         prefixIcon: Icon(icon),
         filled: true,
         fillColor: theme.cardColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide.none,
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
       ),
     );
   }
@@ -269,15 +201,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _row(String title, String value, {bool bold = false}) {
     return Row(
       children: [
-        Text(
-          title,
-          style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.w500),
-        ),
+        Text(title, style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.w500)),
         const Spacer(),
-        Text(
-          value,
-          style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.w500),
-        ),
+        Text(value, style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.w500)),
       ],
     );
   }

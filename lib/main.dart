@@ -9,12 +9,17 @@ import 'login_screen.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
+  final appState = AppState();
+  final settings = AppSettings();
+
   runApp(
     AlardApp(
-      settings: AppSettings(),
-      appState: AppState(),
+      settings: settings,
+      appState: appState,
     ),
   );
+
+  appState.loadProductsFromAssets();
 }
 
 class AlardApp extends StatelessWidget {
@@ -35,7 +40,7 @@ class AlardApp extends StatelessWidget {
         return AppSettingsScope(
           settings: settings,
           child: AppStateScope(
-            state: appState,
+            notifier: appState,
             child: MaterialApp(
               debugShowCheckedModeBanner: false,
               locale: appState.locale,

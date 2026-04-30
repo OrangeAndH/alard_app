@@ -39,10 +39,9 @@ class CartScreen extends StatelessWidget {
                   Expanded(
                     child: ListView.separated(
                       itemCount: items.length,
-                      separatorBuilder: (_,_) => const SizedBox(height: 12),
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final item = items[index];
-
                         return Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
@@ -55,7 +54,7 @@ class CartScreen extends StatelessWidget {
                                 item.product.image,
                                 width: 70,
                                 height: 70,
-                                errorBuilder: (_, _, _) =>
+                                errorBuilder: (_, __, ___) =>
                                     const Icon(Icons.image),
                               ),
                               const SizedBox(width: 12),
@@ -79,7 +78,7 @@ class CartScreen extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
-                                      '\$${item.lineTotal.toStringAsFixed(2)}',
+                                      '₪${item.lineTotal.toStringAsFixed(2)}',
                                       style: const TextStyle(
                                         color: Color(0xFF6B7A2B),
                                         fontWeight: FontWeight.bold,
@@ -126,17 +125,17 @@ class CartScreen extends StatelessWidget {
                       children: [
                         _priceRow(
                           'Subtotal',
-                          '\$${state.subtotal.toStringAsFixed(2)}',
+                          '₪${state.subtotal.toStringAsFixed(2)}',
                         ),
                         const SizedBox(height: 8),
                         _priceRow(
                           'Delivery',
-                          '\$${state.delivery.toStringAsFixed(2)}',
+                          '₪${state.delivery.toStringAsFixed(2)}',
                         ),
                         const Divider(height: 24),
                         _priceRow(
                           'Total',
-                          '\$${state.total.toStringAsFixed(2)}',
+                          '₪${state.total.toStringAsFixed(2)}',
                           isBold: true,
                         ),
                         const SizedBox(height: 14),

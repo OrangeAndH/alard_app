@@ -134,7 +134,7 @@ class RecipesScreen extends StatelessWidget {
                     crossAxisCount: 2,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 14,
-                    childAspectRatio: 0.70,
+                    childAspectRatio: 0.58,
                   ),
                   itemBuilder: (context, index) {
                     final recipe = recipes[index];

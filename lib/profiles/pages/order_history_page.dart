@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../app_state.dart';
 import '../../app_state_scope.dart';
 import '../widgets/app_page_scaffold.dart';
@@ -16,30 +15,18 @@ class OrderHistoryPage extends StatelessWidget {
     return AppPageScaffold(
       title: 'Order History',
       child: orders.isEmpty
-          ? const Center(
-              child: Text(
-                'No orders yet',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-            )
+          ? const Center(child: Text('No orders yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)))
           : ListView.separated(
               itemCount: orders.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final order = orders[index];
-
                 return ListCard(
                   title: 'Order ${order.id}',
-                  subtitle:
-                      '${order.items.length} item(s) • ${_formatDate(order.date)}',
+                  subtitle: '${order.items.length} item(s) • ${_formatDate(order.date)}',
                   trailing: order.status,
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => OrderDetailsPage(order: order),
-                      ),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDetailsPage(order: order)));
                   },
                 );
               },
@@ -47,39 +34,21 @@ class OrderHistoryPage extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
+  String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';
 }
 
 class OrderDetailsPage extends StatelessWidget {
   final AppOrder order;
-
-  const OrderDetailsPage({
-    super.key,
-    required this.order,
-  });
+  const OrderDetailsPage({super.key, required this.order});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return AppPageScaffold(
       title: 'Order ${order.id}',
       child: ListView(
         children: [
-          _section(
-            context,
-            title: 'Order Status',
-            child: Text(
-              order.status,
-              style: TextStyle(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-          ),
+          _section(context, title: 'Order Status', child: Text(order.status, style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 16))),
           const SizedBox(height: 12),
           _section(
             context,
@@ -90,32 +59,19 @@ class OrderDetailsPage extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Row(
                     children: [
-                      Image.asset(
-                        item.image,
-                        width: 60,
-                        height: 60,
-                        errorBuilder: (_, __, ___) =>
-                            const Icon(Icons.image_not_supported),
-                      ),
+                      Image.asset(item.image, width: 60, height: 60, errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported)),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              item.productName,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                            Text(item.productName, style: const TextStyle(fontWeight: FontWeight.bold)),
                             Text(item.subtitle),
                             Text('Quantity: ${item.quantity}'),
                           ],
                         ),
                       ),
-                      Text(
-                        '\$${item.lineTotal.toStringAsFixed(2)}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      Text('₪${item.lineTotal.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
                 );
@@ -144,14 +100,10 @@ class OrderDetailsPage extends StatelessWidget {
             title: 'Payment Summary',
             child: Column(
               children: [
-                _priceRow('Subtotal', '\$${order.subtotal.toStringAsFixed(2)}'),
-                _priceRow('Delivery', '\$${order.delivery.toStringAsFixed(2)}'),
+                _priceRow('Subtotal', '₪${order.subtotal.toStringAsFixed(2)}'),
+                _priceRow('Delivery', '₪${order.delivery.toStringAsFixed(2)}'),
                 const Divider(),
-                _priceRow(
-                  'Total',
-                  '\$${order.total.toStringAsFixed(2)}',
-                  bold: true,
-                ),
+                _priceRow('Total', '₪${order.total.toStringAsFixed(2)}', bold: true),
               ],
             ),
           ),
@@ -160,20 +112,12 @@ class OrderDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _section(
-    BuildContext context, {
-    required String title,
-    required Widget child,
-  }) {
+  Widget _section(BuildContext context, {required String title, required Widget child}) {
     final theme = Theme.of(context);
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(18),
-      ),
+      decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(18)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -195,15 +139,9 @@ class OrderDetailsPage extends StatelessWidget {
   Widget _priceRow(String title, String value, {bool bold = false}) {
     return Row(
       children: [
-        Text(
-          title,
-          style: TextStyle(fontWeight: bold ? FontWeight.bold : null),
-        ),
+        Text(title, style: TextStyle(fontWeight: bold ? FontWeight.bold : null)),
         const Spacer(),
-        Text(
-          value,
-          style: TextStyle(fontWeight: bold ? FontWeight.bold : null),
-        ),
+        Text(value, style: TextStyle(fontWeight: bold ? FontWeight.bold : null)),
       ],
     );
   }

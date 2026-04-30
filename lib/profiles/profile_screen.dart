@@ -1,304 +1,286 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
-import '../app_state.dart';
 import '../app_state_scope.dart';
 import '../login_screen.dart';
-import 'pages/favorites_page.dart';
-import 'pages/help_support_page.dart';
-import 'pages/notifications_page.dart';
-import 'pages/order_history_page.dart';
-import 'pages/payment_methods_page.dart';
-import 'pages/personal_details_page.dart';
-import 'pages/settings_page.dart';
-import 'pages/shipping_addresses_page.dart';
 
-class ProfileScreen extends StatefulWidget {
+import 'pages/personal_details_page.dart';
+import 'pages/order_history_page.dart';
+import 'pages/shipping_addresses_page.dart';
+import 'pages/payment_methods_page.dart';
+import 'pages/favorites_page.dart';
+import 'pages/notifications_page.dart';
+import 'pages/help_support_page.dart';
+import 'pages/settings_page.dart';
+
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
+
+    return Directionality(
+      textDirection: state.isArabic ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF7F3EE),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Column(
+              children: [
+                _buildHeader(state),
+                const SizedBox(height: 20),
+                _buildMenuCard(context, state),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(dynamic state) {
+    final translatedUserType = state.userType.toLowerCase() == 'trader'
+        ? _text(state, 'Trader', 'تاجر')
+        : _text(state, 'Customer', 'زبون');
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+      child: Column(
+        children: [
+          const CircleAvatar(
+            radius: 58,
+            backgroundColor: Color(0xFFD9DFC4),
+            child: Icon(
+              Icons.person,
+              size: 60,
+              color: Color(0xFF7A8D2F),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            state.userName,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            translatedUserType,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black54,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuCard(BuildContext context, dynamic state) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1EDE6),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          _ProfileTile(
+            icon: Icons.person_outline,
+            title: _text(state, 'Personal Details', 'البيانات الشخصية'),
+            isArabic: state.isArabic,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PersonalDetailsPage(),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1),
+
+          _ProfileTile(
+            icon: Icons.receipt_long_outlined,
+            title: _text(state, 'Order History', 'سجل الطلبات'),
+            isArabic: state.isArabic,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const OrderHistoryPage(),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1),
+
+          _ProfileTile(
+            icon: Icons.location_on_outlined,
+            title: _text(state, 'Shipping Addresses', 'عناوين الشحن'),
+            isArabic: state.isArabic,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ShippingAddressesPage(),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1),
+
+          _ProfileTile(
+            icon: Icons.payment_outlined,
+            title: _text(state, 'Payment Methods', 'طرق الدفع'),
+            isArabic: state.isArabic,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PaymentMethodsPage(),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1),
+
+          _ProfileTile(
+            icon: Icons.favorite_border,
+            title: _text(state, 'Favorites', 'المفضلة'),
+            isArabic: state.isArabic,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const FavoritesPage(),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1),
+
+          _ProfileTile(
+            icon: Icons.notifications_none,
+            title: _text(state, 'Notifications', 'الإشعارات'),
+            isArabic: state.isArabic,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const NotificationsPage(),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1),
+
+          _ProfileTile(
+            icon: Icons.help_outline,
+            title: _text(state, 'Help & Support', 'المساعدة والدعم'),
+            isArabic: state.isArabic,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const HelpSupportPage(),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1),
+
+          _ProfileTile(
+            icon: Icons.settings_outlined,
+            title: _text(state, 'Settings', 'الإعدادات'),
+            isArabic: state.isArabic,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SettingsScreen(),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1),
+
+          _ProfileTile(
+            icon: Icons.logout,
+            title: _text(state, 'Logout', 'تسجيل الخروج'),
+            isArabic: state.isArabic,
+            iconColor: Colors.red,
+            textColor: Colors.red,
+            showArrow: false,
+            onTap: () {
+              state.logout();
+
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const LoginScreen(),
+                ),
+                (route) => false,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _text(dynamic state, String english, String arabic) {
+    return state.isArabic ? arabic : english;
+  }
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  final ImagePicker _picker = ImagePicker();
+class _ProfileTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final bool isArabic;
+  final VoidCallback onTap;
+  final Color iconColor;
+  final Color textColor;
+  final bool showArrow;
 
-  Future<void> _pickProfileImage() async {
-    try {
-      final XFile? pickedFile = await _picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 85,
-      );
-
-      if (pickedFile == null) return;
-
-      final Uint8List imageBytes = await pickedFile.readAsBytes();
-
-      if (!mounted) return;
-
-      AppStateScope.of(context).setProfileImageBytes(imageBytes);
-    } catch (_) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not pick image')),
-      );
-    }
-  }
-
-  void _logout() {
-    AppStateScope.of(context).logout();
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (route) => false,
-    );
-  }
-
-  void _openPage(Widget page) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => page),
-    );
-  }
+  const _ProfileTile({
+    required this.icon,
+    required this.title,
+    required this.isArabic,
+    required this.onTap,
+    this.iconColor = const Color(0xFF5D6B1F),
+    this.textColor = Colors.black87,
+    this.showArrow = true,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final appState = AppStateScope.of(context);
-    final user = appState.currentUser ??
-        const AppUser(
-          name: 'Guest User',
-          email: 'guest@alard.com',
-          phone: 'No phone added',
-          location: 'No location added',
-          isTrader: false,
-        );
-
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildCoverPhoto(isDark),
-              const SizedBox(height: 14),
-              _buildProfileHeader(
-                user: user,
-                imageBytes: appState.profileImageBytes,
-                isDark: isDark,
-              ),
-              const SizedBox(height: 18),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    _buildOptionTile(
-                      icon: Icons.person,
-                      title: 'Personal Details',
-                      onTap: () => _openPage(const PersonalDetailsPage()),
-                    ),
-                    _buildOptionTile(
-                      icon: Icons.location_on,
-                      title: 'Shipping Addresses',
-                      onTap: () => _openPage(const ShippingAddressesPage()),
-                    ),
-                    _buildOptionTile(
-                      icon: Icons.receipt_long,
-                      title: 'Order History',
-                      onTap: () => _openPage(const OrderHistoryPage()),
-                    ),
-                    _buildOptionTile(
-                      icon: Icons.favorite,
-                      title: 'My Favorites',
-                      onTap: () => _openPage(const FavoritesPage()),
-                    ),
-                    _buildOptionTile(
-                      icon: Icons.credit_card,
-                      title: 'Payment Methods',
-                      onTap: () => _openPage(const PaymentMethodsPage()),
-                    ),
-                    _buildOptionTile(
-                      icon: Icons.notifications,
-                      title: 'Notifications',
-                      onTap: () => _openPage(const NotificationsPage()),
-                    ),
-                    _buildOptionTile(
-                      icon: Icons.support_agent,
-                      title: 'Help & Support',
-                      onTap: () => _openPage(const HelpSupportPage()),
-                    ),
-                    _buildOptionTile(
-                      icon: Icons.settings,
-                      title: 'Settings',
-                      onTap: () => _openPage(const SettingsPage()),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton.icon(
-                        onPressed: _logout,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF7A8D2F),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                        ),
-                        icon: const Icon(Icons.logout),
-                        label: const Text(
-                          'Log Out',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
-            ],
-          ),
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: iconColor,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: textColor,
         ),
       ),
-    );
-  }
-
-  Widget _buildCoverPhoto(bool isDark) {
-    return SizedBox(
-      width: double.infinity,
-      height: 170,
-      child: Image.asset(
-        'assets/photo2.png',
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFD8D2C8),
-            child: const Center(
-              child: Icon(Icons.image_not_supported_outlined, size: 42),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildProfileHeader({
-    required AppUser user,
-    required Uint8List? imageBytes,
-    required bool isDark,
-  }) {
-    final textColor = isDark ? Colors.white : Colors.black;
-    final subTextColor = isDark ? Colors.white70 : Colors.black54;
-
-    return Column(
-      children: [
-        Stack(
-          children: [
-            CircleAvatar(
-              radius: 48,
-              backgroundColor:
-                  isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE4EAD0),
-              backgroundImage:
-                  imageBytes == null ? null : MemoryImage(imageBytes),
-              child: imageBytes == null
-                  ? const Icon(
-                      Icons.person,
-                      size: 52,
-                      color: Color(0xFF7A8D2F),
-                    )
-                  : null,
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: GestureDetector(
-                onTap: _pickProfileImage,
-                child: Container(
-                  padding: const EdgeInsets.all(7),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF7A8D2F),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isDark ? Colors.black : Colors.white,
-                      width: 2,
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.camera_alt,
-                    size: 18,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Text(
-          user.name,
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(user.email, style: TextStyle(fontSize: 14, color: subTextColor)),
-        const SizedBox(height: 4),
-        Text(user.location, style: TextStyle(fontSize: 14, color: subTextColor)),
-        const SizedBox(height: 4),
-        Text(user.phone, style: TextStyle(fontSize: 14, color: subTextColor)),
-        const SizedBox(height: 4),
-        Text(user.role, style: TextStyle(fontSize: 13, color: subTextColor)),
-      ],
-    );
-  }
-
-  Widget _buildOptionTile({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: ListTile(
-        leading: Icon(
-          icon,
-          color: isDark ? Colors.white : Colors.black,
-          size: 24,
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: isDark ? Colors.white : Colors.black,
-          ),
-        ),
-        trailing: Icon(
-          Icons.arrow_forward_ios,
-          size: 18,
-          color: isDark ? Colors.white70 : Colors.black,
-        ),
-        onTap: onTap,
-      ),
+      trailing: showArrow
+          ? Icon(
+              isArabic ? Icons.chevron_left : Icons.chevron_right,
+              color: Colors.black87,
+            )
+          : null,
+      onTap: onTap,
     );
   }
 }

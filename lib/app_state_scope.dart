@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+
 import 'app_state.dart';
 
 class AppStateScope extends InheritedNotifier<AppState> {
   const AppStateScope({
     super.key,
-    required AppState state,
+    required AppState notifier,
     required super.child,
-  }) : super(notifier: state);
+  }) : super(notifier: notifier);
 
   static AppState of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<AppStateScope>();
-    assert(scope != null, 'AppStateScope not found');
-    return scope!.notifier!;
+
+    if (scope == null || scope.notifier == null) {
+      throw FlutterError('AppStateScope was not found in the widget tree.');
+    }
+
+    return scope.notifier!;
   }
-} 
+}

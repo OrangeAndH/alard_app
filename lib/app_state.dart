@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppUser {
   final String name;
@@ -17,7 +19,23 @@ class AppUser {
     required this.isTrader,
   });
 
-  String get role => isTrader ? 'Trader' : 'Regular user';
+  String get role => isTrader ? 'Trader' : 'Customer';
+
+  AppUser copyWith({
+    String? name,
+    String? email,
+    String? phone,
+    String? location,
+    bool? isTrader,
+  }) {
+    return AppUser(
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      location: location ?? this.location,
+      isTrader: isTrader ?? this.isTrader,
+    );
+  }
 }
 
 class Product {
@@ -29,6 +47,12 @@ class Product {
   final String category;
   final String image;
   final bool isBestSeller;
+  final String description;
+  final String weight;
+  final String unitCase;
+  final String caseLayer;
+  final String upc;
+  final int catalogPage;
 
   const Product({
     required this.id,
@@ -39,7 +63,39 @@ class Product {
     required this.category,
     required this.image,
     this.isBestSeller = false,
+    this.description = '',
+    this.weight = '',
+    this.unitCase = '',
+    this.caseLayer = '',
+    this.upc = '',
+    this.catalogPage = 0,
   });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      subtitle: json['subtitle'] as String? ?? '',
+      price: (json['price'] as num? ?? 0).toDouble(),
+      rating: (json['rating'] as num? ?? 4.7).toDouble(),
+      category: json['category'] as String? ?? 'All',
+      image: json['image'] as String? ?? '',
+      isBestSeller: json['isBestSeller'] as bool? ?? false,
+      description: json['description'] as String? ?? '',
+      weight: json['weight'] as String? ?? '',
+      unitCase: json['unitCase'] as String? ?? '',
+      caseLayer: json['caseLayer'] as String? ?? '',
+      upc: json['upc'] as String? ?? '',
+      catalogPage: (json['catalogPage'] as num? ?? 0).toInt(),
+    );
+  }
+
+  bool get hasPrice => price > 0;
+
+  String get displayPrice {
+    if (!hasPrice) return 'Request quote';
+    return '₪${price.toStringAsFixed(2)}';
+  }
 }
 
 class CartItem {
@@ -70,6 +126,13 @@ class OrderLine {
   });
 
   double get lineTotal => price * quantity;
+
+  bool get hasPrice => price > 0;
+
+  String get displayPrice {
+    if (!hasPrice) return 'Request quote';
+    return '₪${lineTotal.toStringAsFixed(2)}';
+  }
 }
 
 class AppOrder {
@@ -102,6 +165,10 @@ class AppOrder {
     required this.delivery,
     required this.total,
   });
+
+  bool get needsQuote {
+    return items.any((item) => !item.hasPrice);
+  }
 }
 
 class ShippingAddress {
@@ -200,14 +267,16 @@ class AppState extends ChangeNotifier {
   bool get isLoggedIn => _currentUser != null;
 
   Locale get locale => _locale;
+  String get languageCode => _locale.languageCode;
+  bool get isArabic => languageCode == 'ar';
+
+  String get userName => _currentUser?.name ?? 'Google User';
+  String get userType => (_currentUser?.isTrader ?? true) ? 'Trader' : 'Customer';
+  String get phone => _currentUser?.phone ?? '';
 
   final Map<String, String> _supportedLanguages = const {
     'en': 'English',
     'ar': 'العربية',
-    'fr': 'Français',
-    'es': 'Español',
-    'de': 'Deutsch',
-    'tr': 'Türkçe',
   };
 
   Map<String, String> get supportedLanguages {
@@ -217,6 +286,70 @@ class AppState extends ChangeNotifier {
   void setLocale(String languageCode) {
     _locale = Locale(languageCode);
     notifyListeners();
+  }
+
+  void setLanguage(String languageCode) {
+    setLocale(languageCode);
+  }
+
+  void updatePhone(String newPhone) {
+    if (_currentUser == null) return;
+    _currentUser = _currentUser!.copyWith(phone: newPhone.trim());
+    notifyListeners();
+  }
+
+  void updateUserName(String newName) {
+    if (_currentUser == null) return;
+    _currentUser = _currentUser!.copyWith(name: newName.trim());
+    notifyListeners();
+  }
+
+  void updateUserType(String newType) {
+    if (_currentUser == null) return;
+    _currentUser = _currentUser!.copyWith(
+      isTrader: newType.trim().toLowerCase() == 'trader',
+    );
+    notifyListeners();
+  }
+
+  String t(String key) {
+    final translations = {
+      'en': {
+        'settings': 'Settings',
+        'language': 'Language',
+        'appLanguage': 'App Language',
+        'chooseLanguage': 'Choose language',
+        'english': 'English',
+        'arabic': 'Arabic',
+        'profile': 'Profile',
+        'personalDetails': 'Personal Details',
+        'phoneNumber': 'Phone Number',
+        'save': 'Save',
+        'trader': 'Trader',
+        'customer': 'Customer',
+        'name': 'Name',
+        'accountType': 'Account Type',
+        'noPhoneAdded': 'No phone added',
+      },
+      'ar': {
+        'settings': 'الإعدادات',
+        'language': 'اللغة',
+        'appLanguage': 'لغة التطبيق',
+        'chooseLanguage': 'اختر اللغة',
+        'english': 'الإنجليزية',
+        'arabic': 'العربية',
+        'profile': 'الملف الشخصي',
+        'personalDetails': 'البيانات الشخصية',
+        'phoneNumber': 'رقم الهاتف',
+        'save': 'حفظ',
+        'trader': 'تاجر',
+        'customer': 'زبون',
+        'name': 'الاسم',
+        'accountType': 'نوع الحساب',
+        'noPhoneAdded': 'لا يوجد رقم هاتف',
+      },
+    };
+    return translations[languageCode]?[key] ?? key;
   }
 
   void setCurrentUser(AppUser user) {
@@ -236,14 +369,14 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  final List<Product> _products = const [
+  static const List<Product> _fallbackProducts = [
     Product(
       id: 'olive-oil-1l',
       name: 'Virgin Olive Oil',
       subtitle: '1 liter plastic bottle',
       price: 15,
       rating: 4.9,
-      category: 'Oil',
+      category: 'Olive Oil',
       image: 'assets/virgin_oil.png',
       isBestSeller: true,
     ),
@@ -253,7 +386,7 @@ class AppState extends ChangeNotifier {
       subtitle: '1KG premium blend',
       price: 10,
       rating: 4.8,
-      category: 'Herbs',
+      category: 'Herbs & Spices',
       image: 'assets/Zaata.png',
     ),
     Product(
@@ -262,7 +395,7 @@ class AppState extends ChangeNotifier {
       subtitle: '100g mountain-picked sage',
       price: 4,
       rating: 4.7,
-      category: 'Herbs',
+      category: 'Herbs & Spices',
       image: 'assets/Dried_sage.png',
     ),
     Product(
@@ -271,11 +404,32 @@ class AppState extends ChangeNotifier {
       subtitle: '220g local Palestinian olives',
       price: 4,
       rating: 4.6,
-      category: 'Olives',
+      category: 'Pickles',
       image: 'assets/green_olive.png',
       isBestSeller: true,
     ),
   ];
+
+  List<Product> _products = List<Product>.from(_fallbackProducts);
+  bool _productsLoaded = false;
+
+  bool get productsLoaded => _productsLoaded;
+
+  Future<void> loadProductsFromAssets() async {
+    try {
+      final jsonText = await rootBundle.loadString('assets/data/products.json');
+      final data = jsonDecode(jsonText) as List<dynamic>;
+      _products = data
+          .map((item) => Product.fromJson(item as Map<String, dynamic>))
+          .toList(growable: false);
+      _productsLoaded = true;
+      notifyListeners();
+    } catch (_) {
+      _products = List<Product>.from(_fallbackProducts);
+      _productsLoaded = false;
+      notifyListeners();
+    }
+  }
 
   final Map<String, CartItem> _cart = {};
   final Set<String> _favoriteProductIds = {};
@@ -319,8 +473,13 @@ class AppState extends ChangeNotifier {
 
   List<Product> get products => List.unmodifiable(_products);
 
-  List<CartItem> get cartItems => List.unmodifiable(_cart.values);
+  List<String> get productCategories {
+    final categories = _products.map((product) => product.category).toSet().toList()
+      ..sort();
+    return ['All', ...categories];
+  }
 
+  List<CartItem> get cartItems => List.unmodifiable(_cart.values);
   List<AppOrder> get orders => List.unmodifiable(_orders.reversed);
 
   List<ShippingAddress> get shippingAddresses {
@@ -367,40 +526,42 @@ class AppState extends ChangeNotifier {
     return subtotal + delivery;
   }
 
+  bool get cartNeedsQuote {
+    return _cart.values.any((item) => !item.product.hasPrice);
+  }
+
   List<Product> filteredProducts({
     String category = 'All',
     String query = '',
   }) {
     final search = query.trim().toLowerCase();
-
     return _products.where((product) {
       final matchesCategory = category == 'All' || product.category == category;
-
       final matchesSearch = search.isEmpty ||
           product.name.toLowerCase().contains(search) ||
           product.subtitle.toLowerCase().contains(search) ||
-          product.category.toLowerCase().contains(search);
-
+          product.category.toLowerCase().contains(search) ||
+          product.description.toLowerCase().contains(search) ||
+          product.weight.toLowerCase().contains(search) ||
+          product.unitCase.toLowerCase().contains(search) ||
+          product.caseLayer.toLowerCase().contains(search);
       return matchesCategory && matchesSearch;
     }).toList();
   }
 
   void addToCart(Product product) {
     final existingItem = _cart[product.id];
-
     if (existingItem == null) {
       _cart[product.id] = CartItem(product: product);
     } else {
       existingItem.quantity++;
     }
-
     notifyListeners();
   }
 
   void increaseQuantity(String productId) {
     final item = _cart[productId];
     if (item == null) return;
-
     item.quantity++;
     notifyListeners();
   }
@@ -408,13 +569,11 @@ class AppState extends ChangeNotifier {
   void decreaseQuantity(String productId) {
     final item = _cart[productId];
     if (item == null) return;
-
     if (item.quantity <= 1) {
       _cart.remove(productId);
     } else {
       item.quantity--;
     }
-
     notifyListeners();
   }
 
@@ -438,19 +597,14 @@ class AppState extends ChangeNotifier {
     } else {
       _favoriteProductIds.add(product.id);
     }
-
     notifyListeners();
   }
 
   void setDefaultShippingAddress(String id) {
     for (int i = 0; i < _shippingAddresses.length; i++) {
       final address = _shippingAddresses[i];
-
-      _shippingAddresses[i] = address.copyWith(
-        isDefault: address.id == id,
-      );
+      _shippingAddresses[i] = address.copyWith(isDefault: address.id == id);
     }
-
     notifyListeners();
   }
 
@@ -461,7 +615,6 @@ class AppState extends ChangeNotifier {
   }) {
     final id = DateTime.now().millisecondsSinceEpoch.toString();
     final shouldBeDefault = _shippingAddresses.isEmpty;
-
     _shippingAddresses.add(
       ShippingAddress(
         id: id,
@@ -471,36 +624,27 @@ class AppState extends ChangeNotifier {
         isDefault: shouldBeDefault,
       ),
     );
-
     notifyListeners();
   }
 
   void removeShippingAddress(String id) {
     if (_shippingAddresses.length <= 1) return;
-
     final wasDefault = _shippingAddresses.any(
       (address) => address.id == id && address.isDefault,
     );
-
     _shippingAddresses.removeWhere((address) => address.id == id);
-
     if (_shippingAddresses.isNotEmpty && wasDefault) {
       final first = _shippingAddresses.first;
       _shippingAddresses[0] = first.copyWith(isDefault: true);
     }
-
     notifyListeners();
   }
 
   void setDefaultPaymentMethod(String id) {
     for (int i = 0; i < _paymentMethods.length; i++) {
       final method = _paymentMethods[i];
-
-      _paymentMethods[i] = method.copyWith(
-        isDefault: method.id == id,
-      );
+      _paymentMethods[i] = method.copyWith(isDefault: method.id == id);
     }
-
     notifyListeners();
   }
 
@@ -515,9 +659,7 @@ class AppState extends ChangeNotifier {
     final last4 = cleanNumber.length >= 4
         ? cleanNumber.substring(cleanNumber.length - 4)
         : cleanNumber;
-
     final id = DateTime.now().millisecondsSinceEpoch.toString();
-
     _paymentMethods.add(
       PaymentMethod(
         id: id,
@@ -530,7 +672,6 @@ class AppState extends ChangeNotifier {
         cvv: cvv,
       ),
     );
-
     notifyListeners();
   }
 
@@ -544,16 +685,12 @@ class AppState extends ChangeNotifier {
   }) {
     final index = _paymentMethods.indexWhere((method) => method.id == id);
     if (index == -1) return;
-
     final oldMethod = _paymentMethods[index];
-
     if (oldMethod.isCashOnDelivery) return;
-
     final cleanNumber = cardNumber.replaceAll(' ', '');
     final last4 = cleanNumber.length >= 4
         ? cleanNumber.substring(cleanNumber.length - 4)
         : cleanNumber;
-
     _paymentMethods[index] = oldMethod.copyWith(
       title: 'Visa **** $last4',
       subtitle: 'Expires $expiryMonth/$expiryYear',
@@ -563,27 +700,20 @@ class AppState extends ChangeNotifier {
       expiryYear: expiryYear,
       cvv: cvv,
     );
-
     notifyListeners();
   }
 
   void removePaymentMethod(String id) {
     final index = _paymentMethods.indexWhere((method) => method.id == id);
     if (index == -1) return;
-
     final method = _paymentMethods[index];
-
     if (method.isCashOnDelivery) return;
-
     final wasDefault = method.isDefault;
-
     _paymentMethods.removeAt(index);
-
     if (_paymentMethods.isNotEmpty && wasDefault) {
       final cashIndex = _paymentMethods.indexWhere(
         (method) => method.isCashOnDelivery,
       );
-
       if (cashIndex != -1) {
         final cash = _paymentMethods[cashIndex];
         _paymentMethods[cashIndex] = cash.copyWith(isDefault: true);
@@ -592,7 +722,6 @@ class AppState extends ChangeNotifier {
         _paymentMethods[0] = first.copyWith(isDefault: true);
       }
     }
-
     notifyListeners();
   }
 
@@ -629,10 +758,8 @@ class AppState extends ChangeNotifier {
       delivery: delivery,
       total: total,
     );
-
     _orders.add(order);
     clearCart();
-
     return order;
   }
 }

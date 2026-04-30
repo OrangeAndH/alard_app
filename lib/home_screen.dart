@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+
 import 'Discover_our_Story.dart';
 import 'app_state.dart';
 import 'app_state_scope.dart';
 import 'cart_screen.dart';
+import 'product_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // FIX: Connect to AppState so cart updates are real and reflected everywhere
     final state = AppStateScope.of(context);
 
     final whyAlardItems = [
@@ -56,8 +57,12 @@ class HomeScreen extends StatelessWidget {
               _buildTopBar(context, state),
               const SizedBox(height: 8),
               _buildHeroSection(context),
-              const SizedBox(height: 14),
+              const SizedBox(height: 18),
+
+              _buildSectionTitle('Featured Products'),
+              const SizedBox(height: 12),
               _buildProductsGrid(context, state),
+
               const SizedBox(height: 22),
               _buildSectionTitle("Why Al'Ard?"),
               const SizedBox(height: 12),
@@ -98,7 +103,6 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {},
             icon: const Icon(Icons.search, size: 28),
           ),
-          // FIX: Cart icon now shows live cart count badge
           Stack(
             children: [
               IconButton(
@@ -226,7 +230,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // FIX: Products now come from AppState and Add to Cart actually updates the cart
   Widget _buildProductsGrid(BuildContext context, AppState state) {
     final products = state.products;
 
@@ -240,109 +243,187 @@ class HomeScreen extends StatelessWidget {
           crossAxisCount: 2,
           mainAxisSpacing: 14,
           crossAxisSpacing: 12,
-          childAspectRatio: 0.50,
+          childAspectRatio: 0.67,
         ),
         itemBuilder: (context, index) {
           final product = products[index];
+          return _buildHomeProductCard(context, product, state);
+        },
+      ),
+    );
+  }
 
-          return Container(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3EFE8),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  height: 145,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8E1D7),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: Center(
-                    child: Image.asset(
-                      product.image,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.image_outlined,
-                          size: 50,
-                          color: Colors.grey,
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  product.name,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    height: 1.25,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  product.subtitle,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 11, color: Colors.black54),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '\$${product.price.toStringAsFixed(2)}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF6B7A2B),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  height: 36,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // FIX: actually adds to real cart state
-                      state.addToCart(product);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${product.name} added to cart'),
-                          duration: const Duration(seconds: 1),
+  Widget _buildHomeProductCard(
+    BuildContext context,
+    Product product,
+    AppState state,
+  ) {
+    final isFav = state.isFavorite(product.id);
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductDetailScreen(product: product),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3EFE8),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Center(
+                    child: Hero(
+                      tag: product.id,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image.asset(
+                          product.image,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.image,
+                            size: 50,
+                            color: Colors.black26,
+                          ),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF7A8D2F),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(22),
                       ),
                     ),
-                    child: const Text(
-                      'Add to cart',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                  ),
+
+                  if (isFav)
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.favorite_rounded,
+                          size: 16,
+                          color: Color(0xFFD64F4F),
+                        ),
                       ),
+                    ),
+
+                  if (product.isBestSeller)
+                    Positioned(
+                      top: 4,
+                      left: 4,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFCEB04B),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'Best',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              product.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            Text(
+              product.subtitle,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.black54,
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Row(
+              children: [
+                const Icon(
+                  Icons.star_rounded,
+                  color: Color(0xFFCEB04B),
+                  size: 18,
+                ),
+                const SizedBox(width: 4),
+                Text(product.rating.toString()),
+                const Spacer(),
+                Flexible(
+                  child: Text(
+                    product.displayPrice,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF56632C),
                     ),
                   ),
                 ),
               ],
             ),
-          );
-        },
+
+            const SizedBox(height: 8),
+
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE5ECCC),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.touch_app_rounded,
+                    size: 15,
+                    color: Color(0xFF56632C),
+                  ),
+                  SizedBox(width: 5),
+                  Text(
+                    'View Details',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF56632C),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
