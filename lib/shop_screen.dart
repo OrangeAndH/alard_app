@@ -1,19 +1,57 @@
 import 'package:flutter/material.dart';
+
 import 'app_state.dart';
 import 'app_state_scope.dart';
 import 'cart_screen.dart';
 import 'product_detail_screen.dart';
 
 class ShopScreen extends StatefulWidget {
-  const ShopScreen({super.key});
+  final String initialCategory;
+  final String initialQuery;
+
+  const ShopScreen({
+    super.key,
+    this.initialCategory = 'All',
+    this.initialQuery = '',
+  });
 
   @override
   State<ShopScreen> createState() => _ShopScreenState();
 }
 
 class _ShopScreenState extends State<ShopScreen> {
-  String _selectedCategory = 'All';
-  String _searchQuery = '';
+  late String _selectedCategory;
+  late String _searchQuery;
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _selectedCategory = widget.initialCategory;
+    _searchQuery = widget.initialQuery;
+    _searchController = TextEditingController(text: _searchQuery);
+  }
+
+  @override
+  void didUpdateWidget(covariant ShopScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.initialCategory != widget.initialCategory ||
+        oldWidget.initialQuery != widget.initialQuery) {
+      setState(() {
+        _selectedCategory = widget.initialCategory;
+        _searchQuery = widget.initialQuery;
+        _searchController.text = _searchQuery;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +82,9 @@ class _ShopScreenState extends State<ShopScreen> {
                     _buildPromoBanner(),
                     const SizedBox(height: 18),
                     _buildCategoryChips(categories),
-                    const SizedBox(height: 18),
-
+                    const SizedBox(height: 14),
+                    _buildActiveFilterBar(),
+                    const SizedBox(height: 14),
                     Row(
                       children: [
                         const Expanded(
@@ -68,9 +107,7 @@ class _ShopScreenState extends State<ShopScreen> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 14),
-
                     if (!state.productsLoaded)
                       const Padding(
                         padding: EdgeInsets.only(bottom: 12),
@@ -82,17 +119,31 @@ class _ShopScreenState extends State<ShopScreen> {
                           ),
                         ),
                       ),
-
                     if (products.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 48),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 48),
                         child: Center(
-                          child: Text(
-                            'No products found',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                            ),
+                          child: Column(
+                            children: [
+                              const Icon(
+                                Icons.search_off_rounded,
+                                size: 48,
+                                color: Colors.black38,
+                              ),
+                              const SizedBox(height: 10),
+                              const Text(
+                                'No products found',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              TextButton(
+                                onPressed: _clearFilters,
+                                child: const Text('Show all products'),
+                              ),
+                            ],
                           ),
                         ),
                       )
@@ -153,7 +204,6 @@ class _ShopScreenState extends State<ShopScreen> {
                   ],
                 ),
               ),
-
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -174,7 +224,6 @@ class _ShopScreenState extends State<ShopScreen> {
                       ),
                       child: const Icon(Icons.shopping_cart_outlined),
                     ),
-
                     if (state.cartCount > 0)
                       Positioned(
                         right: 0,
@@ -196,10 +245,9 @@ class _ShopScreenState extends State<ShopScreen> {
               ),
             ],
           ),
-
           const SizedBox(height: 14),
-
           TextField(
+            controller: _searchController,
             onChanged: (value) {
               setState(() {
                 _searchQuery = value;
@@ -208,6 +256,17 @@ class _ShopScreenState extends State<ShopScreen> {
             decoration: InputDecoration(
               hintText: 'Search products, weights, categories',
               prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchQuery.trim().isEmpty
+                  ? null
+                  : IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _searchQuery = '';
+                          _searchController.clear();
+                        });
+                      },
+                      icon: const Icon(Icons.close_rounded),
+                    ),
               filled: true,
               fillColor: const Color(0xFFF1ECE5),
               border: OutlineInputBorder(
@@ -288,6 +347,80 @@ class _ShopScreenState extends State<ShopScreen> {
     );
   }
 
+  Widget _buildActiveFilterBar() {
+    final hasCategoryFilter = _selectedCategory != 'All';
+    final hasSearchFilter = _searchQuery.trim().isNotEmpty;
+
+    if (!hasCategoryFilter && !hasSearchFilter) {
+      return const SizedBox.shrink();
+    }
+
+    final labelParts = <String>[];
+
+    if (hasCategoryFilter) {
+      labelParts.add(_selectedCategory);
+    }
+
+    if (hasSearchFilter) {
+      labelParts.add('"$_searchQuery"');
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE9E1D5),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: const Color(0xFFD8CCBE),
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.filter_alt_outlined,
+            size: 18,
+            color: Color(0xFF56632C),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Showing: ${labelParts.join(' • ')}',
+              style: const TextStyle(
+                color: Color(0xFF56632C),
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: _clearFilters,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: const Size(0, 32),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text(
+              'Clear',
+              style: TextStyle(
+                color: Color(0xFF56632C),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _selectedCategory = 'All';
+      _searchQuery = '';
+      _searchController.clear();
+    });
+  }
+
   Widget _buildProductCard(Product product, AppState state) {
     final isFav = state.isFavorite(product.id);
 
@@ -329,7 +462,6 @@ class _ShopScreenState extends State<ShopScreen> {
                       ),
                     ),
                   ),
-
                   if (isFav)
                     Positioned(
                       top: 4,
@@ -348,7 +480,6 @@ class _ShopScreenState extends State<ShopScreen> {
                         ),
                       ),
                     ),
-
                   if (product.isBestSeller)
                     Positioned(
                       top: 4,
@@ -375,9 +506,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 8),
-
             Text(
               product.name,
               maxLines: 2,
@@ -386,7 +515,6 @@ class _ShopScreenState extends State<ShopScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             Text(
               product.subtitle,
               maxLines: 2,
@@ -396,9 +524,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 color: Colors.black54,
               ),
             ),
-
             const SizedBox(height: 8),
-
             Row(
               children: [
                 const Icon(
@@ -423,9 +549,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 8),
-
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8),

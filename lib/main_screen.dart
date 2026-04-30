@@ -16,13 +16,51 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    HomeScreen(),
-    ShopScreen(),
-    RecipesScreen(),
-    FeedbackScreen(),
-    ProfileScreen(),
-  ];
+  String _shopCategory = 'All';
+  String _shopQuery = '';
+  int _shopRefreshKey = 0;
+
+  void _goToShop({
+    String category = 'All',
+    String query = '',
+  }) {
+    setState(() {
+      _shopCategory = category;
+      _shopQuery = query;
+      _shopRefreshKey++;
+      _selectedIndex = 1;
+    });
+  }
+
+  Widget _buildCurrentPage() {
+    switch (_selectedIndex) {
+      case 0:
+        return HomeScreen(
+          onGoToShopFilter: _goToShop,
+        );
+
+      case 1:
+        return ShopScreen(
+          key: ValueKey('shop-$_shopRefreshKey-$_shopCategory-$_shopQuery'),
+          initialCategory: _shopCategory,
+          initialQuery: _shopQuery,
+        );
+
+      case 2:
+        return const RecipesScreen();
+
+      case 3:
+        return const FeedbackScreen();
+
+      case 4:
+        return const ProfileScreen();
+
+      default:
+        return HomeScreen(
+          onGoToShopFilter: _goToShop,
+        );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +68,7 @@ class _MainScreenState extends State<MainScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: _buildCurrentPage(),
       bottomNavigationBar: Container(
         height: 85,
         decoration: BoxDecoration(
@@ -99,6 +137,12 @@ class _MainScreenState extends State<MainScreen> {
       onTap: () {
         setState(() {
           _selectedIndex = index;
+
+          if (index == 1) {
+            _shopCategory = 'All';
+            _shopQuery = '';
+            _shopRefreshKey++;
+          }
         });
       },
       child: SizedBox(
@@ -162,6 +206,13 @@ class _MainScreenState extends State<MainScreen> {
                 width: 28,
                 height: 28,
                 fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) {
+                  return Icon(
+                    Icons.restaurant_menu,
+                    color: isSelected ? selectedColor : unselectedColor,
+                    size: 28,
+                  );
+                },
               ),
             ),
             const SizedBox(height: 4),
