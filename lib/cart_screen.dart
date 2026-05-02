@@ -13,199 +13,338 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   static const Color _background = Color(0xFFF7F3EE);
-  static const Color _olive = Color(0xFF55682A);
   static const Color _cream = Color(0xFFF2EDE6);
-  static const Color _line = Color(0xFFD9D0C3);
+  static const Color _olive = Color(0xFF55682A);
+  static const Color _softButton = Color(0xFFF4ECD9);
 
   @override
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
-    final items = state.cartItems;
 
     return Scaffold(
       backgroundColor: _background,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 430),
-            child: items.isEmpty ? _emptyCart(context) : _cartBody(context, state),
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final screenWidth = constraints.maxWidth;
+            final horizontalPadding = screenWidth < 360 ? 10.0 : 14.0;
+            final buttonWidth = screenWidth < 360 ? screenWidth * 0.62 : 220.0;
+
+            if (state.cartItems.isEmpty) {
+              return _buildEmptyCart(
+                context,
+                horizontalPadding: horizontalPadding,
+              );
+            }
+
+            return Column(
+              children: [
+                _buildTopBar(context),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      8,
+                      horizontalPadding,
+                      22,
+                    ),
+                    child: Column(
+                      children: [
+                        _buildSteps(activeStep: 'Cart'),
+                        const SizedBox(height: 10),
+                        _buildScreenTitle(),
+                        const SizedBox(height: 14),
+                        ...state.cartItems.map(
+                          (item) => _buildCartItemCard(
+                            context,
+                            state,
+                            item,
+                            screenWidth: screenWidth,
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+                        _buildCheckoutButton(
+                          context,
+                          state,
+                          width: buttonWidth,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _cartBody(BuildContext context, AppState state) {
-    final subtotal = state.subtotal;
-    final shipping = 50.0;
-    final vat = subtotal * 0.0135;
-    final total = subtotal + shipping + vat;
+  Widget _buildTopBar(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final barHeight = (width * 0.23).clamp(76.0, 100.0);
+        final logoHeight = (width * 0.16).clamp(50.0, 72.0);
+        final iconSize = (width * 0.085).clamp(28.0, 36.0);
+        final buttonSize = (width * 0.12).clamp(40.0, 48.0);
 
-    return Column(
-      children: [
-        _titleBar(context),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        return Container(
+          height: barHeight,
+          width: double.infinity,
+          color: _cream,
+          child: Stack(
+            alignment: Alignment.center,
             children: [
-              ...state.cartItems.map(
-                (item) => _cartItem(context, state, item),
-              ),
-              const SizedBox(height: 8),
-              _locationRow(),
-              const SizedBox(height: 8),
-              _deliveryPreview(),
-              const SizedBox(height: 22),
-              _orderSummary(
-                subtotal: subtotal,
-                shipping: shipping,
-                vat: vat,
-                total: total,
-              ),
-              const SizedBox(height: 18),
-              _trustBadges(),
-              const SizedBox(height: 4),
-              const Align(
-                alignment: Alignment.centerRight,
-                child: Icon(
-                  Icons.eco_outlined,
-                  color: _olive,
-                  size: 42,
+              Center(
+                child: Image.asset(
+                  'assets/alard_icon.png',
+                  height: logoHeight,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) {
+                    return const Text(
+                      "AL'ARD",
+                      style: TextStyle(
+                        color: _olive,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
                 ),
               ),
-              const SizedBox(height: 8),
-              _checkoutButton(context, state),
+              Positioned(
+                left: 8,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.maybePop(context);
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints.tightFor(
+                    width: buttonSize,
+                    height: buttonSize,
+                  ),
+                  icon: Icon(
+                    Icons.arrow_back_rounded,
+                    color: Colors.black,
+                    size: iconSize,
+                  ),
+                ),
+              ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSteps({
+    required String activeStep,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final fontSize = (width * 0.034).clamp(12.0, 14.0);
+
+        return Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 4,
+          children: [
+            _stepText(
+              'Cart',
+              active: activeStep == 'Cart',
+              fontSize: fontSize,
+            ),
+            _stepDivider(fontSize),
+            _stepText(
+              'Shipping',
+              active: activeStep == 'Shipping',
+              fontSize: fontSize,
+            ),
+            _stepDivider(fontSize),
+            _stepText(
+              'Payment',
+              active: activeStep == 'Payment',
+              fontSize: fontSize,
+            ),
+            _stepDivider(fontSize),
+            _stepText(
+              'Review',
+              active: activeStep == 'Review',
+              fontSize: fontSize,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _stepText(
+    String text, {
+    required bool active,
+    required double fontSize,
+  }) {
+    double lineWidth = 34;
+
+    if (text == 'Shipping') lineWidth = 52;
+    if (text == 'Payment') lineWidth = 50;
+    if (text == 'Review') lineWidth = 42;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          text,
+          style: TextStyle(
+            color: _olive,
+            fontSize: fontSize,
+            fontFamily: 'serif',
+            fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Container(
+          height: 2,
+          width: active ? lineWidth : 0,
+          color: active ? _olive : Colors.transparent,
         ),
       ],
     );
   }
 
-  Widget _titleBar(BuildContext context) {
-    return SizedBox(
-      height: 54,
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(
-                Icons.arrow_back_rounded,
-                size: 30,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          const Center(
-            child: Text(
-              'Shopping Cart',
-              style: TextStyle(
-                color: _olive,
-                fontSize: 23,
-                fontFamily: 'serif',
-                fontWeight: FontWeight.w500,
-                shadows: [
-                  Shadow(
-                    color: Colors.black26,
-                    blurRadius: 3,
-                    offset: Offset(1, 1),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+  Widget _stepDivider(double fontSize) {
+    return Text(
+      '—',
+      style: TextStyle(
+        color: _olive,
+        fontSize: fontSize + 2,
+        fontFamily: 'serif',
       ),
     );
   }
 
-  Widget _cartItem(BuildContext context, AppState state, CartItem item) {
+  Widget _buildScreenTitle() {
+    return const Center(
+      child: Text(
+        'Shopping Cart',
+        style: TextStyle(
+          color: _olive,
+          fontSize: 20,
+          fontFamily: 'serif',
+          fontWeight: FontWeight.w500,
+          shadows: [
+            Shadow(
+              color: Colors.black26,
+              blurRadius: 2,
+              offset: Offset(0.5, 0.8),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCartItemCard(
+    BuildContext context,
+    AppState state,
+    CartItem item, {
+    required double screenWidth,
+  }) {
+    final imageSize = screenWidth < 360 ? 54.0 : 60.0;
+    final titleFont = screenWidth < 360 ? 10.5 : 11.5;
+    final subFont = screenWidth < 360 ? 9.5 : 10.5;
+    final priceFont = screenWidth < 360 ? 10.0 : 11.0;
+
     return Container(
-      height: 84,
-      margin: const EdgeInsets.only(bottom: 11),
-      padding: const EdgeInsets.fromLTRB(12, 10, 10, 8),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.92),
-        borderRadius: BorderRadius.circular(9),
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 58,
-            height: 64,
+            width: imageSize,
+            height: imageSize + 8,
             decoration: BoxDecoration(
               color: _cream,
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(6),
             ),
-            child: Image.asset(
-              item.product.image,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) {
-                return const Icon(
-                  Icons.image_not_supported_outlined,
-                  color: Colors.black38,
-                );
-              },
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Image.asset(
+                item.product.image,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) {
+                  return const Icon(
+                    Icons.image_not_supported_outlined,
+                    color: Colors.black38,
+                  );
+                },
+              ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.product.name.toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: _olive,
-                      fontSize: 11,
-                      fontFamily: 'serif',
-                      fontWeight: FontWeight.w600,
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.product.name.toUpperCase(),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: _olive,
+                    fontSize: titleFont,
+                    fontFamily: 'serif',
+                    fontWeight: FontWeight.w500,
+                    height: 1.2,
                   ),
-                  Text(
-                    _productSize(item.product),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: _olive,
-                      fontSize: 10,
-                      fontFamily: 'serif',
-                    ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _getProductSubText(item.product),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: _olive,
+                    fontSize: subFont,
+                    fontFamily: 'serif',
                   ),
-                  const Spacer(),
-                  _quantityControl(state, item),
-                ],
-              ),
+                ),
+                const SizedBox(height: 10),
+                _buildQuantityControl(state, item),
+              ],
             ),
           ),
           const SizedBox(width: 8),
           SizedBox(
-            width: 58,
+            width: screenWidth < 360 ? 48 : 60,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  _money(item.lineTotal),
-                  style: const TextStyle(
+                  _formatMoney(item.lineTotal),
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
                     color: _olive,
-                    fontSize: 10,
+                    fontSize: priceFont,
                     fontFamily: 'serif',
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(height: 28),
                 InkWell(
-                  onTap: () => state.removeFromCart(item.product.id),
-                  child: const Text(
+                  onTap: () {
+                    state.removeFromCart(item.product.id);
+                  },
+                  child: Text(
                     'Remove',
                     style: TextStyle(
                       color: _olive,
-                      fontSize: 10,
+                      fontSize: screenWidth < 360 ? 9.5 : 10.5,
                       fontFamily: 'serif',
                     ),
                   ),
@@ -218,47 +357,65 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _quantityControl(AppState state, CartItem item) {
+  Widget _buildQuantityControl(AppState state, CartItem item) {
     return Container(
-      height: 18,
       width: 72,
+      height: 22,
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F0E5),
-        borderRadius: BorderRadius.circular(10),
+        color: _softButton,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
           _qtyButton(
-            '-',
-            onTap: () => state.decreaseQuantity(item.product.id),
+            label: '-',
+            onTap: () {
+              state.decreaseQuantity(item.product.id);
+            },
+          ),
+          Container(
+            width: 1,
+            height: 14,
+            color: _olive.withOpacity(0.35),
           ),
           Expanded(
-            child: Text(
-              item.quantity.toString(),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 11,
+            child: Center(
+              child: Text(
+                item.quantity.toString(),
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 11,
+                ),
               ),
             ),
           ),
+          Container(
+            width: 1,
+            height: 14,
+            color: _olive.withOpacity(0.35),
+          ),
           _qtyButton(
-            '+',
-            onTap: () => state.increaseQuantity(item.product.id),
+            label: '+',
+            onTap: () {
+              state.increaseQuantity(item.product.id);
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _qtyButton(String text, {required VoidCallback onTap}) {
+  Widget _qtyButton({
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       child: SizedBox(
         width: 22,
         child: Center(
           child: Text(
-            text,
+            label,
             style: const TextStyle(
               color: _olive,
               fontSize: 12,
@@ -270,149 +427,14 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _locationRow() {
-    return const Row(
-      children: [
-        Icon(
-          Icons.location_on,
-          color: Colors.black,
-          size: 19,
-        ),
-        SizedBox(width: 2),
-        Expanded(
-          child: Text(
-            'Delivering to: Palestine 🇵🇸',
-            style: TextStyle(
-              color: _olive,
-              fontSize: 12,
-              fontFamily: 'serif',
-            ),
-          ),
-        ),
-        Text(
-          'change location',
-          style: TextStyle(
-            color: _olive,
-            fontSize: 10,
-            fontFamily: 'serif',
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _deliveryPreview() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        border: Border.all(color: _olive, width: 1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: const Column(
-        children: [
-          _DeliveryPreviewRow(
-            title: 'Standard International',
-            days: '5-7 days',
-            price: '50 NIS',
-          ),
-          Divider(height: 1, color: _line),
-          _DeliveryPreviewRow(
-            title: 'Express',
-            days: '2-3 days',
-            price: '100 NIS',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _orderSummary({
-    required double subtotal,
-    required double shipping,
-    required double vat,
-    required double total,
+  Widget _buildCheckoutButton(
+    BuildContext context,
+    AppState state, {
+    required double width,
   }) {
-    return Column(
-      children: [
-        _summaryRow('Order Summary', _money(subtotal), large: true),
-        const Divider(height: 14),
-        _summaryRow('Subtotal: ${_money(subtotal)}', _money(subtotal)),
-        const SizedBox(height: 8),
-        _summaryRow('Shipping: ${_money(shipping)}', _money(shipping)),
-        const SizedBox(height: 8),
-        _summaryRow('Vat: ${vat.toStringAsFixed(2)} NIS', '${vat.toStringAsFixed(2)} NIS'),
-        const Divider(height: 14),
-        _summaryRow('Total:', '${total.toStringAsFixed(2)} NIS', large: true),
-      ],
-    );
-  }
-
-  Widget _summaryRow(String left, String right, {bool large = false}) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            left,
-            style: TextStyle(
-              color: _olive,
-              fontSize: large ? 13 : 11,
-              fontFamily: 'serif',
-              fontWeight: large ? FontWeight.w500 : FontWeight.w400,
-            ),
-          ),
-        ),
-        Text(
-          right,
-          style: TextStyle(
-            color: _olive,
-            fontSize: large ? 13 : 11,
-            fontFamily: 'serif',
-            fontWeight: large ? FontWeight.w500 : FontWeight.w400,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _trustBadges() {
-    return const Column(
-      children: [
-        Row(
-          children: [
-            Icon(Icons.check, color: Colors.black, size: 16),
-            SizedBox(width: 4),
-            Text(
-              '100% Authentic',
-              style: TextStyle(color: _olive, fontSize: 13, fontFamily: 'serif'),
-            ),
-            Spacer(),
-            Icon(Icons.check, color: Colors.black, size: 16),
-            SizedBox(width: 4),
-            Text(
-              'Secure Global Shipping',
-              style: TextStyle(color: _olive, fontSize: 13, fontFamily: 'serif'),
-            ),
-          ],
-        ),
-        SizedBox(height: 8),
-        Row(
-          children: [
-            Icon(Icons.check, color: Colors.black, size: 16),
-            SizedBox(width: 4),
-            Text(
-              'Sustainably Packed',
-              style: TextStyle(color: _olive, fontSize: 13, fontFamily: 'serif'),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _checkoutButton(BuildContext context, AppState state) {
     return Center(
       child: SizedBox(
-        width: 220,
+        width: width,
         height: 34,
         child: ElevatedButton(
           onPressed: () {
@@ -420,8 +442,8 @@ class _CartScreenState extends State<CartScreen> {
               context,
               MaterialPageRoute(
                 builder: (_) => ShippingScreen(
-                  orderItems: _itemsToMaps(state),
-                  profileData: _profileDataFromState(state),
+                  orderItems: _orderItemsToMap(state),
+                  profileData: _getProfileData(state),
                   subtotal: state.subtotal,
                 ),
               ),
@@ -432,14 +454,17 @@ class _CartScreenState extends State<CartScreen> {
             foregroundColor: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(7),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: const Text(
-            'Proceed To Checkout',
-            style: TextStyle(
-              fontSize: 14,
-              fontFamily: 'serif',
+          child: const FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'Proceed To Checkout',
+              style: TextStyle(
+                fontSize: 14,
+                fontFamily: 'serif',
+              ),
             ),
           ),
         ),
@@ -447,31 +472,53 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _emptyCart(BuildContext context) {
+  Widget _buildEmptyCart(
+    BuildContext context, {
+    required double horizontalPadding,
+  }) {
     return Column(
       children: [
-        _titleBar(context),
-        const Expanded(
-          child: Center(
-            child: Text(
-              'Your cart is empty',
-              style: TextStyle(
-                color: _olive,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
+        _buildTopBar(context),
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            horizontalPadding,
+            10,
+            horizontalPadding,
+            0,
+          ),
+          child: Column(
+            children: const [
+              SizedBox(height: 6),
+              Text(
+                'Shopping Cart',
+                style: TextStyle(
+                  color: _olive,
+                  fontSize: 20,
+                  fontFamily: 'serif',
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
+              SizedBox(height: 80),
+              Text(
+                'Your cart is empty',
+                style: TextStyle(
+                  color: _olive,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  List<Map<String, dynamic>> _itemsToMaps(AppState state) {
+  List<Map<String, dynamic>> _orderItemsToMap(AppState state) {
     return state.cartItems.map((item) {
       return {
         'name': item.product.name,
-        'subtitle': _productSize(item.product),
+        'subtitle': _getProductSubText(item.product),
         'price': item.product.price,
         'quantity': item.quantity,
         'image': item.product.image,
@@ -479,15 +526,23 @@ class _CartScreenState extends State<CartScreen> {
     }).toList();
   }
 
-  Map<String, String> _profileDataFromState(AppState state) {
+  Map<String, String> _getProfileData(AppState state) {
     final user = state.currentUser;
 
-    final name = user?.name.trim().isNotEmpty == true ? user!.name : 'Mohammed';
-    final email = user?.email.trim().isNotEmpty == true ? user!.email : 'Mohammed@gmail.com';
-    final phone = user?.phone.trim().isNotEmpty == true && user?.phone != 'No phone added'
-        ? user!.phone
-        : '+970 593245879';
-    final country = user?.location.trim().isNotEmpty == true ? user!.location : 'Palestine';
+    final name =
+        (user?.name.trim().isNotEmpty == true) ? user!.name : 'Mohammed';
+
+    final email = (user?.email.trim().isNotEmpty == true)
+        ? user!.email
+        : 'Mohammed@gmail.com';
+
+    final phone =
+        (user?.phone.trim().isNotEmpty == true && user?.phone != 'No phone added')
+            ? user!.phone
+            : '+970 593245879';
+
+    final country =
+        (user?.location.trim().isNotEmpty == true) ? user!.location : 'Palestine';
 
     return {
       'name': name,
@@ -499,58 +554,23 @@ class _CartScreenState extends State<CartScreen> {
     };
   }
 
-  String _productSize(Product product) {
-    if (product.weight.trim().isNotEmpty) return '-${product.weight.toUpperCase()}';
-    if (product.subtitle.trim().isNotEmpty) return '-${product.subtitle.toUpperCase()}';
+  String _getProductSubText(Product product) {
+    if (product.weight.trim().isNotEmpty) {
+      return '-${product.weight.toUpperCase()}';
+    }
+
+    if (product.subtitle.trim().isNotEmpty) {
+      return '-${product.subtitle.toUpperCase()}';
+    }
+
     return '';
   }
 
-  String _money(double value) {
-    if (value <= 0) return 'Quote';
-    final hasDecimals = value % 1 != 0;
-    return '${hasDecimals ? value.toStringAsFixed(2) : value.toStringAsFixed(0)} NIS';
-  }
-}
+  String _formatMoney(double value) {
+    if (value % 1 == 0) {
+      return '${value.toStringAsFixed(0)} NIS';
+    }
 
-class _DeliveryPreviewRow extends StatelessWidget {
-  final String title;
-  final String days;
-  final String price;
-
-  const _DeliveryPreviewRow({
-    required this.title,
-    required this.days,
-    required this.price,
-  });
-
-  static const Color _olive = Color(0xFF55682A);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 28,
-      child: Row(
-        children: [
-          const SizedBox(width: 8),
-          const Icon(Icons.radio_button_off, color: _olive, size: 17),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: const TextStyle(color: _olive, fontSize: 12, fontFamily: 'serif'),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            days,
-            style: const TextStyle(color: _olive, fontSize: 9, fontFamily: 'serif'),
-          ),
-          const Spacer(),
-          Text(
-            price,
-            style: const TextStyle(color: _olive, fontSize: 12, fontFamily: 'serif'),
-          ),
-          const SizedBox(width: 10),
-        ],
-      ),
-    );
+    return '${value.toStringAsFixed(2)} NIS';
   }
 }

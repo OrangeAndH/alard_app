@@ -20,44 +20,15 @@ class ShippingScreen extends StatefulWidget {
 
 class _ShippingScreenState extends State<ShippingScreen> {
   static const Color _background = Color(0xFFF7F3EE);
+  static const Color _cream = Color(0xFFF2EDE6);
   static const Color _olive = Color(0xFF55682A);
-  static const Color _border = Color(0xFF6B7A35);
-  static const Color _line = Color(0xFFD9D0C3);
+  static const Color _line = Color(0xFFE3DACE);
+  static const Color _softButton = Color(0xFFF4ECD9);
 
-  late TextEditingController _nameController;
-  late TextEditingController _emailController;
-  late TextEditingController _phoneController;
-  late TextEditingController _countryController;
-  late TextEditingController _cityController;
-  late TextEditingController _postalController;
+  String _deliveryTitle = 'Standard International';
+  double _shippingFee = 50;
 
-  String _deliveryTitle = 'Express International';
-  double _shippingFee = 100;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _nameController = TextEditingController(text: widget.profileData['name'] ?? 'Mohammed');
-    _emailController = TextEditingController(text: widget.profileData['email'] ?? 'Mohammed@gmail.com');
-    _phoneController = TextEditingController(text: widget.profileData['phone'] ?? '+970 593245879');
-    _countryController = TextEditingController(text: widget.profileData['country'] ?? 'Palestine');
-    _cityController = TextEditingController(text: widget.profileData['city'] ?? 'Nablus');
-    _postalController = TextEditingController(text: widget.profileData['postalCode'] ?? '10115');
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _countryController.dispose();
-    _cityController.dispose();
-    _postalController.dispose();
-    super.dispose();
-  }
-
-  double get _vat => widget.subtotal * 0.0135;
+  double get _vat => 2.54;
   double get _total => widget.subtotal + _shippingFee + _vat;
 
   @override
@@ -65,176 +36,307 @@ class _ShippingScreenState extends State<ShippingScreen> {
     return Scaffold(
       backgroundColor: _background,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 430),
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(22, 8, 22, 24),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final screenWidth = constraints.maxWidth;
+            final horizontalPadding = screenWidth < 360 ? 10.0 : 14.0;
+
+            return Column(
               children: [
-                _steps(),
-                const SizedBox(height: 18),
-                _sectionTitle('1. Shipping Address'),
-                const SizedBox(height: 10),
-                _addressCard(),
-                const SizedBox(height: 8),
-                _singleField(_countryController, suffix: Icons.chevron_right_rounded),
-                const SizedBox(height: 8),
-                _singleField(_cityController, suffix: Icons.chevron_right_rounded),
-                const SizedBox(height: 8),
-                _postalField(),
-                const SizedBox(height: 12),
-                const Row(
-                  children: [
-                    Icon(Icons.check_box, color: _olive, size: 18),
-                    SizedBox(width: 6),
-                    Text(
-                      'Save this address',
-                      style: TextStyle(color: _olive, fontSize: 14, fontFamily: 'serif'),
+                _buildTopBar(context),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      8,
+                      horizontalPadding,
+                      18,
                     ),
-                  ],
+                    child: Column(
+                      children: [
+                        _buildSteps(activeStep: 'Shipping'),
+                        const SizedBox(height: 10),
+                        _buildScreenTitle(),
+                        const SizedBox(height: 12),
+                        ...widget.orderItems.map(
+                          (item) => _buildReadOnlyItemCard(
+                            item,
+                            screenWidth: screenWidth,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        _buildLocationRow(),
+                        const SizedBox(height: 8),
+                        _buildDeliveryOptions(),
+                        const SizedBox(height: 18),
+                        _buildOrderSummary(),
+                        const SizedBox(height: 16),
+                        _buildTrustSection(),
+                        const SizedBox(height: 10),
+                        _buildContinueButton(context, screenWidth),
+                      ],
+                    ),
+                  ),
                 ),
-                const Divider(height: 30, color: _line),
-                _sectionTitle('2. Delivery Method'),
-                const SizedBox(height: 10),
-                _deliveryBox(),
-                const SizedBox(height: 28),
-                _totalRow(),
-                const SizedBox(height: 26),
-                _continueButton(),
               ],
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _steps() {
-    return Center(
-      child: RichText(
-        text: const TextSpan(
-          style: TextStyle(color: _olive, fontSize: 13, fontFamily: 'serif'),
-          children: [
-            TextSpan(text: 'Cart — '),
-            TextSpan(
-              text: 'Shipping',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                decoration: TextDecoration.underline,
-                decorationThickness: 2,
+  Widget _buildTopBar(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final barHeight = (width * 0.23).clamp(76.0, 100.0);
+        final logoHeight = (width * 0.16).clamp(50.0, 72.0);
+        final iconSize = (width * 0.085).clamp(28.0, 36.0);
+        final buttonSize = (width * 0.12).clamp(40.0, 48.0);
+
+        return Container(
+          height: barHeight,
+          width: double.infinity,
+          color: _cream,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Center(
+                child: Image.asset(
+                  'assets/alard_icon.png',
+                  height: logoHeight,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) {
+                    return const Text(
+                      "AL'ARD",
+                      style: TextStyle(
+                        color: _olive,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                ),
               ),
+              Positioned(
+                left: 8,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints.tightFor(
+                    width: buttonSize,
+                    height: buttonSize,
+                  ),
+                  icon: Icon(
+                    Icons.arrow_back_rounded,
+                    color: Colors.black,
+                    size: iconSize,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSteps({
+    required String activeStep,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final fontSize = (width * 0.034).clamp(12.0, 14.0);
+
+        return Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 4,
+          children: [
+            _stepText('Cart', active: activeStep == 'Cart', fontSize: fontSize),
+            _stepDivider(fontSize),
+            _stepText(
+              'Shipping',
+              active: activeStep == 'Shipping',
+              fontSize: fontSize,
             ),
-            TextSpan(text: ' — Payment — Review'),
+            _stepDivider(fontSize),
+            _stepText(
+              'Payment',
+              active: activeStep == 'Payment',
+              fontSize: fontSize,
+            ),
+            _stepDivider(fontSize),
+            _stepText(
+              'Review',
+              active: activeStep == 'Review',
+              fontSize: fontSize,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _stepText(
+    String text, {
+    required bool active,
+    required double fontSize,
+  }) {
+    double lineWidth = 34;
+    if (text == 'Shipping') lineWidth = 52;
+    if (text == 'Payment') lineWidth = 50;
+    if (text == 'Review') lineWidth = 42;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          text,
+          style: TextStyle(
+            color: _olive,
+            fontSize: fontSize,
+            fontFamily: 'serif',
+            fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Container(
+          height: 2,
+          width: active ? lineWidth : 0,
+          color: active ? _olive : Colors.transparent,
+        ),
+      ],
+    );
+  }
+
+  Widget _stepDivider(double fontSize) {
+    return Text(
+      '—',
+      style: TextStyle(
+        color: _olive,
+        fontSize: fontSize + 2,
+        fontFamily: 'serif',
+      ),
+    );
+  }
+
+  Widget _buildScreenTitle() {
+    return const Center(
+      child: Text(
+        'Shipping',
+        style: TextStyle(
+          color: _olive,
+          fontSize: 20,
+          fontFamily: 'serif',
+          fontWeight: FontWeight.w500,
+          shadows: [
+            Shadow(
+              color: Colors.black26,
+              blurRadius: 2,
+              offset: Offset(0.5, 0.8),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _sectionTitle(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: _olive,
-        fontSize: 20,
-        fontFamily: 'serif',
-        shadows: [
-          Shadow(
-            color: Colors.black26,
-            blurRadius: 3,
-            offset: Offset(1, 1),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildReadOnlyItemCard(
+    Map<String, dynamic> item, {
+    required double screenWidth,
+  }) {
+    final name = item['name']?.toString() ?? '';
+    final subtitle = item['subtitle']?.toString() ?? '';
+    final image = item['image']?.toString() ?? '';
+    final quantity = item['quantity'] as int? ?? 1;
+    final price = (item['price'] as num?)?.toDouble() ?? 0.0;
+    final lineTotal = price * quantity;
 
-  Widget _addressCard() {
+    final imageSize = screenWidth < 360 ? 54.0 : 60.0;
+    final titleFont = screenWidth < 360 ? 10.5 : 11.5;
+    final subFont = screenWidth < 360 ? 9.5 : 10.5;
+    final priceFont = screenWidth < 360 ? 10.0 : 11.0;
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 11, 18, 10),
-      decoration: _boxDecoration(),
-      child: Column(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _simpleTextField(_nameController),
-          _simpleTextField(_emailController),
-          const Divider(height: 8, color: _line),
-          _simpleTextField(_phoneController),
-        ],
-      ),
-    );
-  }
-
-  Widget _simpleTextField(TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      style: const TextStyle(color: _olive, fontSize: 14, fontFamily: 'serif'),
-      decoration: const InputDecoration(
-        isDense: true,
-        border: InputBorder.none,
-        contentPadding: EdgeInsets.zero,
-      ),
-    );
-  }
-
-  Widget _singleField(TextEditingController controller, {IconData? suffix}) {
-    return Container(
-      height: 31,
-      padding: const EdgeInsets.symmetric(horizontal: 11),
-      decoration: _boxDecoration(radius: 9),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              style: const TextStyle(color: _olive, fontSize: 14, fontFamily: 'serif'),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.only(bottom: 2),
-              ),
-            ),
-          ),
-          if (suffix != null)
-            Icon(
-              suffix,
-              color: _olive,
-              size: 26,
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _postalField() {
-    return Container(
-      height: 31,
-      padding: const EdgeInsets.symmetric(horizontal: 11),
-      decoration: _boxDecoration(radius: 9),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _postalController,
-              style: const TextStyle(color: _olive, fontSize: 14, fontFamily: 'serif'),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.only(bottom: 2),
-              ),
-            ),
-          ),
           Container(
-            height: 21,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            width: imageSize,
+            height: imageSize + 8,
             decoration: BoxDecoration(
-              border: Border.all(color: _border),
-              borderRadius: BorderRadius.circular(12),
+              color: _cream,
+              borderRadius: BorderRadius.circular(6),
             ),
-            alignment: Alignment.center,
-            child: const Text(
-              'Postal Code',
-              style: TextStyle(color: _olive, fontSize: 11, fontFamily: 'serif'),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Image.asset(
+                image,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) {
+                  return const Icon(
+                    Icons.image_not_supported_outlined,
+                    color: Colors.black38,
+                  );
+                },
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name.toUpperCase(),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: _olive,
+                    fontSize: titleFont,
+                    fontFamily: 'serif',
+                    fontWeight: FontWeight.w500,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: _olive,
+                    fontSize: subFont,
+                    fontFamily: 'serif',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _quantityDisplay(quantity),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: screenWidth < 360 ? 48 : 62,
+            child: Text(
+              _formatMoney(lineTotal),
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                color: _olive,
+                fontSize: priceFont,
+                fontFamily: 'serif',
+              ),
             ),
           ),
         ],
@@ -242,23 +344,76 @@ class _ShippingScreenState extends State<ShippingScreen> {
     );
   }
 
-  Widget _deliveryBox() {
+  Widget _quantityDisplay(int quantity) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      decoration: _boxDecoration(radius: 9),
+      width: 48,
+      height: 22,
+      decoration: BoxDecoration(
+        color: _softButton,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        quantity.toString(),
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 11,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLocationRow() {
+    final country = widget.profileData['country'] ?? 'Palestine';
+
+    return Row(
+      children: [
+        const Icon(
+          Icons.location_on,
+          size: 17,
+          color: Colors.black,
+        ),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            'Delivering to: $country 🇵🇸',
+            style: const TextStyle(
+              color: _olive,
+              fontSize: 12,
+              fontFamily: 'serif',
+            ),
+          ),
+        ),
+        const Text(
+          'change location',
+          style: TextStyle(
+            color: _olive,
+            fontSize: 10.5,
+            fontFamily: 'serif',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDeliveryOptions() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: _olive, width: 1),
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Column(
         children: [
           _deliveryLine(
-            title: 'Express International',
-            price: 100,
-          ),
-          const Padding(
-            padding: EdgeInsets.only(left: 34, right: 16),
-            child: Divider(height: 1, color: _line),
-          ),
-          _deliveryLine(
             title: 'Standard International',
+            days: '5-7 days',
             price: 50,
+          ),
+          const Divider(height: 1, color: _line),
+          _deliveryLine(
+            title: 'Express',
+            days: '2-3 days',
+            price: 100,
           ),
         ],
       ),
@@ -267,6 +422,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
 
   Widget _deliveryLine({
     required String title,
+    required String days,
     required double price,
   }) {
     final selected = _deliveryTitle == title;
@@ -279,79 +435,194 @@ class _ShippingScreenState extends State<ShippingScreen> {
         });
       },
       child: SizedBox(
-        height: 31,
+        height: 30,
         child: Row(
           children: [
-            const SizedBox(width: 18),
+            const SizedBox(width: 8),
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
               color: _olive,
-              size: 18,
+              size: 17,
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 8),
             Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(color: _olive, fontSize: 15, fontFamily: 'serif'),
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      title,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: _olive,
+                        fontSize: 12,
+                        fontFamily: 'serif',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    days,
+                    style: const TextStyle(
+                      color: _olive,
+                      fontSize: 9.5,
+                      fontFamily: 'serif',
+                    ),
+                  ),
+                ],
               ),
             ),
+            const SizedBox(width: 8),
             Text(
               '${price.toStringAsFixed(0)} NIS',
-              style: const TextStyle(color: _olive, fontSize: 13, fontFamily: 'serif'),
+              style: const TextStyle(
+                color: _olive,
+                fontSize: 12,
+                fontFamily: 'serif',
+              ),
             ),
-            const SizedBox(width: 18),
+            const SizedBox(width: 10),
           ],
         ),
       ),
     );
   }
 
-  Widget _totalRow() {
+  Widget _buildOrderSummary() {
+    return Column(
+      children: [
+        _summaryRow(
+          left: 'Order Summary',
+          right: _formatMoney(widget.subtotal),
+          large: true,
+        ),
+        const Divider(height: 16, color: _line),
+        _summaryRow(
+          left: 'Subtotal: ${_formatMoney(widget.subtotal)}',
+          right: _formatMoney(widget.subtotal),
+        ),
+        const SizedBox(height: 7),
+        _summaryRow(
+          left: 'Shipping: ${_formatMoney(_shippingFee)}',
+          right: _formatMoney(_shippingFee),
+        ),
+        const SizedBox(height: 7),
+        _summaryRow(
+          left: 'Vat: ${_vat.toStringAsFixed(2)} NIS',
+          right: '${_vat.toStringAsFixed(2)} NIS',
+        ),
+        const Divider(height: 16, color: _line),
+        _summaryRow(
+          left: 'Total:',
+          right: '${_total.toStringAsFixed(2)} NIS',
+          large: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _summaryRow({
+    required String left,
+    required String right,
+    bool large = false,
+  }) {
     return Row(
       children: [
-        const Text(
-          'Total:',
-          style: TextStyle(
-            color: _olive,
-            fontSize: 20,
-            fontFamily: 'serif',
+        Expanded(
+          child: Text(
+            left,
+            style: TextStyle(
+              color: _olive,
+              fontSize: large ? 13.5 : 11.5,
+              fontFamily: 'serif',
+              fontWeight: large ? FontWeight.w500 : FontWeight.w400,
+            ),
           ),
         ),
-        const Spacer(),
         Text(
-          '${_total.toStringAsFixed(2)} NIS',
-          style: const TextStyle(
+          right,
+          style: TextStyle(
             color: _olive,
-            fontSize: 20,
+            fontSize: large ? 13.5 : 11.5,
             fontFamily: 'serif',
+            fontWeight: large ? FontWeight.w500 : FontWeight.w400,
           ),
         ),
       ],
     );
   }
 
-  Widget _continueButton() {
+  Widget _buildTrustSection() {
+    return const Column(
+      children: [
+        Row(
+          children: [
+            Icon(Icons.check, color: Colors.black, size: 16),
+            SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                '100% Authentic',
+                style: TextStyle(
+                  color: _olive,
+                  fontSize: 13,
+                  fontFamily: 'serif',
+                ),
+              ),
+            ),
+            Icon(Icons.check, color: Colors.black, size: 16),
+            SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                'Secure Global Shipping',
+                style: TextStyle(
+                  color: _olive,
+                  fontSize: 13,
+                  fontFamily: 'serif',
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            Icon(Icons.check, color: Colors.black, size: 16),
+            SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                'Sustainably Packed',
+                style: TextStyle(
+                  color: _olive,
+                  fontSize: 13,
+                  fontFamily: 'serif',
+                ),
+              ),
+            ),
+            Icon(
+              Icons.eco_outlined,
+              color: _olive,
+              size: 28,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContinueButton(BuildContext context, double screenWidth) {
+    final width = screenWidth < 360 ? screenWidth * 0.64 : 220.0;
+
     return Center(
       child: SizedBox(
-        width: 200,
-        height: 35,
+        width: width,
+        height: 34,
         child: ElevatedButton(
           onPressed: () {
-            final updatedProfile = {
-              'name': _nameController.text,
-              'email': _emailController.text,
-              'phone': _phoneController.text,
-              'country': _countryController.text,
-              'city': _cityController.text,
-              'postalCode': _postalController.text,
-            };
-
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => PaymentScreen(
                   orderItems: widget.orderItems,
-                  profileData: updatedProfile,
+                  profileData: widget.profileData,
                   subtotal: widget.subtotal,
                   shippingFee: _shippingFee,
                   shippingTitle: _deliveryTitle,
@@ -367,19 +638,25 @@ class _ShippingScreenState extends State<ShippingScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: const Text(
-            'Continue To Payment',
-            style: TextStyle(fontSize: 15, fontFamily: 'serif'),
+          child: const FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'Continue To Payment',
+              style: TextStyle(
+                fontSize: 14,
+                fontFamily: 'serif',
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  BoxDecoration _boxDecoration({double radius = 9}) {
-    return BoxDecoration(
-      border: Border.all(color: _border),
-      borderRadius: BorderRadius.circular(radius),
-    );
+  String _formatMoney(double value) {
+    if (value % 1 == 0) {
+      return '${value.toStringAsFixed(0)} NIS';
+    }
+    return '${value.toStringAsFixed(2)} NIS';
   }
 }

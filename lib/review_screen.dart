@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'feedback_screen.dart';
+import 'shop_screen.dart';
+
 class ReviewScreen extends StatelessWidget {
   final List<Map<String, dynamic>> orderItems;
   final Map<String, String> profileData;
@@ -23,79 +26,197 @@ class ReviewScreen extends StatelessWidget {
   });
 
   static const Color _background = Color(0xFFF7F3EE);
-  static const Color _olive = Color(0xFF55682A);
   static const Color _cream = Color(0xFFF2EDE6);
-  static const Color _card = Color(0xFFF0E6DC);
-  static const Color _line = Color(0xFFD9D0C3);
+  static const Color _olive = Color(0xFF55682A);
+  static const Color _gold = Color(0xFFE0A323);
 
   @override
   Widget build(BuildContext context) {
+    final popularItems = _buildPopularItems();
+
     return Scaffold(
       backgroundColor: _background,
       bottomNavigationBar: _bottomNav(context),
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 430),
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 22),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final screenWidth = constraints.maxWidth;
+            final horizontalPadding = screenWidth < 360 ? 8.0 : 10.0;
+
+            return Column(
               children: [
-                _steps(),
-                const SizedBox(height: 10),
-                _searchBar(),
-                const SizedBox(height: 14),
-                _hero(),
-                const SizedBox(height: 14),
-                _sectionHeader('Order Review'),
-                const SizedBox(height: 8),
-                _orderItems(),
-                const SizedBox(height: 14),
-                _shippingInfo(),
-                const SizedBox(height: 14),
-                _paymentInfo(),
-                const SizedBox(height: 14),
-                _summary(),
-                const SizedBox(height: 18),
-                _doneButton(context),
+                _buildTopLogo(),
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      0,
+                      horizontalPadding,
+                      18,
+                    ),
+                    children: [
+                      const SizedBox(height: 4),
+                      _buildSteps(activeStep: 'Review'),
+                      const SizedBox(height: 8),
+                      _searchBar(),
+                      const SizedBox(height: 10),
+                      _heroBanner(),
+                      const SizedBox(height: 12),
+                      _sectionTitle(
+                        title: 'Popular in your country',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ShopScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      _popularProductsRow(context, popularItems),
+                      const SizedBox(height: 16),
+                      _sectionTitle(
+                        title: 'Customer Feedback',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const FeedbackScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      _feedbackGrid(),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                ),
               ],
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _steps() {
-    return Center(
-      child: RichText(
-        text: const TextSpan(
-          style: TextStyle(color: _olive, fontSize: 13, fontFamily: 'serif'),
-          children: [
-            TextSpan(text: 'Cart — Shipping — Payment — '),
-            TextSpan(
-              text: 'Review',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                decoration: TextDecoration.underline,
-                decorationThickness: 2,
+  Widget _buildTopLogo() {
+    return Container(
+      height: 26,
+      width: double.infinity,
+      color: _cream,
+      alignment: Alignment.center,
+      child: Image.asset(
+        'assets/alard_icon.png',
+        height: 24,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) {
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
+  Widget _buildSteps({
+    required String activeStep,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final fontSize = (width * 0.034).clamp(12.0, 14.0);
+
+        return Center(
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 4,
+            children: [
+              _stepText(
+                'Cart',
+                active: activeStep == 'Cart',
+                fontSize: fontSize,
               ),
-            ),
-          ],
+              _stepDivider(fontSize),
+              _stepText(
+                'Shipping',
+                active: activeStep == 'Shipping',
+                fontSize: fontSize,
+              ),
+              _stepDivider(fontSize),
+              _stepText(
+                'Payment',
+                active: activeStep == 'Payment',
+                fontSize: fontSize,
+              ),
+              _stepDivider(fontSize),
+              _stepText(
+                'Review',
+                active: activeStep == 'Review',
+                fontSize: fontSize,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _stepText(
+    String text, {
+    required bool active,
+    required double fontSize,
+  }) {
+    double lineWidth = 34;
+    if (text == 'Shipping') lineWidth = 52;
+    if (text == 'Payment') lineWidth = 50;
+    if (text == 'Review') lineWidth = 42;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: _olive,
+            fontSize: fontSize,
+            fontFamily: 'serif',
+            fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+          ),
         ),
+        const SizedBox(height: 2),
+        Container(
+          height: 2,
+          width: active ? lineWidth : 0,
+          color: active ? _olive : Colors.transparent,
+        ),
+      ],
+    );
+  }
+
+  Widget _stepDivider(double fontSize) {
+    return Text(
+      '—',
+      style: TextStyle(
+        color: _olive,
+        fontSize: fontSize + 2,
+        fontFamily: 'serif',
       ),
     );
   }
 
   Widget _searchBar() {
     return Container(
-      height: 40,
+      height: 38,
+      margin: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: _olive),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withOpacity(0.20),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -104,7 +225,11 @@ class ReviewScreen extends StatelessWidget {
       child: const Row(
         children: [
           SizedBox(width: 8),
-          Icon(Icons.search, size: 22, color: Colors.black),
+          Icon(
+            Icons.search_rounded,
+            size: 21,
+            color: Colors.black,
+          ),
           SizedBox(width: 7),
           Expanded(
             child: Text(
@@ -116,14 +241,18 @@ class ReviewScreen extends StatelessWidget {
               ),
             ),
           ),
-          Icon(Icons.mic_none_rounded, color: Colors.black, size: 22),
+          Icon(
+            Icons.mic_none_rounded,
+            color: Colors.black,
+            size: 22,
+          ),
           SizedBox(width: 10),
         ],
       ),
     );
   }
 
-  Widget _hero() {
+  Widget _heroBanner() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(2),
       child: Stack(
@@ -134,21 +263,11 @@ class ReviewScreen extends StatelessWidget {
             child: Image.asset(
               'assets/photo2.png',
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) {
-                return Container(
-                  color: const Color(0xFFD8CDBE),
-                  child: const Icon(
-                    Icons.landscape_outlined,
-                    color: _olive,
-                    size: 48,
-                  ),
-                );
-              },
             ),
           ),
           Container(
             height: 145,
-            color: Colors.black.withOpacity(0.16),
+            color: Colors.black.withOpacity(0.18),
           ),
           const Positioned.fill(
             child: Center(
@@ -157,7 +276,7 @@ class ReviewScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 23,
+                  fontSize: 22,
                   height: 1.5,
                   fontFamily: 'serif',
                   shadows: [
@@ -176,7 +295,10 @@ class ReviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionHeader(String title) {
+  Widget _sectionTitle({
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return Row(
       children: [
         Expanded(
@@ -184,7 +306,7 @@ class ReviewScreen extends StatelessWidget {
             title,
             style: const TextStyle(
               color: _olive,
-              fontSize: 20,
+              fontSize: 19,
               fontFamily: 'serif',
               fontWeight: FontWeight.w600,
               shadows: [
@@ -197,249 +319,346 @@ class ReviewScreen extends StatelessWidget {
             ),
           ),
         ),
-        const Icon(Icons.chevron_right_rounded, color: _olive, size: 28),
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(18),
+          child: const Padding(
+            padding: EdgeInsets.all(3),
+            child: Icon(
+              Icons.chevron_right_rounded,
+              color: _olive,
+              size: 28,
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _orderItems() {
+  Widget _popularProductsRow(
+    BuildContext context,
+    List<_PopularItem> popularItems,
+  ) {
+    return SizedBox(
+      height: 142,
+      child: Row(
+        children: popularItems.map((item) {
+          return Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: _PopularProductCard(
+                item: item,
+                onAdd: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${item.title} added to cart'),
+                      duration: const Duration(milliseconds: 900),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _feedbackGrid() {
     return Column(
-      children: orderItems.map((item) {
-        final name = item['name']?.toString() ?? '';
-        final subtitle = item['subtitle']?.toString() ?? '';
-        final image = item['image']?.toString() ?? '';
-        final quantity = item['quantity'] as int? ?? 1;
-        final price = item['price'] as double? ?? 0.0;
-
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(9),
-          decoration: BoxDecoration(
-            color: _card,
-            borderRadius: BorderRadius.circular(9),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 54,
-                height: 58,
-                color: _cream,
-                child: Image.asset(
-                  image,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) {
-                    return const Icon(
-                      Icons.image_not_supported_outlined,
-                      color: Colors.black38,
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name.toUpperCase(),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: _olive,
-                        fontSize: 12,
-                        fontFamily: 'serif',
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        color: _olive,
-                        fontSize: 10,
-                        fontFamily: 'serif',
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Qty: $quantity',
-                      style: const TextStyle(
-                        color: _olive,
-                        fontSize: 11,
-                        fontFamily: 'serif',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                '${(price * quantity).toStringAsFixed(0)} NIS',
-                style: const TextStyle(
-                  color: _olive,
-                  fontSize: 12,
-                  fontFamily: 'serif',
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _shippingInfo() {
-    return _infoCard(
-      title: 'Shipping Address',
-      lines: [
-        profileData['name'] ?? '',
-        profileData['email'] ?? '',
-        profileData['phone'] ?? '',
-        '${profileData['city'] ?? ''}, ${profileData['country'] ?? ''}',
-        'Postal Code: ${profileData['postalCode'] ?? ''}',
-      ],
-    );
-  }
-
-  Widget _paymentInfo() {
-    return _infoCard(
-      title: 'Payment & Delivery',
-      lines: [
-        'Payment: $paymentMethod',
-        'Delivery: $shippingTitle',
-      ],
-    );
-  }
-
-  Widget _infoCard({
-    required String title,
-    required List<String> lines,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(9),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: _olive,
-              fontSize: 15,
-              fontFamily: 'serif',
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 7),
-          ...lines.map(
-            (line) => Padding(
-              padding: const EdgeInsets.only(bottom: 3),
-              child: Text(
-                line,
-                style: const TextStyle(
-                  color: _olive,
-                  fontSize: 12,
-                  fontFamily: 'serif',
-                ),
+      children: const [
+        Row(
+          children: [
+            Expanded(
+              child: _FeedbackCard(
+                flag: '🇬🇧',
+                name: 'Louis',
+                text: 'The gift set is perfect for any special occasion',
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _summary() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(9),
-      ),
-      child: Column(
-        children: [
-          _summaryRow('Subtotal', '${subtotal.toStringAsFixed(2)} NIS'),
-          const SizedBox(height: 7),
-          _summaryRow('Shipping', '${shippingFee.toStringAsFixed(0)} NIS'),
-          const SizedBox(height: 7),
-          _summaryRow('VAT', '${vat.toStringAsFixed(2)} NIS'),
-          const Divider(height: 18, color: _line),
-          _summaryRow('Total', '${total.toStringAsFixed(2)} NIS', large: true),
-        ],
-      ),
-    );
-  }
-
-  Widget _summaryRow(String left, String right, {bool large = false}) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            left,
-            style: TextStyle(
-              color: _olive,
-              fontSize: large ? 16 : 13,
-              fontFamily: 'serif',
-              fontWeight: large ? FontWeight.w700 : FontWeight.w400,
+            SizedBox(width: 28),
+            Expanded(
+              child: _FeedbackCard(
+                flag: '🇩🇪',
+                name: 'Jasmin',
+                text: 'The Za’atar is incredibly aromatic and tasty',
+              ),
             ),
-          ),
+          ],
         ),
-        Text(
-          right,
-          style: TextStyle(
-            color: _olive,
-            fontSize: large ? 16 : 13,
-            fontFamily: 'serif',
-            fontWeight: large ? FontWeight.w700 : FontWeight.w400,
-          ),
+        SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _FeedbackCard(
+                flag: '🇵🇸',
+                name: 'Sarah',
+                text: 'Amazing products !',
+              ),
+            ),
+            SizedBox(width: 28),
+            Expanded(
+              child: _FeedbackCard(
+                flag: '🇺🇸',
+                name: 'Ahmed',
+                text: 'Rich flavor and authentic Palestinian quality',
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  Widget _doneButton(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 190,
-        height: 35,
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.popUntil(context, (route) => route.isFirst);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _olive,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: const Text(
-            'Finish',
-            style: TextStyle(
-              fontSize: 17,
-              fontFamily: 'serif',
-            ),
-          ),
-        ),
+  List<_PopularItem> _buildPopularItems() {
+    return const [
+      _PopularItem(
+        title: 'Olive Pickle Variety',
+        image: 'assets/catalog_images/olive_pickle_variety_on_display.png',
       ),
-    );
+      _PopularItem(
+        title: 'Extra virgin olive oil',
+        image: 'assets/catalog_images/olive_oil_collection_on_display.png',
+      ),
+      _PopularItem(
+        title: 'Nablus Soap',
+        image: 'assets/catalog_images/premium_nabulsi_soap_and_liquid_set.png',
+      ),
+      _PopularItem(
+        title: 'Premium Za’atar Blend',
+        image:
+            'assets/catalog_images/premium_palestinian_za_atar_blends_lineup.png',
+      ),
+    ];
   }
 
   Widget _bottomNav(BuildContext context) {
     return Container(
       height: 74,
-      color: _cream,
-      child: const Row(
+      decoration: const BoxDecoration(
+        color: _cream,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(18),
+          topRight: Radius.circular(18),
+        ),
+      ),
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _NavIcon(icon: Icons.home_outlined, label: 'Home'),
-          _NavIcon(icon: Icons.shopping_bag_outlined, label: 'Shop'),
-          _NavIcon(icon: Icons.receipt_long_outlined, label: 'Recipes', circular: true),
-          _NavIcon(icon: Icons.feedback_outlined, label: 'Feedback'),
-          _NavIcon(icon: Icons.person_outline, label: 'Profile'),
+          _NavIcon(
+            icon: Icons.home_outlined,
+            label: 'Home',
+            onTap: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+          ),
+          _NavIcon(
+            icon: Icons.shopping_bag_outlined,
+            label: 'Shop',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ShopScreen(),
+                ),
+              );
+            },
+          ),
+          _NavIcon(
+            icon: Icons.receipt_long_outlined,
+            label: 'Recipes',
+            circular: true,
+            onTap: () {},
+          ),
+          _NavIcon(
+            icon: Icons.feedback_outlined,
+            label: 'Feedback',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const FeedbackScreen(),
+                ),
+              );
+            },
+          ),
+          _NavIcon(
+            icon: Icons.person_outline,
+            label: 'Profile',
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PopularItem {
+  final String title;
+  final String image;
+
+  const _PopularItem({
+    required this.title,
+    required this.image,
+  });
+}
+
+class _PopularProductCard extends StatelessWidget {
+  final _PopularItem item;
+  final VoidCallback onAdd;
+
+  const _PopularProductCard({
+    required this.item,
+    required this.onAdd,
+  });
+
+  static const Color _olive = Color(0xFF55682A);
+  static const Color _gold = Color(0xFFE0A323);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.fromLTRB(5, 6, 5, 5),
+      child: Column(
+        children: [
+          Expanded(
+            child: Image.asset(
+              item.image,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) {
+                return const Icon(
+                  Icons.image_not_supported_outlined,
+                  color: Colors.black38,
+                  size: 30,
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            item.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 8.5,
+              fontFamily: 'serif',
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 2),
+          const Text(
+            '★★★★★',
+            style: TextStyle(
+              color: _gold,
+              fontSize: 8.5,
+              letterSpacing: -1,
+            ),
+          ),
+          SizedBox(
+            height: 21,
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: onAdd,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _olive,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'Add to cart',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FeedbackCard extends StatelessWidget {
+  final String flag;
+  final String name;
+  final String text;
+
+  const _FeedbackCard({
+    required this.flag,
+    required this.name,
+    required this.text,
+  });
+
+  static const Color _olive = Color(0xFF55682A);
+  static const Color _gold = Color(0xFFE0A323);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 80,
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.92),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                flag,
+                style: const TextStyle(fontSize: 20),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  name,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: _olive,
+                    fontSize: 13,
+                    fontFamily: 'serif',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const Text(
+            '★★★★★',
+            style: TextStyle(
+              color: _gold,
+              fontSize: 9,
+              letterSpacing: -1,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: _olive,
+                fontSize: 10,
+                fontFamily: 'serif',
+                height: 1.2,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -450,45 +669,51 @@ class _NavIcon extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool circular;
+  final VoidCallback onTap;
 
   const _NavIcon({
     required this.icon,
     required this.label,
+    required this.onTap,
     this.circular = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 58,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            height: circular ? 33 : 30,
-            width: circular ? 33 : 30,
-            decoration: circular
-                ? BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black, width: 1.4),
-                  )
-                : null,
-            child: Icon(
-              icon,
-              size: circular ? 22 : 28,
-              color: Colors.black,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        width: 58,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: circular ? 33 : 30,
+              width: circular ? 33 : 30,
+              decoration: circular
+                  ? BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.black, width: 1.4),
+                    )
+                  : null,
+              child: Icon(
+                icon,
+                size: circular ? 22 : 28,
+                color: Colors.black,
+              ),
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
