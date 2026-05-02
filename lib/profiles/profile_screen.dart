@@ -1,286 +1,429 @@
 import 'package:flutter/material.dart';
 
-import '../app_state_scope.dart';
-import '../login_screen.dart';
-
-import 'pages/personal_details_page.dart';
-import 'pages/order_history_page.dart';
-import 'pages/shipping_addresses_page.dart';
-import 'pages/payment_methods_page.dart';
-import 'pages/favorites_page.dart';
-import 'pages/notifications_page.dart';
-import 'pages/help_support_page.dart';
-import 'pages/settings_page.dart';
-
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  static const Color _background = Color(0xFFF7F3EE);
+  static const Color _cream = Color(0xFFF2EDE6);
+  static const Color _rowColor = Color(0xFFF0E6DC);
+  static const Color _olive = Color(0xFF55682A);
+  static const Color _darkBlue = Color(0xFF0E1A39);
+
   @override
   Widget build(BuildContext context) {
-    final state = AppStateScope.of(context);
-
-    return Directionality(
-      textDirection: state.isArabic ? TextDirection.rtl : TextDirection.ltr,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF7F3EE),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 24),
-            child: Column(
-              children: [
-                _buildHeader(state),
-                const SizedBox(height: 20),
-                _buildMenuCard(context, state),
-              ],
+    return Scaffold(
+      backgroundColor: _background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildTopBar(context),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 22),
+                child: Column(
+                  children: [
+                    _buildHeroImage(),
+                    const SizedBox(height: 10),
+                    _buildProfileInfo(),
+                    const SizedBox(height: 16),
+                    _buildMenuList(context),
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(dynamic state) {
-    final translatedUserType = state.userType.toLowerCase() == 'trader'
-        ? _text(state, 'Trader', 'تاجر')
-        : _text(state, 'Customer', 'زبون');
-
+  Widget _buildTopBar(BuildContext context) {
     return Container(
+      height: 78,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: const BoxDecoration(
+        color: _cream,
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Menu will open here'),
+                  duration: Duration(milliseconds: 900),
+                ),
+              );
+            },
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(
+              width: 44,
+              height: 44,
+            ),
+            icon: const Icon(
+              Icons.menu_rounded,
+              size: 38,
+              color: _darkBlue,
+            ),
+          ),
+          const Spacer(),
+          Image.asset(
+            'assets/alard_icon.png',
+            height: 62,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) {
+              return const Text(
+                "AL'ARD",
+                style: TextStyle(
+                  fontSize: 21,
+                  color: _olive,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
+          ),
+          const Spacer(),
+          IconButton(
+            onPressed: () {
+              _openSimplePage(
+                context,
+                title: 'Notifications',
+                icon: Icons.notifications_none_rounded,
+              );
+            },
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(
+              width: 44,
+              height: 44,
+            ),
+            icon: const Icon(
+              Icons.notifications_none_rounded,
+              size: 34,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroImage() {
+    return SizedBox(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+      height: 136,
+      child: Image.asset(
+        'assets/photo2.png',
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          return Container(
+            color: const Color(0xFFD8CDBE),
+            alignment: Alignment.center,
+            child: const Icon(
+              Icons.landscape_outlined,
+              size: 50,
+              color: _olive,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildProfileInfo() {
+    return Column(
+      children: [
+        Container(
+          height: 56,
+          width: 56,
+          decoration: BoxDecoration(
+            color: _background,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.black,
+              width: 4,
+            ),
+          ),
+          child: const Icon(
+            Icons.person_outline_rounded,
+            size: 39,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Mohammed',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 2),
+        const Text(
+          'Mohammed@gmail.com',
+          style: TextStyle(
+            color: Colors.black45,
+            fontSize: 10,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Palestine',
+          style: TextStyle(
+            color: Colors.black45,
+            fontSize: 10,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.phone_outlined,
+              size: 12,
+              color: Colors.black38,
+            ),
+            SizedBox(width: 5),
+            Text(
+              '+970 23456789',
+              style: TextStyle(
+                color: Colors.black38,
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMenuList(BuildContext context) {
+    final items = [
+      _ProfileMenuItem(
+        title: 'Personal Details',
+        icon: Icons.person,
+      ),
+      _ProfileMenuItem(
+        title: 'Shipping Addresses',
+        icon: Icons.location_on,
+      ),
+      _ProfileMenuItem(
+        title: 'Order History',
+        icon: Icons.receipt_long,
+      ),
+      _ProfileMenuItem(
+        title: 'My Favorites',
+        icon: Icons.favorite,
+      ),
+      _ProfileMenuItem(
+        title: 'Payment Methods',
+        icon: Icons.credit_card,
+      ),
+      _ProfileMenuItem(
+        title: 'Notifications',
+        icon: Icons.notifications,
+      ),
+      _ProfileMenuItem(
+        title: 'Help & Support',
+        icon: Icons.support_agent,
+      ),
+      _ProfileMenuItem(
+        title: 'Settings',
+        icon: Icons.settings,
+      ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 44),
       child: Column(
         children: [
-          const CircleAvatar(
-            radius: 58,
-            backgroundColor: Color(0xFFD9DFC4),
-            child: Icon(
-              Icons.person,
-              size: 60,
-              color: Color(0xFF7A8D2F),
+          for (final item in items) ...[
+            _buildMenuRow(
+              context,
+              item: item,
             ),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            state.userName,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            translatedUserType,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black54,
-            ),
-          ),
+            const SizedBox(height: 6),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildMenuCard(BuildContext context, dynamic state) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF1EDE6),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          _ProfileTile(
-            icon: Icons.person_outline,
-            title: _text(state, 'Personal Details', 'البيانات الشخصية'),
-            isArabic: state.isArabic,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const PersonalDetailsPage(),
+  Widget _buildMenuRow(
+    BuildContext context, {
+    required _ProfileMenuItem item,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () {
+        _openSimplePage(
+          context,
+          title: item.title,
+          icon: item.icon,
+        );
+      },
+      child: Container(
+        height: 34,
+        padding: const EdgeInsets.symmetric(horizontal: 9),
+        decoration: BoxDecoration(
+          color: _rowColor,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              item.icon,
+              size: 23,
+              color: Colors.black,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                item.title,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
                 ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-
-          _ProfileTile(
-            icon: Icons.receipt_long_outlined,
-            title: _text(state, 'Order History', 'سجل الطلبات'),
-            isArabic: state.isArabic,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const OrderHistoryPage(),
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-
-          _ProfileTile(
-            icon: Icons.location_on_outlined,
-            title: _text(state, 'Shipping Addresses', 'عناوين الشحن'),
-            isArabic: state.isArabic,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ShippingAddressesPage(),
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-
-          _ProfileTile(
-            icon: Icons.payment_outlined,
-            title: _text(state, 'Payment Methods', 'طرق الدفع'),
-            isArabic: state.isArabic,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const PaymentMethodsPage(),
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-
-          _ProfileTile(
-            icon: Icons.favorite_border,
-            title: _text(state, 'Favorites', 'المفضلة'),
-            isArabic: state.isArabic,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const FavoritesPage(),
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-
-          _ProfileTile(
-            icon: Icons.notifications_none,
-            title: _text(state, 'Notifications', 'الإشعارات'),
-            isArabic: state.isArabic,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const NotificationsPage(),
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-
-          _ProfileTile(
-            icon: Icons.help_outline,
-            title: _text(state, 'Help & Support', 'المساعدة والدعم'),
-            isArabic: state.isArabic,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const HelpSupportPage(),
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-
-          _ProfileTile(
-            icon: Icons.settings_outlined,
-            title: _text(state, 'Settings', 'الإعدادات'),
-            isArabic: state.isArabic,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const SettingsScreen(),
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-
-          _ProfileTile(
-            icon: Icons.logout,
-            title: _text(state, 'Logout', 'تسجيل الخروج'),
-            isArabic: state.isArabic,
-            iconColor: Colors.red,
-            textColor: Colors.red,
-            showArrow: false,
-            onTap: () {
-              state.logout();
-
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const LoginScreen(),
-                ),
-                (route) => false,
-              );
-            },
-          ),
-        ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              size: 34,
+              color: Colors.black,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  String _text(dynamic state, String english, String arabic) {
-    return state.isArabic ? arabic : english;
+  void _openSimplePage(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => _ProfilePlaceholderPage(
+          title: title,
+          icon: icon,
+        ),
+      ),
+    );
   }
 }
 
-class _ProfileTile extends StatelessWidget {
-  final IconData icon;
+class _ProfileMenuItem {
   final String title;
-  final bool isArabic;
-  final VoidCallback onTap;
-  final Color iconColor;
-  final Color textColor;
-  final bool showArrow;
+  final IconData icon;
 
-  const _ProfileTile({
-    required this.icon,
+  const _ProfileMenuItem({
     required this.title,
-    required this.isArabic,
-    required this.onTap,
-    this.iconColor = const Color(0xFF5D6B1F),
-    this.textColor = Colors.black87,
-    this.showArrow = true,
+    required this.icon,
   });
+}
+
+class _ProfilePlaceholderPage extends StatelessWidget {
+  final String title;
+  final IconData icon;
+
+  const _ProfilePlaceholderPage({
+    required this.title,
+    required this.icon,
+  });
+
+  static const Color _background = Color(0xFFF7F3EE);
+  static const Color _olive = Color(0xFF55682A);
+  static const Color _cream = Color(0xFFF2EDE6);
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: iconColor,
-      ),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          color: textColor,
+    return Scaffold(
+      backgroundColor: _background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              height: 74,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              color: _cream,
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      size: 32,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 48),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0E6DC),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        icon,
+                        size: 52,
+                        color: _olive,
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'This section is ready for backend connection later.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 14,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-      trailing: showArrow
-          ? Icon(
-              isArabic ? Icons.chevron_left : Icons.chevron_right,
-              color: Colors.black87,
-            )
-          : null,
-      onTap: onTap,
     );
   }
 }
