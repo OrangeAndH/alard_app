@@ -108,10 +108,10 @@ class ReviewScreen extends StatelessWidget {
       color: _cream,
       alignment: Alignment.center,
       child: Image.asset(
-        'assets/alard_icon.png',
+        'assets/321.png',
         height: 24,
         fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           return const SizedBox.shrink();
         },
       ),
@@ -529,7 +529,7 @@ class _PopularProductCard extends StatelessWidget {
             child: Image.asset(
               item.image,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) {
+              errorBuilder: (_, _, _) {
                 return const Icon(
                   Icons.image_not_supported_outlined,
                   color: Colors.black38,

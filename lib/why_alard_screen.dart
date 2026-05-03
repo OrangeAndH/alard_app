@@ -112,7 +112,7 @@ class WhyAlardScreen extends StatelessWidget {
             'assets/alard_icon.png',
             height: 62,
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) {
+            errorBuilder: (_, _, _) {
               return const Text(
                 "AL'ARD",
                 style: TextStyle(

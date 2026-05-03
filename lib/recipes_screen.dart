@@ -250,10 +250,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
         children: [
           Center(
             child: Image.asset(
-              'assets/alard_icon.png',
+              'assets/321.png',
               height: 56,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) {
+              errorBuilder: (_, _, _) {
                 return const Text(
                   "AL'ARD",
                   style: TextStyle(
@@ -340,7 +340,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 14),
         scrollDirection: Axis.horizontal,
         itemCount: _cookingItems.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final item = _cookingItems[index];
           final isSelected = _selectedCookingItem == item;
@@ -464,7 +464,7 @@ class _RecipeCard extends StatelessWidget {
                     recipe.image,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) {
+                    errorBuilder: (_, _, _) {
                       return Container(
                         color: _RecipesScreenState._softBeige,
                         child: const Center(
@@ -578,7 +578,7 @@ class RecipeDetailsScreen extends StatelessWidget {
                         width: double.infinity,
                         height: 240,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) {
+                        errorBuilder: (_, _, _) {
                           return Container(
                             height: 240,
                             color: const Color(0xFFE9E1D5),

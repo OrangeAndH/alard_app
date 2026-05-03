@@ -65,7 +65,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 DropdownButtonFormField<String>(
-                  value: state.languageCode,
+                  initialValue: state.languageCode,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,

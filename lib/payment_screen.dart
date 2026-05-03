@@ -167,10 +167,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
             children: [
               Center(
                 child: Image.asset(
-                  'assets/alard_icon.png',
+                  'assets/321.png',
                   height: logoHeight,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) {
+                  errorBuilder: (_, _, _) {
                     return const Text(
                       "AL'ARD",
                       style: TextStyle(
@@ -658,7 +658,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
             ),
-            if (trailing != null) trailing,
+            ?trailing,
             const SizedBox(width: 18),
           ],
         ),
@@ -1000,7 +1000,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return SizedBox(
       height: 48,
       child: DropdownButtonFormField<String>(
-        value: value,
+        initialValue: value,
         isExpanded: true,
         icon: const Icon(
           Icons.keyboard_arrow_down_rounded,

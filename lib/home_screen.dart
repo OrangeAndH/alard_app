@@ -26,6 +26,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String selectedStore = 'Germany';
 
+  final TextEditingController _homeSearchController = TextEditingController();
+  bool _showHomeSearch = false;
+
   static const Color _background = Color(0xFFF7F3EE);
   static const Color _cream = Color(0xFFF2EDE6);
   static const Color _olive = Color(0xFF55682A);
@@ -34,6 +37,12 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Color _darkBlue = Color(0xFF0E1A39);
   static const Color _softBorder = Color(0xFFE6DED2);
   static const Color _whyFrameBackground = Color(0xFFF1E9DE);
+
+  @override
+  void dispose() {
+    _homeSearchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +115,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _submitHomeSearch() {
+    final query = _homeSearchController.text.trim();
+
+    setState(() {
+      _showHomeSearch = false;
+      _homeSearchController.clear();
+    });
+
+    _goToShopFilter(
+      category: 'All',
+      query: query,
+    );
+  }
+
   void _goToWhyAlard() {
     Navigator.push(
       context,
@@ -157,102 +180,199 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () {
-              _showHomeMenu(context);
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: 42,
-              height: 42,
-            ),
-            icon: const Icon(
-              Icons.menu_rounded,
-              size: 38,
-              color: _darkBlue,
-            ),
-          ),
-          const Spacer(),
-          Image.asset(
-            'assets/alard_icon.png',
-            height: 62,
-            fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) {
-              return const Text(
-                "AL'ARD",
-                style: TextStyle(
-                  fontSize: 21,
-                  color: _olive,
-                  fontWeight: FontWeight.bold,
+      child: _showHomeSearch
+          ? Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _showHomeSearch = false;
+                      _homeSearchController.clear();
+                    });
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 38,
+                    height: 42,
+                  ),
+                  icon: const Icon(
+                    Icons.arrow_back_rounded,
+                    size: 30,
+                    color: Colors.black,
+                  ),
                 ),
-              );
-            },
-          ),
-          const Spacer(),
-          IconButton(
-            onPressed: () {},
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: 42,
-              height: 42,
-            ),
-            icon: const Icon(
-              Icons.search_rounded,
-              size: 38,
-              color: Colors.black,
-            ),
-          ),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CartScreen(),
-                    ),
-                  );
-                },
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints.tightFor(
-                  width: 40,
-                  height: 42,
-                ),
-                icon: const Icon(
-                  Icons.shopping_cart_outlined,
-                  size: 34,
-                  color: Colors.black,
-                ),
-              ),
-              if (state.cartCount > 0)
-                Positioned(
-                  right: -2,
-                  top: 1,
+                const SizedBox(width: 6),
+                Expanded(
                   child: Container(
-                    height: 18,
-                    width: 18,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: _olive,
-                      shape: BoxShape.circle,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: _olive,
+                        width: 1,
+                      ),
                     ),
-                    child: Text(
-                      state.cartCount.toString(),
+                    child: TextField(
+                      controller: _homeSearchController,
+                      autofocus: true,
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (_) => _submitHomeSearch(),
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontSize: 14,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'search for products...',
+                        hintStyle: TextStyle(
+                          color: Colors.black.withOpacity(0.45),
+                          fontSize: 13,
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search_rounded,
+                          color: Colors.black,
+                          size: 24,
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            if (_homeSearchController.text.trim().isEmpty) {
+                              setState(() {
+                                _showHomeSearch = false;
+                              });
+                            } else {
+                              _homeSearchController.clear();
+                            }
+                          },
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            color: Colors.black,
+                            size: 22,
+                          ),
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                        ),
                       ),
                     ),
                   ),
                 ),
-            ],
-          ),
-        ],
-      ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: _submitHomeSearch,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 38,
+                    height: 42,
+                  ),
+                  icon: const Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 30,
+                    color: _olive,
+                  ),
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    _showHomeMenu(context);
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 42,
+                    height: 42,
+                  ),
+                  icon: const Icon(
+                    Icons.menu_rounded,
+                    size: 38,
+                    color: _darkBlue,
+                  ),
+                ),
+                const Spacer(),
+                Image.asset(
+                  'assets/321.png',
+                  height: 62,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) {
+                    return const Text(
+                      "AL'ARD",
+                      style: TextStyle(
+                        fontSize: 21,
+                        color: _olive,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _showHomeSearch = true;
+                    });
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 42,
+                    height: 42,
+                  ),
+                  icon: const Icon(
+                    Icons.search_rounded,
+                    size: 38,
+                    color: Colors.black,
+                  ),
+                ),
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const CartScreen(),
+                          ),
+                        );
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints.tightFor(
+                        width: 40,
+                        height: 42,
+                      ),
+                      icon: const Icon(
+                        Icons.shopping_cart_outlined,
+                        size: 34,
+                        color: Colors.black,
+                      ),
+                    ),
+                    if (state.cartCount > 0)
+                      Positioned(
+                        right: -2,
+                        top: 1,
+                        child: Container(
+                          height: 18,
+                          width: 18,
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            color: _olive,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            state.cartCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
     );
   }
 
@@ -402,7 +522,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Image.asset(
             'assets/photo2.png',
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) {
+            errorBuilder: (_, _, _) {
               return Container(
                 color: const Color(0xFFD4C7B4),
                 alignment: Alignment.center,
@@ -689,7 +809,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         scrollDirection: Axis.horizontal,
         itemCount: products.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           return _buildProductCard(context, products[index]);
         },
@@ -722,7 +842,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 74,
                         width: 74,
                         fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) {
+                        errorBuilder: (_, _, _) {
                           return const Icon(
                             Icons.image_outlined,
                             color: Colors.black26,
@@ -966,7 +1086,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Image.asset(
                   imagePath,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) {
+                  errorBuilder: (_, _, _) {
                     return Container(
                       color: const Color(0xFFE9E1D5),
                       alignment: Alignment.center,

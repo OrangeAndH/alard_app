@@ -4,7 +4,12 @@ import 'app_state_scope.dart';
 import 'cart_screen.dart';
 
 class FeedbackScreen extends StatefulWidget {
-  const FeedbackScreen({super.key});
+  final VoidCallback? onGoHome;
+
+  const FeedbackScreen({
+    super.key,
+    this.onGoHome,
+  });
 
   @override
   State<FeedbackScreen> createState() => _FeedbackScreenState();
@@ -96,6 +101,17 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   void dispose() {
     _commentController.dispose();
     super.dispose();
+  }
+
+  void _goBackToHome() {
+    if (widget.onGoHome != null) {
+      widget.onGoHome!();
+      return;
+    }
+
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
   }
 
   String _profileName(BuildContext context) {
@@ -249,10 +265,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             children: [
               Center(
                 child: Image.asset(
-                  'assets/alard_icon.png',
+                  'assets/321.png',
                   height: logoHeight,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) {
+                  errorBuilder: (_, _, _) {
                     return const Text(
                       "AL'ARD",
                       style: TextStyle(
@@ -267,7 +283,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               Positioned(
                 left: 6,
                 child: IconButton(
-                  onPressed: () => Navigator.maybePop(context),
+                  onPressed: _goBackToHome,
                   padding: EdgeInsets.zero,
                   constraints: BoxConstraints.tightFor(
                     width: buttonSize,
@@ -403,7 +419,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     return SizedBox(
       height: 46,
       child: DropdownButtonFormField<String>(
-        value: _selectedCountry,
+        initialValue: _selectedCountry,
         isExpanded: true,
         icon: const Icon(
           Icons.keyboard_arrow_down_rounded,

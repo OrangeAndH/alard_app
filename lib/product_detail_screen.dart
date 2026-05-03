@@ -149,7 +149,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                       child: Image.asset(
                         widget.product.image,
                         fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(
+                        errorBuilder: (_, _, _) => const Icon(
                           Icons.image_not_supported_outlined,
                           size: 80,
                           color: Colors.black26,

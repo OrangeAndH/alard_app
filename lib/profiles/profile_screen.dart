@@ -68,10 +68,10 @@ class ProfileScreen extends StatelessWidget {
           ),
           const Spacer(),
           Image.asset(
-            'assets/alard_icon.png',
+            'assets/321.png',
             height: 62,
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) {
+            errorBuilder: (_, _, _) {
               return const Text(
                 "AL'ARD",
                 style: TextStyle(
@@ -114,7 +114,7 @@ class ProfileScreen extends StatelessWidget {
       child: Image.asset(
         'assets/photo2.png',
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           return Container(
             color: const Color(0xFFD8CDBE),
             alignment: Alignment.center,

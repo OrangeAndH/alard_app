@@ -20,6 +20,12 @@ class _MainScreenState extends State<MainScreen> {
   String _shopQuery = '';
   int _shopRefreshKey = 0;
 
+  void _goToHome() {
+    setState(() {
+      _selectedIndex = 0;
+    });
+  }
+
   void _goToShop({
     String category = 'All',
     String query = '',
@@ -44,13 +50,16 @@ class _MainScreenState extends State<MainScreen> {
           key: ValueKey('shop-$_shopRefreshKey-$_shopCategory-$_shopQuery'),
           initialCategory: _shopCategory,
           initialQuery: _shopQuery,
+          onGoHome: _goToHome,
         );
 
       case 2:
         return const RecipesScreen();
 
       case 3:
-        return const FeedbackScreen();
+        return FeedbackScreen(
+          onGoHome: _goToHome,
+        );
 
       case 4:
         return const ProfileScreen();
@@ -73,7 +82,9 @@ class _MainScreenState extends State<MainScreen> {
         height: 85,
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF3EEE7),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(20),
+          ),
           boxShadow: [
             BoxShadow(
               color: isDark ? Colors.black54 : Colors.black12,
@@ -197,7 +208,10 @@ class _MainScreenState extends State<MainScreen> {
               padding: const EdgeInsets.all(2),
               decoration: isSelected
                   ? BoxDecoration(
-                      border: Border.all(color: selectedColor, width: 1.5),
+                      border: Border.all(
+                        color: selectedColor,
+                        width: 1.5,
+                      ),
                       borderRadius: BorderRadius.circular(10),
                     )
                   : null,
@@ -206,7 +220,7 @@ class _MainScreenState extends State<MainScreen> {
                 width: 28,
                 height: 28,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) {
+                errorBuilder: (_, _, _) {
                   return Icon(
                     Icons.restaurant_menu,
                     color: isSelected ? selectedColor : unselectedColor,

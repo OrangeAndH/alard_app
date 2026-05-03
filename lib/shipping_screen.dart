@@ -104,10 +104,10 @@ class _ShippingScreenState extends State<ShippingScreen> {
             children: [
               Center(
                 child: Image.asset(
-                  'assets/alard_icon.png',
+                  'assets/321.png',
                   height: logoHeight,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) {
+                  errorBuilder: (_, _, _) {
                     return const Text(
                       "AL'ARD",
                       style: TextStyle(
@@ -284,7 +284,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
               child: Image.asset(
                 image,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) {
+                errorBuilder: (_, _, _) {
                   return const Icon(
                     Icons.image_not_supported_outlined,
                     color: Colors.black38,

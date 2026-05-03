@@ -116,7 +116,7 @@ class FavoritesPage extends StatelessWidget {
               'assets/alard_icon.png',
               height: 62,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) {
+              errorBuilder: (_, _, _) {
                 return const Text(
                   "AL'ARD",
                   style: TextStyle(
@@ -170,7 +170,7 @@ class FavoritesPage extends StatelessWidget {
             child: Image.asset(
               product.image,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) {
+              errorBuilder: (_, _, _) {
                 return const Icon(
                   Icons.image_not_supported_outlined,
                   color: Colors.black38,

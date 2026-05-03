@@ -98,7 +98,7 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
             'assets/alard_icon.png',
             height: 62,
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) {
+            errorBuilder: (_, _, _) {
               return const Text(
                 "AL'ARD",
                 style: TextStyle(
@@ -142,7 +142,7 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
       child: Image.asset(
         'assets/photo2.png',
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           return Container(
             color: const Color(0xFFD8CDBE),
             child: const Center(
