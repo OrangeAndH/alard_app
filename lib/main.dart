@@ -12,12 +12,7 @@ void main() {
   final appState = AppState();
   final settings = AppSettings();
 
-  runApp(
-    AlardApp(
-      settings: settings,
-      appState: appState,
-    ),
-  );
+  runApp(AlardApp(settings: settings, appState: appState));
 
   appState.loadProductsFromAssets();
 }
@@ -26,11 +21,7 @@ class AlardApp extends StatelessWidget {
   final AppSettings settings;
   final AppState appState;
 
-  const AlardApp({
-    super.key,
-    required this.settings,
-    required this.appState,
-  });
+  const AlardApp({super.key, required this.settings, required this.appState});
 
   @override
   Widget build(BuildContext context) {
