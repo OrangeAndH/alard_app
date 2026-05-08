@@ -206,8 +206,6 @@ class _ShopScreenState extends State<ShopScreen> {
         final width = constraints.maxWidth;
 
         final barHeight = (width * 0.16).clamp(56.0, 70.0);
-        final logoHeight = (width * 0.11).clamp(28.0, 38.0);
-        final iconSize = (width * 0.075).clamp(25.0, 31.0);
         final buttonSize = (width * 0.11).clamp(38.0, 46.0);
 
         return Container(
@@ -220,7 +218,7 @@ class _ShopScreenState extends State<ShopScreen> {
               Center(
                 child: Image.asset(
                   'assets/321.png',
-                  height: logoHeight,
+                  height: 38,
                   fit: BoxFit.contain,
                   errorBuilder: (_, _, _) {
                     return const Text(
@@ -246,7 +244,7 @@ class _ShopScreenState extends State<ShopScreen> {
                   icon: Icon(
                     Icons.arrow_back_rounded,
                     color: Colors.black,
-                    size: iconSize,
+                    size: 30,
                   ),
                 ),
               ),
@@ -271,7 +269,7 @@ class _ShopScreenState extends State<ShopScreen> {
                       icon: Icon(
                         Icons.shopping_cart_outlined,
                         color: Colors.black,
-                        size: iconSize - 2,
+                        size: 28,
                       ),
                     ),
                     if (state.cartCount > 0)

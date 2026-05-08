@@ -41,7 +41,7 @@ class DiscoverOurStory extends StatelessWidget {
             onTap: () => Navigator.pop(context),
             child: const Icon(
               Icons.arrow_back_ios_new,
-              size: 28,
+              size: 30,
               color: Color(0xFF27304B),
             ),
           ),
@@ -49,8 +49,8 @@ class DiscoverOurStory extends StatelessWidget {
           Column(
             children: [
               Image.asset(
-                'assets/alard_logo.png',
-                height: 52,
+                'assets/321.png',
+                height: 38,
                 errorBuilder: (context, error, stackTrace) {
                   return const Text(
                     "AL'ARD",
@@ -67,7 +67,7 @@ class DiscoverOurStory extends StatelessWidget {
           const Spacer(),
           Row(
             children: [
-              const Icon(Icons.search, size: 34, color: Colors.black),
+              const Icon(Icons.search, size: 28, color: Colors.black),
               const SizedBox(width: 14),
               GestureDetector(
                 onTap: () {
@@ -80,7 +80,7 @@ class DiscoverOurStory extends StatelessWidget {
                 },
                 child: const Icon(
                   Icons.shopping_cart_outlined,
-                  size: 34,
+                  size: 28,
                   color: Colors.black,
                 ),
               ),
@@ -159,67 +159,60 @@ class DiscoverOurStory extends StatelessWidget {
   Widget _buildOurStorySection() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Image.asset(
-                      'assets/dis_photo2.png',
-                      width: 34,
-                      height: 34,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, _, _) => const Icon(
-                        Icons.eco,
-                        size: 24,
-                        color: Color(0xFF6B7A2B),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Our Story',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2D2D2D),
-                      ),
-                    ),
-                  ],
+          Row(
+            children: [
+              Image.asset(
+                'assets/dis_photo2.png',
+                width: 34,
+                height: 34,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => const Icon(
+                  Icons.eco,
+                  size: 24,
+                  color: Color(0xFF6B7A2B),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  "Al’Ard was founded by Ziad Anabtawi to support poor Palestinian farmers who struggled to sell their olive oil at a fair price.\n"
-                  "He helped them by providing modern facilities and connecting them with international markets.\n"
-                  "Now, more than ten years later, his son Sobhi returned to Palestine after traveling across Europe to learn about organic farming and fair-trade practices. Today, the company continues to support farmers first by maintaining transparent and ethical business practices while helping farmers access tools, storage facilities, and internationally recognized certifications.",
-                  style: TextStyle(
-                    fontSize: 15,
-                    height: 1.45,
-                    color: Colors.black87,
-                  ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Our Story',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D2D2D),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
+          const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.asset(
               'assets/dis_photo3.png',
-              width: 120,
-              height: 170,
+              width: double.infinity,
+              height: 200,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  width: 120,
-                  height: 170,
+                  width: double.infinity,
+                  height: 200,
                   color: Colors.brown.shade200,
                   child: const Icon(Icons.image, size: 40),
                 );
               },
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            "Al’Ard was founded by Ziad Anabtawi to support poor Palestinian farmers who struggled to sell their olive oil at a fair price.\n"
+            "He helped them by providing modern facilities and connecting them with international markets.\n"
+            "Now, more than ten years later, his son Sobhi returned to Palestine after traveling across Europe to learn about organic farming and fair-trade practices. Today, the company continues to support farmers first by maintaining transparent and ethical business practices while helping farmers access tools, storage facilities, and internationally recognized certifications.",
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.45,
+              color: Colors.black87,
             ),
           ),
         ],

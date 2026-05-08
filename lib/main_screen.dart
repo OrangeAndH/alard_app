@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_state_scope.dart';
 import 'feedback_screen.dart';
 import 'home_screen.dart';
 import 'profiles/profile_screen.dart';
@@ -75,6 +76,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final state = AppStateScope.of(context);
 
     return Scaffold(
       body: _buildCurrentPage(),
@@ -100,30 +102,30 @@ class _MainScreenState extends State<MainScreen> {
               index: 0,
               icon: Icons.home_outlined,
               activeIcon: Icons.home,
-              label: 'Home',
+              label: state.t('nav_home'),
             ),
             _buildNavItem(
               index: 1,
               icon: Icons.shopping_bag_outlined,
               activeIcon: Icons.shopping_bag,
-              label: 'Shop',
+              label: state.t('nav_shop'),
             ),
             _buildImageNavItem(
               index: 2,
               imagePath: 'assets/recipes.png',
-              label: 'Recipes',
+              label: state.t('nav_recipes'),
             ),
             _buildNavItem(
               index: 3,
               icon: Icons.feedback_outlined,
               activeIcon: Icons.feedback,
-              label: 'Feedback',
+              label: state.t('nav_feedback'),
             ),
             _buildNavItem(
               index: 4,
               icon: Icons.person_outline,
               activeIcon: Icons.person,
-              label: 'Profile',
+              label: state.t('nav_profile'),
             ),
           ],
         ),

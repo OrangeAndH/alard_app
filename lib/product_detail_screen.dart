@@ -409,7 +409,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             ),
           ],
         ),
-        child: Icon(icon, size: 20, color: iconColor),
+        child: Icon(icon, size: 28, color: iconColor),
       ),
     );
   }

@@ -47,33 +47,43 @@ class FavoritesPage extends StatelessWidget {
                         ),
                       ),
                     )
-                  : GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(42, 0, 42, 22),
-                      itemCount: products.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 18,
-                        crossAxisSpacing: 24,
-                        childAspectRatio: 0.58,
-                      ),
-                      itemBuilder: (context, index) {
-                        final product = products[index];
+                  : LayoutBuilder(
+                      builder: (context, constraints) {
+                        final width = constraints.maxWidth;
+                        final itemWidth = (width - 84 - 24) / 2;
+                        // Calculate total height: image height (~ itemWidth) + fixed text/button heights (~126px) + some buffer
+                        final itemHeight = itemWidth + 130;
+                        final aspectRatio = itemWidth / itemHeight;
 
-                        return _favoriteCard(
-                          context,
-                          product: product,
-                          onHeart: () {
-                            state.toggleFavorite(product);
-                          },
-                          onAdd: () {
-                            state.addToCart(product);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content:
-                                    Text('${product.name} added to cart'),
-                                duration: const Duration(milliseconds: 900),
-                              ),
+                        return GridView.builder(
+                          padding: const EdgeInsets.fromLTRB(42, 0, 42, 22),
+                          itemCount: products.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 18,
+                            crossAxisSpacing: 24,
+                            childAspectRatio: aspectRatio,
+                          ),
+                          itemBuilder: (context, index) {
+                            final product = products[index];
+
+                            return _favoriteCard(
+                              context,
+                              product: product,
+                              onHeart: () {
+                                state.toggleFavorite(product);
+                              },
+                              onAdd: () {
+                                state.addToCart(product);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text('${product.name} added to cart'),
+                                    duration: const Duration(milliseconds: 900),
+                                  ),
+                                );
+                              },
                             );
                           },
                         );

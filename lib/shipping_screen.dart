@@ -91,8 +91,6 @@ class _ShippingScreenState extends State<ShippingScreen> {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final barHeight = (width * 0.23).clamp(76.0, 100.0);
-        final logoHeight = (width * 0.16).clamp(50.0, 72.0);
-        final iconSize = (width * 0.085).clamp(28.0, 36.0);
         final buttonSize = (width * 0.12).clamp(40.0, 48.0);
 
         return Container(
@@ -105,7 +103,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
               Center(
                 child: Image.asset(
                   'assets/321.png',
-                  height: logoHeight,
+                  height: 38,
                   fit: BoxFit.contain,
                   errorBuilder: (_, _, _) {
                     return const Text(
@@ -133,7 +131,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
                   icon: Icon(
                     Icons.arrow_back_rounded,
                     color: Colors.black,
-                    size: iconSize,
+                    size: 30,
                   ),
                 ),
               ),

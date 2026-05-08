@@ -252,8 +252,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final barHeight = (width * 0.20).clamp(72.0, 88.0);
-        final logoHeight = (width * 0.14).clamp(46.0, 60.0);
-        final iconSize = (width * 0.078).clamp(27.0, 32.0);
         final buttonSize = (width * 0.12).clamp(40.0, 48.0);
 
         return Container(
@@ -266,7 +264,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               Center(
                 child: Image.asset(
                   'assets/321.png',
-                  height: logoHeight,
+                  height: 38,
                   fit: BoxFit.contain,
                   errorBuilder: (_, _, _) {
                     return const Text(
@@ -292,7 +290,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   icon: Icon(
                     Icons.arrow_back_rounded,
                     color: Colors.black,
-                    size: iconSize,
+                    size: 30,
                   ),
                 ),
               ),
@@ -308,7 +306,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   icon: Icon(
                     Icons.shopping_cart_outlined,
                     color: Colors.black,
-                    size: iconSize,
+                    size: 28,
                   ),
                 ),
               ),

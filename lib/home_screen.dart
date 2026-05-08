@@ -9,15 +9,9 @@ import 'shop_screen.dart';
 import 'why_alard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  final void Function({
-    String category,
-    String query,
-  })? onGoToShopFilter;
+  final void Function({String category, String query})? onGoToShopFilter;
 
-  const HomeScreen({
-    super.key,
-    this.onGoToShopFilter,
-  });
+  const HomeScreen({super.key, this.onGoToShopFilter});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -67,10 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildSectionHeader(
                       title: 'Our Products',
                       onTap: () {
-                        _goToShopFilter(
-                          category: 'All',
-                          query: '',
-                        );
+                        _goToShopFilter(category: 'All', query: '');
                       },
                     ),
                     const SizedBox(height: 6),
@@ -92,25 +83,17 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _goToShopFilter({
-    required String category,
-    required String query,
-  }) {
+  void _goToShopFilter({required String category, required String query}) {
     if (widget.onGoToShopFilter != null) {
-      widget.onGoToShopFilter!(
-        category: category,
-        query: query,
-      );
+      widget.onGoToShopFilter!(category: category, query: query);
       return;
     }
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ShopScreen(
-          initialCategory: category,
-          initialQuery: query,
-        ),
+        builder: (_) =>
+            ShopScreen(initialCategory: category, initialQuery: query),
       ),
     );
   }
@@ -123,18 +106,13 @@ class _HomeScreenState extends State<HomeScreen> {
       _homeSearchController.clear();
     });
 
-    _goToShopFilter(
-      category: 'All',
-      query: query,
-    );
+    _goToShopFilter(category: 'All', query: query);
   }
 
   void _goToWhyAlard() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const WhyAlardScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const WhyAlardScreen()),
     );
   }
 
@@ -173,12 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: const BoxDecoration(
         color: _cream,
-        border: Border(
-          bottom: BorderSide(
-            color: Color(0xFFE2DAD0),
-            width: 1,
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: Color(0xFFE2DAD0), width: 1)),
       ),
       child: _showHomeSearch
           ? Row(
@@ -208,20 +181,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: _olive,
-                        width: 1,
-                      ),
+                      border: Border.all(color: _olive, width: 1),
                     ),
                     child: TextField(
                       controller: _homeSearchController,
                       autofocus: true,
                       textInputAction: TextInputAction.search,
                       onSubmitted: (_) => _submitHomeSearch(),
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                      ),
+                      style: const TextStyle(color: Colors.black, fontSize: 14),
                       decoration: InputDecoration(
                         hintText: 'search for products...',
                         hintStyle: TextStyle(
@@ -275,25 +242,29 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : Row(
               children: [
-                IconButton(
-                  onPressed: () {
-                    _showHomeMenu(context);
-                  },
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 42,
-                    height: 42,
-                  ),
-                  icon: const Icon(
-                    Icons.menu_rounded,
-                    size: 38,
-                    color: _darkBlue,
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      onPressed: () {
+                        _showHomeMenu(context);
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints.tightFor(
+                        width: 42,
+                        height: 42,
+                      ),
+                      icon: const Icon(
+                        Icons.menu_rounded,
+                        size: 30,
+                        color: _darkBlue,
+                      ),
+                    ),
                   ),
                 ),
-                const Spacer(),
                 Image.asset(
                   'assets/321.png',
-                  height: 62,
+                  height: 38,
                   fit: BoxFit.contain,
                   errorBuilder: (_, _, _) {
                     return const Text(
@@ -306,70 +277,76 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                 ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _showHomeSearch = true;
-                    });
-                  },
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 42,
-                    height: 42,
-                  ),
-                  icon: const Icon(
-                    Icons.search_rounded,
-                    size: 38,
-                    color: Colors.black,
-                  ),
-                ),
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const CartScreen(),
-                          ),
-                        );
-                      },
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints.tightFor(
-                        width: 40,
-                        height: 42,
-                      ),
-                      icon: const Icon(
-                        Icons.shopping_cart_outlined,
-                        size: 34,
-                        color: Colors.black,
-                      ),
-                    ),
-                    if (state.cartCount > 0)
-                      Positioned(
-                        right: -2,
-                        top: 1,
-                        child: Container(
-                          height: 18,
-                          width: 18,
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                            color: _olive,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            state.cartCount.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _showHomeSearch = true;
+                          });
+                        },
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints.tightFor(
+                          width: 40,
+                          height: 42,
+                        ),
+                        icon: const Icon(
+                          Icons.search_rounded,
+                          size: 28,
+                          color: Colors.black,
                         ),
                       ),
-                  ],
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const CartScreen(),
+                                ),
+                              );
+                            },
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints.tightFor(
+                              width: 42,
+                              height: 42,
+                            ),
+                            icon: const Icon(
+                              Icons.shopping_cart_outlined,
+                              size: 28,
+                              color: Colors.black,
+                            ),
+                          ),
+                          if (state.cartCount > 0)
+                            Positioned(
+                              right: 2,
+                              top: 2,
+                              child: Container(
+                                height: 18,
+                                width: 18,
+                                alignment: Alignment.center,
+                                decoration: const BoxDecoration(
+                                  color: _olive,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  state.cartCount.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -384,11 +361,7 @@ class _HomeScreenState extends State<HomeScreen> {
         query: '',
         closeOnly: true,
       ),
-      _MenuFilter(
-        title: 'Gifts',
-        category: 'Gift Boxes',
-        query: '',
-      ),
+      _MenuFilter(title: 'Gifts', category: 'Gift Boxes', query: ''),
       _MenuFilter(
         title: 'Palestinian olive oil',
         category: 'Olive Oil',
@@ -419,21 +392,13 @@ class _HomeScreenState extends State<HomeScreen> {
         category: 'Herbs & Spices',
         query: 'chili',
       ),
-      _MenuFilter(
-        title: 'Freekeh and maftoul',
-        category: 'Grains',
-        query: '',
-      ),
+      _MenuFilter(title: 'Freekeh and maftoul', category: 'Grains', query: ''),
       _MenuFilter(
         title: 'Black seed - Qizha',
         category: 'Natural Products',
         query: 'black seed',
       ),
-      _MenuFilter(
-        title: 'Nabulsi soap',
-        category: 'Soap & Care',
-        query: '',
-      ),
+      _MenuFilter(title: 'Nabulsi soap', category: 'Soap & Care', query: ''),
     ];
 
     showGeneralDialog(
@@ -465,15 +430,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         if (item.closeOnly) return;
 
-                        Future.delayed(
-                          const Duration(milliseconds: 120),
-                          () {
-                            _goToShopFilter(
-                              category: item.category,
-                              query: item.query,
-                            );
-                          },
-                        );
+                        Future.delayed(const Duration(milliseconds: 120), () {
+                          _goToShopFilter(
+                            category: item.category,
+                            query: item.query,
+                          );
+                        });
                       },
                       child: Container(
                         height: isHeader ? 53 : 56,
@@ -534,9 +496,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-          Container(
-            color: Colors.black.withOpacity(0.18),
-          ),
+          Container(color: Colors.black.withOpacity(0.18)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 34),
             child: Column(
@@ -605,11 +565,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
-          const Icon(
-            Icons.location_on,
-            color: Colors.black,
-            size: 19,
-          ),
+          const Icon(Icons.location_on, color: Colors.black, size: 19),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
@@ -629,26 +585,26 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             style: TextButton.styleFrom(
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.only(left: 4, right: 2),
               minimumSize: const Size(0, 28),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: const Text(
               'Change location',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ),
           InkWell(
             onTap: () {
               _showStoreDialog(context);
             },
-            child: const Icon(
-              Icons.skip_next,
-              color: Colors.black,
-              size: 18,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 4),
+              child: Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: Colors.black,
+                size: 14,
+              ),
             ),
           ),
         ],
@@ -658,38 +614,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showStoreDialog(BuildContext context) {
     final stores = [
-      _StoreChoice(flag: '🇺🇸', name: "Al'ard USA", value: 'USA'),
-      _StoreChoice(flag: '🇸🇦', name: "Al'ard KSA", value: 'KSA'),
-      _StoreChoice(flag: '🇦🇪', name: "Al'ard UAE", value: 'UAE'),
-      _StoreChoice(flag: '🇵🇸', name: "Al'ard Palestine", value: 'Palestine'),
-      _StoreChoice(flag: '🇪🇺', name: "Al'ard Europe", value: 'Europe'),
+      _StoreChoice(flag: '🇵🇸', name: "Palestine", value: 'Palestine'),
+      _StoreChoice(flag: '🇲🇾', name: "Malaysia", value: 'Malaysia'),
+      _StoreChoice(flag: '🇪🇺', name: "Europe", value: 'Europe'),
+      _StoreChoice(flag: '🇦🇪', name: "UAE", value: 'UAE'),
+      _StoreChoice(flag: '🇸🇦', name: "KSA", value: 'KSA'),
+      _StoreChoice(flag: '🇨🇦', name: "Canada", value: 'Canada'),
+      _StoreChoice(flag: '🇨🇱', name: "Chile", value: 'Chile'),
     ];
 
     showDialog(
       context: context,
       builder: (dialogContext) {
         return Dialog(
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFF6F4E8),
           insetPadding: const EdgeInsets.symmetric(horizontal: 22),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 22, 12, 18),
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Select your store',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 30,
-                    fontFamily: 'serif',
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 14),
                 for (final store in stores) ...[
                   _buildStoreChoice(
                     store: store,
@@ -700,26 +647,27 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.pop(dialogContext);
                     },
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 10),
                 ],
-                const SizedBox(height: 12),
-                OutlinedButton(
+                const SizedBox(height: 10),
+                ElevatedButton(
                   onPressed: () {
                     Navigator.pop(dialogContext);
                   },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    side: const BorderSide(
-                      color: Colors.black54,
-                      width: 1,
-                    ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _olive,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
                     ),
                   ),
                   child: const Text(
-                    'Close',
-                    style: TextStyle(fontSize: 16),
+                    'Continue Shopping',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -736,29 +684,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
       child: Container(
-        height: 40,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFFEFEFEF),
-          border: Border.all(
-            color: Colors.black54,
-            width: 0.8,
-          ),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
           children: [
-            Text(
-              store.flag,
-              style: const TextStyle(fontSize: 27),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              store.name,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 17,
+            Text(store.flag, style: const TextStyle(fontSize: 24)),
+            Expanded(
+              child: Text(
+                store.name,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontFamily: 'serif',
+                  fontWeight: FontWeight.w600,
+                ),
               ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.black54,
+              size: 20,
             ),
           ],
         ),
@@ -786,11 +738,11 @@ class _HomeScreenState extends State<HomeScreen> {
           InkWell(
             onTap: onTap,
             child: const Padding(
-              padding: EdgeInsets.all(4),
+              padding: EdgeInsets.symmetric(vertical: 4),
               child: Icon(
-                Icons.skip_next,
+                Icons.arrow_forward_ios_rounded,
                 color: Colors.black,
-                size: 20,
+                size: 16,
               ),
             ),
           ),
@@ -799,10 +751,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildProductsRow(
-    BuildContext context,
-    List<Product> products,
-  ) {
+  Widget _buildProductsRow(BuildContext context, List<Product> products) {
     return SizedBox(
       height: 166,
       child: ListView.separated(
@@ -832,9 +781,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 78,
                     width: 78,
                     alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE9E3D9),
-                    ),
+                    decoration: const BoxDecoration(color: Color(0xFFE9E3D9)),
                     child: Hero(
                       tag: product.id,
                       child: Image.asset(
@@ -865,7 +812,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const Spacer(),
                   Text(
                     _homePrice(product),
                     maxLines: 1,
@@ -876,6 +823,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontWeight: FontWeight.w900,
                     ),
                   ),
+                  const SizedBox(height: 4),
                 ],
               ),
             ),
@@ -897,10 +845,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Text(
                 'View details',
                 maxLines: 1,
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800),
               ),
             ),
           ),
@@ -912,11 +857,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openProductDetails(BuildContext context, Product product) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => ProductDetailScreen(
-          product: product,
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product)),
     );
   }
 
@@ -947,12 +888,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final price = product.price.toStringAsFixed(0);
 
-    if (product.displayPrice.contains('NIS') ||
-        product.displayPrice.contains('₪')) {
-      return '$price NIS';
-    }
+    String currency = 'NIS';
+    if (selectedStore == 'USA')
+      currency = 'USD';
+    else if (selectedStore == 'KSA')
+      currency = 'SAR';
+    else if (selectedStore == 'UAE')
+      currency = 'AED';
+    else if (selectedStore == 'Palestine')
+      currency = 'NIS';
+    else if (selectedStore == 'Europe')
+      currency = 'EUR';
+    else if (selectedStore == 'Malaysia')
+      currency = 'MYR';
+    else if (selectedStore == 'Canada')
+      currency = 'CAD';
+    else if (selectedStore == 'Chile')
+      currency = 'CLP';
 
-    return product.displayPrice;
+    return '$price $currency';
   }
 
   Widget _buildWhyAlardFrame(BuildContext context) {
@@ -966,8 +920,8 @@ class _HomeScreenState extends State<HomeScreen> {
         final naturalWidth = (screenWidth * 0.31).clamp(112.0, 126.0);
         final gap = (screenWidth * 0.015).clamp(5.0, 7.0);
 
-        final imageCardWidth =
-            ((innerWidth - naturalWidth - (gap * 2)) / 2).clamp(105.0, 135.0);
+        final imageCardWidth = ((innerWidth - naturalWidth - (gap * 2)) / 2)
+            .clamp(105.0, 135.0);
 
         final imageHeight = (frameHeight * 0.56).clamp(68.0, 78.0);
         final imageTitleFont = (screenWidth * 0.035).clamp(12.5, 14.5);
@@ -977,9 +931,7 @@ class _HomeScreenState extends State<HomeScreen> {
           height: frameHeight,
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          decoration: const BoxDecoration(
-            color: _whyFrameBackground,
-          ),
+          decoration: const BoxDecoration(color: _whyFrameBackground),
           child: Row(
             children: [
               _buildNaturalOliveOilCard(
@@ -1141,19 +1093,13 @@ class _MiniInfoBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFAF6EF),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: _HomeScreenState._softBorder,
-        ),
+        border: Border.all(color: _HomeScreenState._softBorder),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 4),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            color: _HomeScreenState._olive,
-            size: fontSize + 9,
-          ),
+          Icon(icon, color: _HomeScreenState._olive, size: fontSize + 9),
           const SizedBox(height: 2),
           FittedBox(
             fit: BoxFit.scaleDown,
@@ -1191,17 +1137,11 @@ class _MiniInfoBox extends StatelessWidget {
 class _TinyWhyIcon extends StatelessWidget {
   final IconData icon;
 
-  const _TinyWhyIcon({
-    required this.icon,
-  });
+  const _TinyWhyIcon({required this.icon});
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      icon,
-      size: 16,
-      color: const Color(0xFFC9BF9D),
-    );
+    return Icon(icon, size: 16, color: const Color(0xFFC9BF9D));
   }
 }
 

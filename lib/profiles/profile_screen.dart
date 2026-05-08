@@ -62,14 +62,14 @@ class ProfileScreen extends StatelessWidget {
             ),
             icon: const Icon(
               Icons.menu_rounded,
-              size: 38,
+              size: 30,
               color: _darkBlue,
             ),
           ),
           const Spacer(),
           Image.asset(
             'assets/321.png',
-            height: 62,
+            height: 38,
             fit: BoxFit.contain,
             errorBuilder: (_, _, _) {
               return const Text(
@@ -98,7 +98,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             icon: const Icon(
               Icons.notifications_none_rounded,
-              size: 34,
+              size: 30,
               color: Colors.black,
             ),
           ),
@@ -292,7 +292,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const Icon(
               Icons.chevron_right_rounded,
-              size: 34,
+              size: 30,
               color: Colors.black,
             ),
           ],
@@ -360,7 +360,7 @@ class _ProfilePlaceholderPage extends StatelessWidget {
                     },
                     icon: const Icon(
                       Icons.arrow_back_rounded,
-                      size: 32,
+                      size: 30,
                       color: Colors.black,
                     ),
                   ),

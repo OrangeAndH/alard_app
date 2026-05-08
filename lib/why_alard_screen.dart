@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'app_state_scope.dart';
+
 class WhyAlardScreen extends StatelessWidget {
   const WhyAlardScreen({super.key});
 
@@ -10,6 +12,8 @@ class WhyAlardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
+
     return Scaffold(
       backgroundColor: _background,
       body: SafeArea(
@@ -27,45 +31,40 @@ class WhyAlardScreen extends StatelessWidget {
 
                     _buildWhyCard(
                       icon: Icons.eco_outlined,
-                      title: '100% Natural',
-                      text:
-                          'All products are made from natural Palestinian ingredients without artificial additives.',
+                      title: state.t('why_natural_title'),
+                      text: state.t('why_natural_desc'),
                     ),
 
                     const SizedBox(height: 30),
 
                     _buildWhyCard(
                       icon: Icons.opacity_outlined,
-                      title: 'Premium Olive Oil',
-                      text:
-                          'High-quality extra virgin olive oil sourced from traditional Palestinian olive trees.',
+                      title: state.t('why_premium_title'),
+                      text: state.t('why_premium_desc'),
                     ),
 
                     const SizedBox(height: 30),
 
                     _buildWhyCard(
                       icon: Icons.agriculture_outlined,
-                      title: 'Support Palestinian Farmers',
-                      text:
-                          'Every purchase helps support local farmers and strengthens the Palestinian agricultural community.',
+                      title: state.t('why_farmers_title'),
+                      text: state.t('why_farmers_desc'),
                     ),
 
                     const SizedBox(height: 30),
 
                     _buildWhyCard(
                       icon: Icons.restaurant_menu_outlined,
-                      title: 'Authentic Palestinian Taste.',
-                      text:
-                          "Traditional recipes like za'atar, sumac, and olive oil that represent the rich heritage of Palestine.",
+                      title: state.t('why_taste_title'),
+                      text: state.t('why_taste_desc'),
                     ),
 
                     const SizedBox(height: 30),
 
                     _buildWhyCard(
                       icon: Icons.public_outlined,
-                      title: 'Eco-Friendly Production',
-                      text:
-                          'Products are produced using sustainable and environmentally friendly practices.',
+                      title: state.t('why_eco_title'),
+                      text: state.t('why_eco_desc'),
                     ),
                   ],
                 ),
@@ -92,17 +91,23 @@ class WhyAlardScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          IconButton(
-            onPressed: () {},
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: 42,
-              height: 42,
-            ),
-            icon: const Icon(
-              Icons.menu_rounded,
-              size: 38,
-              color: _darkBlue,
+          SizedBox(
+            width: 84,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                onPressed: () {},
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints.tightFor(
+                  width: 42,
+                  height: 42,
+                ),
+                icon: const Icon(
+                  Icons.menu_rounded,
+                  size: 30,
+                  color: _darkBlue,
+                ),
+              ),
             ),
           ),
 
@@ -126,31 +131,39 @@ class WhyAlardScreen extends StatelessWidget {
 
           const Spacer(),
 
-          IconButton(
-            onPressed: () {},
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: 42,
-              height: 42,
-            ),
-            icon: const Icon(
-              Icons.search_rounded,
-              size: 38,
-              color: Colors.black,
-            ),
-          ),
+          SizedBox(
+            width: 84,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: () {},
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 42,
+                    height: 42,
+                  ),
+                  icon: const Icon(
+                    Icons.search_rounded,
+                    size: 28,
+                    color: Colors.black,
+                  ),
+                ),
 
-          IconButton(
-            onPressed: () {},
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: 42,
-              height: 42,
-            ),
-            icon: const Icon(
-              Icons.public_outlined,
-              size: 36,
-              color: Colors.black,
+                IconButton(
+                  onPressed: () {},
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 42,
+                    height: 42,
+                  ),
+                  icon: const Icon(
+                    Icons.public_outlined,
+                    size: 28,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -172,17 +185,17 @@ class WhyAlardScreen extends StatelessWidget {
           ),
           icon: const Icon(
             Icons.arrow_back_rounded,
-            size: 38,
+            size: 30,
             color: Colors.black,
           ),
         ),
 
         const SizedBox(width: 12),
 
-        const Expanded(
+        Expanded(
           child: Text(
-            "Why Al ‘Ard Product ?",
-            style: TextStyle(
+            AppStateScope.of(context).t('why_title'),
+            style: const TextStyle(
               color: Colors.black,
               fontSize: 20,
               fontFamily: 'serif',

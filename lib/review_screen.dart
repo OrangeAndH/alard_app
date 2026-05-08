@@ -30,17 +30,34 @@ class ReviewScreen extends StatelessWidget {
   static const Color _olive = Color(0xFF55682A);
   static const Color _gold = Color(0xFFE0A323);
 
+  static const List<_PopularItem> _popularItems = [
+    _PopularItem(
+      title: 'Olive Pickle Variety',
+      image: 'assets/catalog_images/olive_pickle_variety_on_display.png',
+    ),
+    _PopularItem(
+      title: 'Extra virgin olive oil',
+      image: 'assets/catalog_images/olive_oil_collection_on_display.png',
+    ),
+    _PopularItem(
+      title: 'Nablus Soap',
+      image: 'assets/catalog_images/premium_nabulsi_soap_and_liquid_set.png',
+    ),
+    _PopularItem(
+      title: 'Premium Za’atar Blend',
+      image: 'assets/catalog_images/premium_palestinian_za_atar_blends_lineup.png',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final popularItems = _buildPopularItems();
-
     return Scaffold(
       backgroundColor: _background,
       bottomNavigationBar: _bottomNav(context),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final screenWidth = constraints.maxWidth;
+        child: Builder(
+          builder: (context) {
+            final screenWidth = MediaQuery.of(context).size.width;
             final horizontalPadding = screenWidth < 360 ? 8.0 : 10.0;
 
             return Column(
@@ -56,8 +73,10 @@ class ReviewScreen extends StatelessWidget {
                     ),
                     children: [
                       const SizedBox(height: 4),
-                      _buildSteps(activeStep: 'Review'),
-                      const SizedBox(height: 8),
+                      _buildSteps(context, activeStep: 'Review'),
+                      const SizedBox(height: 16),
+                      _orderSummary(),
+                      const SizedBox(height: 16),
                       _searchBar(),
                       const SizedBox(height: 10),
                       _heroBanner(),
@@ -74,7 +93,7 @@ class ReviewScreen extends StatelessWidget {
                         },
                       ),
                       const SizedBox(height: 8),
-                      _popularProductsRow(context, popularItems),
+                      _popularProductsRow(context, _popularItems),
                       const SizedBox(height: 16),
                       _sectionTitle(
                         title: 'Customer Feedback',
@@ -109,7 +128,7 @@ class ReviewScreen extends StatelessWidget {
       alignment: Alignment.center,
       child: Image.asset(
         'assets/321.png',
-        height: 24,
+        height: 38,
         fit: BoxFit.contain,
         errorBuilder: (_, _, _) {
           return const SizedBox.shrink();
@@ -118,15 +137,14 @@ class ReviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSteps({
+  Widget _buildSteps(
+    BuildContext context, {
     required String activeStep,
   }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final fontSize = (width * 0.034).clamp(12.0, 14.0);
+    final width = MediaQuery.of(context).size.width;
+    final fontSize = (width * 0.034).clamp(12.0, 14.0);
 
-        return Center(
+    return Center(
           child: Wrap(
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -158,8 +176,6 @@ class ReviewScreen extends StatelessWidget {
             ],
           ),
         );
-      },
-    );
   }
 
   Widget _stepText(
@@ -327,7 +343,7 @@ class ReviewScreen extends StatelessWidget {
             child: Icon(
               Icons.chevron_right_rounded,
               color: _olive,
-              size: 28,
+              size: 30,
             ),
           ),
         ),
@@ -410,26 +426,101 @@ class ReviewScreen extends StatelessWidget {
     );
   }
 
-  List<_PopularItem> _buildPopularItems() {
-    return const [
-      _PopularItem(
-        title: 'Olive Pickle Variety',
-        image: 'assets/catalog_images/olive_pickle_variety_on_display.png',
+  Widget _orderSummary() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: _cream),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
-      _PopularItem(
-        title: 'Extra virgin olive oil',
-        image: 'assets/catalog_images/olive_oil_collection_on_display.png',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Order Summary',
+            style: TextStyle(
+              color: _olive,
+              fontSize: 18,
+              fontFamily: 'serif',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (orderItems.isNotEmpty) ...[
+            ...orderItems.map((item) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${item['quantity'] ?? 1}x ${item['name'] ?? 'Product'}',
+                      style: const TextStyle(fontSize: 14, fontFamily: 'serif'),
+                    ),
+                    Text(
+                      '£${(item['price'] ?? 0.0).toStringAsFixed(2)}',
+                      style: const TextStyle(fontSize: 14, fontFamily: 'serif'),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const Divider(color: _cream),
+          ],
+          _summaryRow('Subtotal', subtotal),
+          _summaryRow(shippingTitle, shippingFee),
+          _summaryRow('VAT', vat),
+          const Divider(color: _cream),
+          _summaryRow('Total', total, isBold: true),
+          const SizedBox(height: 12),
+          Text(
+            'Payment Method: $paymentMethod',
+            style: const TextStyle(
+              color: Colors.black54,
+              fontSize: 12,
+              fontFamily: 'serif',
+            ),
+          ),
+        ],
       ),
-      _PopularItem(
-        title: 'Nablus Soap',
-        image: 'assets/catalog_images/premium_nabulsi_soap_and_liquid_set.png',
+    );
+  }
+
+  Widget _summaryRow(String label, double amount, {bool isBold = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: _olive,
+              fontSize: isBold ? 16 : 14,
+              fontFamily: 'serif',
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          Text(
+            '£${amount.toStringAsFixed(2)}',
+            style: TextStyle(
+              color: _olive,
+              fontSize: isBold ? 16 : 14,
+              fontFamily: 'serif',
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
       ),
-      _PopularItem(
-        title: 'Premium Za’atar Blend',
-        image:
-            'assets/catalog_images/premium_palestinian_za_atar_blends_lineup.png',
-      ),
-    ];
+    );
   }
 
   Widget _bottomNav(BuildContext context) {
@@ -699,7 +790,7 @@ class _NavIcon extends StatelessWidget {
                   : null,
               child: Icon(
                 icon,
-                size: circular ? 22 : 28,
+                size: circular ? 22 : 30,
                 color: Colors.black,
               ),
             ),

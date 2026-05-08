@@ -210,24 +210,34 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     if (recipes.isEmpty)
                       _buildEmptySearch()
                     else
-                      GridView.builder(
-                        itemCount: recipes.length,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 14,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.62,
-                        ),
-                        itemBuilder: (context, index) {
-                          final recipe = recipes[index];
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final width = constraints.maxWidth;
+                          final itemWidth = (width - 14) / 2;
+                          // Calculate item height: image (aspect ratio 1.15) + text/button fixed heights + padding
+                          final itemHeight = (itemWidth / 1.15) + 138;
+                          final aspectRatio = itemWidth / itemHeight;
 
-                          return _RecipeCard(
-                            recipe: recipe,
-                            onOpen: () {
-                              _openRecipe(context, recipe);
+                          return GridView.builder(
+                            itemCount: recipes.length,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 14,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: aspectRatio,
+                            ),
+                            itemBuilder: (context, index) {
+                              final recipe = recipes[index];
+
+                              return _RecipeCard(
+                                recipe: recipe,
+                                onOpen: () {
+                                  _openRecipe(context, recipe);
+                                },
+                              );
                             },
                           );
                         },
@@ -251,7 +261,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
           Center(
             child: Image.asset(
               'assets/321.png',
-              height: 56,
+              height: 38,
               fit: BoxFit.contain,
               errorBuilder: (_, _, _) {
                 return const Text(
@@ -283,7 +293,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
               },
               icon: Icon(
                 _showSearch ? Icons.close_rounded : Icons.search_rounded,
-                size: 34,
+                size: 30,
                 color: Colors.black87,
               ),
             ),
@@ -751,7 +761,7 @@ class RecipeDetailsScreen extends StatelessWidget {
             },
             icon: const Icon(
               Icons.arrow_back_ios_new_rounded,
-              size: 24,
+              size: 30,
               color: Colors.black87,
             ),
           ),
