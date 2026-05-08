@@ -6,6 +6,7 @@ import 'home_screen.dart';
 import 'profiles/profile_screen.dart';
 import 'recipes_screen.dart';
 import 'shop_screen.dart';
+import 'trader_shop_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -40,18 +41,27 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildCurrentPage() {
+    final state = AppStateScope.of(context);
+    
     return IndexedStack(
       index: _selectedIndex,
       children: [
         HomeScreen(
           onGoToShopFilter: _goToShop,
         ),
-        ShopScreen(
-          key: ValueKey('shop-$_shopRefreshKey-$_shopCategory-$_shopQuery'),
-          initialCategory: _shopCategory,
-          initialQuery: _shopQuery,
-          onGoHome: _goToHome,
-        ),
+        state.currentUser?.isTrader == true
+            ? TraderShopScreen(
+                key: ValueKey('shop-$_shopRefreshKey-$_shopCategory-$_shopQuery'),
+                initialCategory: _shopCategory,
+                initialQuery: _shopQuery,
+                onGoHome: _goToHome,
+              )
+            : ShopScreen(
+                key: ValueKey('shop-$_shopRefreshKey-$_shopCategory-$_shopQuery'),
+                initialCategory: _shopCategory,
+                initialQuery: _shopQuery,
+                onGoHome: _goToHome,
+              ),
         const RecipesScreen(),
         FeedbackScreen(
           onGoHome: _goToHome,
