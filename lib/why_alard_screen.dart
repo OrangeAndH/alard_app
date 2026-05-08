@@ -100,7 +100,7 @@ class WhyAlardScreen extends StatelessWidget {
               SizedBox(
                 width: 84,
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: IconButton(
                     onPressed: () {},
                     padding: EdgeInsets.zero,
@@ -186,8 +186,8 @@ class WhyAlardScreen extends StatelessWidget {
             width: 40,
             height: 40,
           ),
-          icon: const Icon(
-            Icons.arrow_back_rounded,
+          icon: Icon(
+            Icons.adaptive.arrow_back,
             size: 30,
             color: Colors.black,
           ),

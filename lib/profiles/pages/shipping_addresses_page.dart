@@ -14,21 +14,21 @@ class ShippingAddressesPage extends StatelessWidget {
     final orders = state.orders.toList();
 
     return AppPageScaffold(
-      title: 'Shipping Addresses',
+      title: state.t('addr_shipping_title'),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddAddressDialog(context),
         child: const Icon(Icons.add),
       ),
       child: ListView(
         children: [
-          const Text(
-            'Saved Addresses',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          Text(
+            state.t('addr_saved'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 12),
 
           if (addresses.isEmpty)
-            _emptyCard(context, 'No saved addresses yet.')
+            _emptyCard(context, state.t('addr_no_saved'))
           else
             ...addresses.map((address) {
               return Padding(
@@ -47,14 +47,14 @@ class ShippingAddressesPage extends StatelessWidget {
             }),
 
           const SizedBox(height: 18),
-          const Text(
-            'Product Delivery Tracking',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          Text(
+            state.t('addr_tracking'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 12),
 
           if (orders.isEmpty)
-            _emptyCard(context, 'No active product deliveries yet.')
+            _emptyCard(context, state.t('addr_no_active'))
           else
             ...orders.map((order) {
               return Padding(
@@ -100,7 +100,7 @@ class ShippingAddressesPage extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  address.title,
+                  AppStateScope.of(context).t(address.title),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 17,
@@ -119,7 +119,7 @@ class ShippingAddressesPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    'Default',
+                    AppStateScope.of(context).t('addr_default'),
                     style: TextStyle(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -139,7 +139,7 @@ class ShippingAddressesPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Mailbox: ${address.mailboxAddress}',
+            '${AppStateScope.of(context).t('addr_mailbox')}: ${address.mailboxAddress}',
             style: TextStyle(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
             ),
@@ -151,11 +151,11 @@ class ShippingAddressesPage extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onSetDefault,
                   icon: const Icon(Icons.check_circle_outline),
-                  label: const Text('Set default'),
+                  label: Text(AppStateScope.of(context).t('addr_set_default')),
                 ),
               const Spacer(),
               IconButton(
-                tooltip: 'Delete address',
+                tooltip: AppStateScope.of(context).t('addr_delete_tooltip'),
                 onPressed: onDelete,
                 icon: const Icon(
                   Icons.delete_outline,
@@ -188,7 +188,7 @@ class ShippingAddressesPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Order $orderId',
+            '${AppStateScope.of(context).t('addr_order_prefix')} $orderId',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
@@ -196,7 +196,7 @@ class ShippingAddressesPage extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Status: $status',
+            '${AppStateScope.of(context).t('addr_status_prefix')}: $status',
             style: TextStyle(
               color: theme.colorScheme.primary,
               fontWeight: FontWeight.bold,
@@ -204,14 +204,14 @@ class ShippingAddressesPage extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Delivery address: $address',
+            '${AppStateScope.of(context).t('addr_delivery_prefix')}: $address',
             style: TextStyle(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Mailbox: $mailbox',
+            '${AppStateScope.of(context).t('addr_mailbox')}: $mailbox',
             style: TextStyle(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
             ),
@@ -251,32 +251,32 @@ class ShippingAddressesPage extends StatelessWidget {
         final state = AppStateScope.of(context);
 
         return AlertDialog(
-          title: const Text('Add Address'),
+          title: Text(state.t('addr_add_title')),
           content: SingleChildScrollView(
             child: Column(
               children: [
                 TextField(
                   controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Address title',
-                    hintText: 'Example: Home',
+                  decoration: InputDecoration(
+                    labelText: state.t('addr_label_title'),
+                    hintText: state.t('addr_hint_title'),
                   ),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: detailsController,
                   maxLines: 2,
-                  decoration: const InputDecoration(
-                    labelText: 'Full address',
-                    hintText: 'Example: Nablus, Street 1, Building 2',
+                  decoration: InputDecoration(
+                    labelText: state.t('addr_label_details'),
+                    hintText: state.t('addr_hint_details'),
                   ),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: mailboxController,
-                  decoration: const InputDecoration(
-                    labelText: 'Mailbox address',
-                    hintText: 'Example: mailbox near main door',
+                  decoration: InputDecoration(
+                    labelText: state.t('addr_label_mailbox'),
+                    hintText: state.t('addr_hint_mailbox'),
                   ),
                 ),
               ],
@@ -285,7 +285,7 @@ class ShippingAddressesPage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(state.t('ui_cancel')),
             ),
             ElevatedButton(
               onPressed: () {
@@ -305,7 +305,7 @@ class ShippingAddressesPage extends StatelessWidget {
 
                 Navigator.pop(dialogContext);
               },
-              child: const Text('Add'),
+              child: Text(state.t('ui_add')),
             ),
           ],
         );
@@ -323,14 +323,14 @@ class ShippingAddressesPage extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Delete Address'),
+          title: Text(state.t('addr_delete_confirm_title')),
           content: Text(
-            'Are you sure you want to delete "${address.title}"?',
+            '${state.t('addr_delete_confirm_msg')} "${state.t(address.title)}"?',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(state.t('ui_cancel')),
             ),
             ElevatedButton(
               onPressed: () {
@@ -338,8 +338,8 @@ class ShippingAddressesPage extends StatelessWidget {
                 Navigator.pop(dialogContext);
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Address deleted'),
+                  SnackBar(
+                    content: Text(state.t('addr_deleted_snack')),
                   ),
                 );
               },
@@ -347,7 +347,7 @@ class ShippingAddressesPage extends StatelessWidget {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Delete'),
+              child: Text(state.t('ui_delete')),
             ),
           ],
         );

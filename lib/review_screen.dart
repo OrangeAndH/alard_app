@@ -64,7 +64,7 @@ class ReviewScreen extends StatelessWidget {
 
             return Column(
               children: [
-                _buildTopLogo(),
+                _buildTopLogo(context),
                 Expanded(
                   child: ListView(
                     padding: EdgeInsets.fromLTRB(
@@ -75,37 +75,29 @@ class ReviewScreen extends StatelessWidget {
                     ),
                     children: [
                       const SizedBox(height: 4),
-                      _buildSteps(context, activeStep: 'Review'),
+                      _buildSteps(state, context, activeStep: 'step_review'),
                       const SizedBox(height: 16),
                       _orderSummary(state),
                       const SizedBox(height: 16),
-                      _searchBar(),
+                      _searchBar(context),
                       const SizedBox(height: 10),
-                      _heroBanner(),
+                      _heroBanner(state),
                       const SizedBox(height: 12),
                       _sectionTitle(
-                        title: 'Popular in your country',
+                        title: state.t('product_best_seller'),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ShopScreen(),
-                            ),
-                          );
+                          state.setSelectedIndex(1);
+                          Navigator.popUntil(context, (route) => route.isFirst);
                         },
                       ),
                       const SizedBox(height: 8),
                       _popularProductsRow(context, _popularItems),
                       const SizedBox(height: 16),
                       _sectionTitle(
-                        title: 'Customer Feedback',
+                        title: state.t('feedback_customer_feedback'),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const FeedbackScreen(),
-                            ),
-                          );
+                          state.setSelectedIndex(3);
+                          Navigator.popUntil(context, (route) => route.isFirst);
                         },
                       ),
                       const SizedBox(height: 8),
@@ -122,24 +114,53 @@ class ReviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTopLogo() {
+  Widget _buildTopLogo(BuildContext context) {
+    final state = AppStateScope.of(context);
     return Container(
-      height: 26,
+      height: 48,
       width: double.infinity,
       color: _cream,
-      alignment: Alignment.center,
-      child: Image.asset(
-        'assets/321.png',
-        height: 38,
-        fit: BoxFit.contain,
-        errorBuilder: (_, _, _) {
-          return const SizedBox.shrink();
-        },
+      child: Stack(
+        children: [
+          Center(
+            child: Image.asset(
+              'assets/321.png',
+              height: 38,
+              fit: BoxFit.contain,
+              errorBuilder: (_, _, _) {
+                return const Text(
+                  "AL'ARD",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: _olive,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
+            ),
+          ),
+          PositionedDirectional(
+            end: 8,
+            top: 4,
+            child: IconButton(
+              onPressed: () {
+                state.setSelectedIndex(0);
+                Navigator.popUntil(context, (route) => route.isFirst);
+              },
+              icon: const Icon(
+                Icons.home_outlined,
+                color: _olive,
+                size: 28,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildSteps(
+    AppState state,
     BuildContext context, {
     required String activeStep,
   }) {
@@ -153,26 +174,26 @@ class ReviewScreen extends StatelessWidget {
             spacing: 4,
             children: [
               _stepText(
-                'Cart',
-                active: activeStep == 'Cart',
+                state.t('step_cart'),
+                active: activeStep == 'step_cart',
                 fontSize: fontSize,
               ),
               _stepDivider(fontSize),
               _stepText(
-                'Shipping',
-                active: activeStep == 'Shipping',
+                state.t('step_shipping'),
+                active: activeStep == 'step_shipping',
                 fontSize: fontSize,
               ),
               _stepDivider(fontSize),
               _stepText(
-                'Payment',
-                active: activeStep == 'Payment',
+                state.t('step_payment'),
+                active: activeStep == 'step_payment',
                 fontSize: fontSize,
               ),
               _stepDivider(fontSize),
               _stepText(
-                'Review',
-                active: activeStep == 'Review',
+                state.t('step_review'),
+                active: activeStep == 'step_review',
                 fontSize: fontSize,
               ),
             ],
@@ -185,11 +206,6 @@ class ReviewScreen extends StatelessWidget {
     required bool active,
     required double fontSize,
   }) {
-    double lineWidth = 34;
-    if (text == 'Shipping') lineWidth = 52;
-    if (text == 'Payment') lineWidth = 50;
-    if (text == 'Review') lineWidth = 42;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -204,11 +220,12 @@ class ReviewScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        Container(
-          height: 2,
-          width: active ? lineWidth : 0,
-          color: active ? _olive : Colors.transparent,
-        ),
+        if (active)
+          Container(
+            height: 2,
+            width: fontSize * 3,
+            color: _olive,
+          ),
       ],
     );
   }
@@ -224,7 +241,7 @@ class ReviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _searchBar() {
+  Widget _searchBar(BuildContext context) {
     return Container(
       height: 38,
       margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -240,37 +257,37 @@ class ReviewScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: const Row(
+      child: Row(
         children: [
-          SizedBox(width: 8),
-          Icon(
+          const SizedBox(width: 8),
+          const Icon(
             Icons.search_rounded,
             size: 21,
             color: Colors.black,
           ),
-          SizedBox(width: 7),
+          const SizedBox(width: 7),
           Expanded(
             child: Text(
-              'search for products...',
-              style: TextStyle(
+              AppStateScope.of(context).t('shop_search_hint'),
+              style: const TextStyle(
                 color: _olive,
                 fontSize: 14,
                 fontFamily: 'serif',
               ),
             ),
           ),
-          Icon(
+          const Icon(
             Icons.mic_none_rounded,
             color: Colors.black,
             size: 22,
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
         ],
       ),
     );
   }
 
-  Widget _heroBanner() {
+  Widget _heroBanner(AppState state) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(2),
       child: Stack(
@@ -287,12 +304,12 @@ class ReviewScreen extends StatelessWidget {
             height: 145,
             color: Colors.black.withValues(alpha: 0.18),
           ),
-          const Positioned.fill(
+          Positioned.fill(
             child: Center(
               child: Text(
-                'Taste Authentic\nPalestinian Heritage',
+                state.t('home_hero_text'),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 22,
                   height: 1.5,
@@ -340,10 +357,10 @@ class ReviewScreen extends StatelessWidget {
         InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(18),
-          child: const Padding(
-            padding: EdgeInsets.all(3),
+          child: Padding(
+            padding: const EdgeInsets.all(3),
             child: Icon(
-              Icons.chevron_right_rounded,
+              Icons.adaptive.arrow_forward,
               color: _olive,
               size: 30,
             ),
@@ -383,8 +400,8 @@ class ReviewScreen extends StatelessWidget {
   }
 
   Widget _feedbackGrid() {
-    return Column(
-      children: const [
+    return const Column(
+      children: [
         Row(
           children: [
             Expanded(
@@ -446,9 +463,9 @@ class ReviewScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Order Summary',
-            style: TextStyle(
+          Text(
+            state.t('checkout_order_summary'),
+            style: const TextStyle(
               color: _olive,
               fontSize: 18,
               fontFamily: 'serif',
@@ -477,14 +494,14 @@ class ReviewScreen extends StatelessWidget {
             }),
             const Divider(color: _cream),
           ],
-          _summaryRow('Subtotal', state.getFormattedPrice(subtotal)),
+          _summaryRow(state.t('checkout_subtotal'), state.getFormattedPrice(subtotal)),
           _summaryRow(shippingTitle, state.getFormattedPrice(shippingFee)),
-          _summaryRow('VAT', state.getFormattedPrice(vat)),
+          _summaryRow(state.t('checkout_vat'), state.getFormattedPrice(vat)),
           const Divider(color: _cream),
-          _summaryRow('Total', state.getFormattedPrice(total), isBold: true),
+          _summaryRow(state.t('checkout_total'), state.getFormattedPrice(total), isBold: true),
           const SizedBox(height: 12),
           Text(
-            'Payment Method: $paymentMethod',
+            '${state.t('checkout_payment')}: $paymentMethod',
             style: const TextStyle(
               color: Colors.black54,
               fontSize: 12,
@@ -526,61 +543,183 @@ class ReviewScreen extends StatelessWidget {
   }
 
   Widget _bottomNav(BuildContext context) {
+    final state = AppStateScope.of(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
+    final selectedColor = theme.colorScheme.primary;
+    final unselectedColor = isDark ? Colors.white70 : Colors.black87;
+
     return Container(
-      height: 74,
-      decoration: const BoxDecoration(
-        color: _cream,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(18),
-          topRight: Radius.circular(18),
+      height: 85 + bottomPadding,
+      padding: EdgeInsets.only(bottom: bottomPadding),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF3EEE7),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(20),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black54 : Colors.black12,
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _NavIcon(
+          _navItem(
+            label: state.t('nav_home'),
             icon: Icons.home_outlined,
-            label: 'Home',
+            activeIcon: Icons.home,
+            isSelected: state.selectedIndex == 0,
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
             onTap: () {
+              state.setSelectedIndex(0);
               Navigator.popUntil(context, (route) => route.isFirst);
             },
           ),
-          _NavIcon(
+          _navItem(
+            label: state.t('nav_shop'),
             icon: Icons.shopping_bag_outlined,
-            label: 'Shop',
+            activeIcon: Icons.shopping_bag,
+            isSelected: state.selectedIndex == 1,
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ShopScreen(),
-                ),
-              );
+              state.setSelectedIndex(1);
+              Navigator.popUntil(context, (route) => route.isFirst);
             },
           ),
-          _NavIcon(
-            icon: Icons.receipt_long_outlined,
-            label: 'Recipes',
-            circular: true,
-            onTap: () {},
+          _imageNavItem(
+            label: state.t('nav_recipes'),
+            imagePath: 'assets/recipes.png',
+            isSelected: state.selectedIndex == 2,
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
+            onTap: () {
+              state.setSelectedIndex(2);
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
           ),
-          _NavIcon(
+          _navItem(
+            label: state.t('nav_feedback'),
             icon: Icons.feedback_outlined,
-            label: 'Feedback',
+            activeIcon: Icons.feedback,
+            isSelected: state.selectedIndex == 3,
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const FeedbackScreen(),
-                ),
-              );
+              state.setSelectedIndex(3);
+              Navigator.popUntil(context, (route) => route.isFirst);
             },
           ),
-          _NavIcon(
+          _navItem(
+            label: state.t('nav_profile'),
             icon: Icons.person_outline,
-            label: 'Profile',
-            onTap: () {},
+            activeIcon: Icons.person,
+            isSelected: state.selectedIndex == 4,
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
+            onTap: () {
+              state.setSelectedIndex(4);
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _navItem({
+    required String label,
+    required IconData icon,
+    required IconData activeIcon,
+    required bool isSelected,
+    required Color selectedColor,
+    required Color unselectedColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: 70,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isSelected ? activeIcon : icon,
+              color: isSelected ? selectedColor : unselectedColor,
+              size: 26,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? selectedColor : unselectedColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _imageNavItem({
+    required String label,
+    required String imagePath,
+    required bool isSelected,
+    required Color selectedColor,
+    required Color unselectedColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: 70,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: isSelected
+                  ? BoxDecoration(
+                      border: Border.all(
+                        color: selectedColor,
+                        width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    )
+                  : null,
+              child: Image.asset(
+                imagePath,
+                width: 28,
+                height: 28,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) {
+                  return Icon(
+                    Icons.restaurant_menu,
+                    color: isSelected ? selectedColor : unselectedColor,
+                    size: 28,
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? selectedColor : unselectedColor,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

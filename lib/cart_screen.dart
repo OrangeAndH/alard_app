@@ -33,6 +33,7 @@ class _CartScreenState extends State<CartScreen> {
             if (state.cartItems.isEmpty) {
               return _buildEmptyCart(
                 context,
+                state,
                 horizontalPadding: horizontalPadding,
               );
             }
@@ -50,9 +51,9 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     child: Column(
                       children: [
-                        _buildSteps(activeStep: 'Cart'),
+                        _buildSteps(state, activeStep: 'step_cart'),
                         const SizedBox(height: 10),
-                        _buildScreenTitle(),
+                        _buildScreenTitle(state),
                         const SizedBox(height: 14),
                         ...state.cartItems.map(
                           (item) => _buildCartItemCard(
@@ -111,8 +112,8 @@ class _CartScreenState extends State<CartScreen> {
                   },
                 ),
               ),
-              Positioned(
-                left: 8,
+              PositionedDirectional(
+                start: 8,
                 child: IconButton(
                   onPressed: () {
                     Navigator.maybePop(context);
@@ -123,7 +124,7 @@ class _CartScreenState extends State<CartScreen> {
                     height: buttonSize,
                   ),
                   icon: Icon(
-                    Icons.arrow_back_rounded,
+                    Icons.adaptive.arrow_back,
                     color: Colors.black,
                     size: 30,
                   ),
@@ -136,7 +137,8 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildSteps({
+  Widget _buildSteps(
+    AppState state, {
     required String activeStep,
   }) {
     return LayoutBuilder(
@@ -150,26 +152,26 @@ class _CartScreenState extends State<CartScreen> {
           spacing: 4,
           children: [
             _stepText(
-              'Cart',
-              active: activeStep == 'Cart',
+              state.t('step_cart'),
+              active: activeStep == 'step_cart',
               fontSize: fontSize,
             ),
             _stepDivider(fontSize),
             _stepText(
-              'Shipping',
-              active: activeStep == 'Shipping',
+              state.t('step_shipping'),
+              active: activeStep == 'step_shipping',
               fontSize: fontSize,
             ),
             _stepDivider(fontSize),
             _stepText(
-              'Payment',
-              active: activeStep == 'Payment',
+              state.t('step_payment'),
+              active: activeStep == 'step_payment',
               fontSize: fontSize,
             ),
             _stepDivider(fontSize),
             _stepText(
-              'Review',
-              active: activeStep == 'Review',
+              state.t('step_review'),
+              active: activeStep == 'step_review',
               fontSize: fontSize,
             ),
           ],
@@ -183,12 +185,6 @@ class _CartScreenState extends State<CartScreen> {
     required bool active,
     required double fontSize,
   }) {
-    double lineWidth = 34;
-
-    if (text == 'Shipping') lineWidth = 52;
-    if (text == 'Payment') lineWidth = 50;
-    if (text == 'Review') lineWidth = 42;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -202,11 +198,12 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
         const SizedBox(height: 2),
-        Container(
-          height: 2,
-          width: active ? lineWidth : 0,
-          color: active ? _olive : Colors.transparent,
-        ),
+        if (active)
+          Container(
+            height: 2,
+            width: fontSize * 3,
+            color: _olive,
+          ),
       ],
     );
   }
@@ -222,11 +219,11 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildScreenTitle() {
-    return const Center(
+  Widget _buildScreenTitle(AppState state) {
+    return Center(
       child: Text(
-        'Shopping Cart',
-        style: TextStyle(
+        state.t('step_cart'),
+        style: const TextStyle(
           color: _olive,
           fontSize: 20,
           fontFamily: 'serif',
@@ -339,7 +336,7 @@ class _CartScreenState extends State<CartScreen> {
                     state.removeFromCart(item.product.id);
                   },
                   child: Text(
-                    'Remove',
+                    state.t('ui_delete'),
                     style: TextStyle(
                       color: _olive,
                       fontSize: screenWidth < 360 ? 9.5 : 10.5,
@@ -455,11 +452,11 @@ class _CartScreenState extends State<CartScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: const FittedBox(
+          child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              'Proceed To Checkout',
-              style: TextStyle(
+              state.t('checkout_shipping'),
+              style: const TextStyle(
                 fontSize: 14,
                 fontFamily: 'serif',
               ),
@@ -471,7 +468,8 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildEmptyCart(
-    BuildContext context, {
+    BuildContext context,
+    AppState state, {
     required double horizontalPadding,
   }) {
     return Column(
@@ -485,21 +483,21 @@ class _CartScreenState extends State<CartScreen> {
             0,
           ),
           child: Column(
-            children: const [
-              SizedBox(height: 6),
+            children: [
+              const SizedBox(height: 6),
               Text(
-                'Shopping Cart',
-                style: TextStyle(
+                state.t('step_cart'),
+                style: const TextStyle(
                   color: _olive,
                   fontSize: 20,
                   fontFamily: 'serif',
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 80),
+              const SizedBox(height: 80),
               Text(
-                'Your cart is empty',
-                style: TextStyle(
+                state.t('shop_no_products'),
+                style: const TextStyle(
                   color: _olive,
                   fontSize: 17,
                   fontWeight: FontWeight.w700,

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'cart_screen.dart';
+import 'app_state_scope.dart';
 
 class DiscoverOurStory extends StatelessWidget {
   const DiscoverOurStory({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF7F3EE),
       body: SafeArea(
@@ -17,9 +19,9 @@ class DiscoverOurStory extends StatelessWidget {
               children: [
                 _buildTopBar(context),
                 _buildHeroImage(),
-                _buildWhoWeAreSection(),
-                _buildOurStorySection(),
-                _buildBottomInfo(),
+                _buildWhoWeAreSection(state),
+                _buildOurStorySection(state),
+                _buildBottomInfo(state),
               ],
             ),
           ),
@@ -80,7 +82,11 @@ class DiscoverOurStory extends StatelessWidget {
                     width: buttonSize,
                     height: buttonSize,
                     alignment: Alignment.center,
-                    child: const Icon(Icons.search, size: 28, color: Colors.black),
+                    child: const Icon(
+                      Icons.search,
+                      size: 28,
+                      color: Colors.black,
+                    ),
                   ),
                   const SizedBox(width: 4),
                   GestureDetector(
@@ -131,7 +137,7 @@ class DiscoverOurStory extends StatelessWidget {
     );
   }
 
-  Widget _buildWhoWeAreSection() {
+  Widget _buildWhoWeAreSection(dynamic state) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Column(
@@ -144,16 +150,13 @@ class DiscoverOurStory extends StatelessWidget {
                 width: 34,
                 height: 34,
                 fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => const Icon(
-                  Icons.eco,
-                  size: 24,
-                  color: Color(0xFF6B7A2B),
-                ),
+                errorBuilder: (_, _, _) =>
+                    const Icon(Icons.eco, size: 24, color: Color(0xFF6B7A2B)),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'Who We Are',
-                style: TextStyle(
+              Text(
+                state.t('story_who_we_are'),
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF2D2D2D),
@@ -162,12 +165,10 @@ class DiscoverOurStory extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
-            "Al’Ard Palestinian Agricultural Products is an innovative and dynamic company that offers a wide range of high-quality Palestinian agricultural products.\n"
-            "Founded in 2008, the company is a member of the International Fair Trade Association and strongly believes in the principles of social investment.\n"
-            "We focus on supporting, empowering, and encouraging Palestinian farmers to benefit from the rich agricultural potential of Palestine.\n"
-            "We provide them with the necessary tools, training, and knowledge to produce high-quality products that can compete in global markets.",
-            style: TextStyle(
+          Text(
+            state.t('story_who_we_are_desc'),
+
+            style: const TextStyle(
               fontSize: 15,
               height: 1.45,
               color: Colors.black87,
@@ -178,7 +179,7 @@ class DiscoverOurStory extends StatelessWidget {
     );
   }
 
-  Widget _buildOurStorySection() {
+  Widget _buildOurStorySection(dynamic state) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
       child: Column(
@@ -191,16 +192,13 @@ class DiscoverOurStory extends StatelessWidget {
                 width: 34,
                 height: 34,
                 fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => const Icon(
-                  Icons.eco,
-                  size: 24,
-                  color: Color(0xFF6B7A2B),
-                ),
+                errorBuilder: (_, _, _) =>
+                    const Icon(Icons.eco, size: 24, color: Color(0xFF6B7A2B)),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'Our Story',
-                style: TextStyle(
+              Text(
+                state.t('story_our_story'),
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF2D2D2D),
@@ -212,11 +210,10 @@ class DiscoverOurStory extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  "Al’Ard was founded by Ziad Anabtawi to support poor Palestinian farmers who struggled to sell their olive oil at a fair price.\n\n"
-                  "He helped them by providing modern facilities and connecting them with international markets.",
-                  style: TextStyle(
+                  state.t('story_our_story_desc_1'),
+                  style: const TextStyle(
                     fontSize: 15,
                     height: 1.45,
                     color: Colors.black87,
@@ -244,9 +241,9 @@ class DiscoverOurStory extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            "Now, more than ten years later, his son Sobhi returned to Palestine after traveling across Europe to learn about organic farming and fair-trade practices. Today, the company continues to support farmers first by maintaining transparent and ethical business practices while helping farmers access tools, storage facilities, and internationally recognized certifications.",
-            style: TextStyle(
+          Text(
+            state.t('story_our_story_desc_2'),
+            style: const TextStyle(
               fontSize: 15,
               height: 1.45,
               color: Colors.black87,
@@ -256,49 +253,42 @@ class DiscoverOurStory extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildBottomInfo() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 6, 16, 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: const [
-          _InfoItem(
-            icon: Icons.handshake_outlined,
-            text: 'Fair Trade',
-          ),
-          _InfoItem(
-            icon: Icons.eco_outlined,
-            text: 'Palestinian\nProducts',
-          ),
-          _InfoItem(
-            icon: Icons.agriculture_outlined,
-            text: 'Supporting\nFarmers',
-          ),
-        ],
-      ),
-    );
-  }
+Widget _buildBottomInfo(dynamic state) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(16, 6, 16, 20),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        _InfoItem(
+          icon: Icons.handshake_outlined,
+          text: state.t('story_fair_trade'),
+        ),
+        _InfoItem(
+          icon: Icons.eco_outlined,
+          text: state.t('story_palestinian_products'),
+        ),
+        _InfoItem(
+          icon: Icons.agriculture_outlined,
+          text: state.t('story_supporting_farmers'),
+        ),
+      ],
+    ),
+  );
 }
 
 class _InfoItem extends StatelessWidget {
   final IconData icon;
   final String text;
 
-  const _InfoItem({
-    required this.icon,
-    required this.text,
-  });
+  const _InfoItem({required this.icon, required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(
-          icon,
-          size: 34,
-          color: const Color(0xFF6B7A2F),
-        ),
+        Icon(icon, size: 34, color: const Color(0xFF6B7A2F)),
         const SizedBox(height: 6),
         Text(
           text,

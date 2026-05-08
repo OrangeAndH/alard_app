@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../login_screen.dart';
 
 import 'pages/favorites_page.dart';
 import 'pages/help_support_page.dart';
@@ -288,38 +289,47 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildMenuList(BuildContext context) {
+    final state = AppStateScope.of(context);
     final items = [
       _ProfileMenuItem(
-        title: 'Personal Details',
+        title: state.t('profile_personal_details'),
         icon: Icons.person,
+        originalTitle: 'Personal Details',
       ),
       _ProfileMenuItem(
-        title: 'Shipping Addresses',
+        title: state.t('profile_shipping_addresses'),
         icon: Icons.location_on,
+        originalTitle: 'Shipping Addresses',
       ),
       _ProfileMenuItem(
-        title: 'Order History',
+        title: state.t('profile_order_history'),
         icon: Icons.receipt_long,
+        originalTitle: 'Order History',
       ),
       _ProfileMenuItem(
-        title: 'My Favorites',
+        title: state.t('profile_favorites'),
         icon: Icons.favorite,
+        originalTitle: 'My Favorites',
       ),
       _ProfileMenuItem(
-        title: 'Payment Methods',
+        title: state.t('profile_payment_methods'),
         icon: Icons.credit_card,
+        originalTitle: 'Payment Methods',
       ),
       _ProfileMenuItem(
-        title: 'Notifications',
+        title: state.t('profile_notifications'),
         icon: Icons.notifications,
+        originalTitle: 'Notifications',
       ),
       _ProfileMenuItem(
-        title: 'Help & Support',
+        title: state.t('profile_help_support'),
         icon: Icons.support_agent,
+        originalTitle: 'Help & Support',
       ),
       _ProfileMenuItem(
-        title: 'Settings',
+        title: state.t('settings'),
         icon: Icons.settings,
+        originalTitle: 'Settings',
       ),
     ];
 
@@ -334,6 +344,8 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
           ],
+          const SizedBox(height: 12),
+          _buildLogoutButton(context),
         ],
       ),
     );
@@ -348,7 +360,8 @@ class ProfileScreen extends StatelessWidget {
       onTap: () {
         _openSimplePage(
           context,
-          title: item.title,
+          title: item.originalTitle,
+          displayTitle: item.title,
           icon: item.icon,
         );
       },
@@ -391,6 +404,7 @@ class ProfileScreen extends StatelessWidget {
   void _openSimplePage(
     BuildContext context, {
     required String title,
+    required String displayTitle,
     required IconData icon,
   }) {
     Widget page;
@@ -420,7 +434,7 @@ class ProfileScreen extends StatelessWidget {
         page = const SettingsPage();
         break;
       default:
-        page = _ProfilePlaceholderPage(title: title, icon: icon);
+        page = _ProfilePlaceholderPage(title: displayTitle, icon: icon);
     }
 
     Navigator.push(
@@ -428,14 +442,51 @@ class ProfileScreen extends StatelessWidget {
       MaterialPageRoute(builder: (_) => page),
     );
   }
+
+  Widget _buildLogoutButton(BuildContext context) {
+    final state = AppStateScope.of(context);
+    return SizedBox(
+      width: 160,
+      height: 44,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          state.logout();
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.red.shade800,
+          elevation: 0,
+          side: BorderSide(color: Colors.red.shade800, width: 1.2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        icon: const Icon(Icons.logout_rounded, size: 20),
+        label: Text(
+          state.t('profile_logout'),
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _ProfileMenuItem {
   final String title;
+  final String originalTitle;
   final IconData icon;
 
   const _ProfileMenuItem({
     required this.title,
+    required this.originalTitle,
     required this.icon,
   });
 }

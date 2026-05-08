@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildLocationBar(context),
                     const SizedBox(height: 8),
                     _buildSectionHeader(
-                      title: 'Our Products',
+                      title: state.t('home_our_products'),
                       onTap: () {
                         _goToShopFilter(category: 'All', query: '');
                       },
@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildProductsRow(context, products),
                     const SizedBox(height: 12),
                     _buildSectionHeader(
-                      title: "Why Al'Ard ?",
+                      title: state.t('home_why_alard'),
                       onTap: _goToWhyAlard,
                     ),
                     const SizedBox(height: 6),
@@ -155,7 +155,9 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: const BoxDecoration(
             color: _cream,
-            border: Border(bottom: BorderSide(color: Color(0xFFE2DAD0), width: 1)),
+            border: Border(
+              bottom: BorderSide(color: Color(0xFFE2DAD0), width: 1),
+            ),
           ),
           child: _showHomeSearch
               ? Row(
@@ -192,9 +194,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           autofocus: true,
                           textInputAction: TextInputAction.search,
                           onSubmitted: (_) => _submitHomeSearch(),
-                          style: const TextStyle(color: Colors.black, fontSize: 14),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 14,
+                          ),
                           decoration: InputDecoration(
-                            hintText: 'search for products...',
+                            hintText: state.t('shop_search_hint'),
                             hintStyle: TextStyle(
                               color: Colors.black.withValues(alpha: 0.45),
                               fontSize: 13,
@@ -360,57 +365,58 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showHomeMenu(BuildContext context) {
+    final state = AppStateScope.of(context);
     final menuItems = [
       _MenuFilter(
-        title: 'Home page',
+        title: state.t('menu_home'),
         category: 'All',
         query: '',
         closeOnly: true,
       ),
-      _MenuFilter(title: 'Gifts', category: 'Gift Boxes', query: ''),
+      _MenuFilter(title: state.t('menu_gifts'), category: 'Gift Boxes', query: ''),
       _MenuFilter(
-        title: 'Palestinian olive oil',
+        title: state.t('menu_olive_oil'),
         category: 'Olive Oil',
         query: '',
       ),
       _MenuFilter(
-        title: 'Green pickled olives',
+        title: state.t('menu_pickled_olives'),
         category: 'Pickles',
         query: 'olive',
       ),
       _MenuFilter(
-        title: 'Nabulsi Cheese',
+        title: state.t('menu_cheese'),
         category: 'Dairy',
         query: 'Nabulsi Cheese',
       ),
       _MenuFilter(
-        title: 'Mixed thyme and medicinal herbs',
+        title: state.t('menu_herbs'),
         category: 'Herbs & Spices',
         query: '',
       ),
       _MenuFilter(
-        title: 'Premium tahini paste',
+        title: state.t('menu_tahini'),
         category: 'Tahini & Halawa',
         query: 'tahini',
       ),
       _MenuFilter(
-        title: 'Palestinian hot sauce',
+        title: state.t('menu_hot_sauce'),
         category: 'Herbs & Spices',
         query: 'chili',
       ),
-      _MenuFilter(title: 'Freekeh and maftoul', category: 'Grains', query: ''),
+      _MenuFilter(title: state.t('menu_grains'), category: 'Grains', query: ''),
       _MenuFilter(
-        title: 'Black seed - Qizha',
+        title: state.t('menu_black_seed'),
         category: 'Natural Products',
         query: 'black seed',
       ),
-      _MenuFilter(title: 'Nabulsi soap', category: 'Soap & Care', query: ''),
+      _MenuFilter(title: state.t('menu_soap'), category: 'Soap & Care', query: ''),
     ];
 
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Menu',
+      barrierLabel: state.t('home_menu_barrier'),
       barrierColor: Colors.black.withValues(alpha: 0.15),
       transitionDuration: const Duration(milliseconds: 180),
       pageBuilder: (dialogContext, animation, secondaryAnimation) {
@@ -481,6 +487,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeroSection(BuildContext context) {
+    final state = AppStateScope.of(context);
     return SizedBox(
       height: 202,
       width: double.infinity,
@@ -508,10 +515,10 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  "From Palestine's ancient\nolive trees, we offer products\nto complement your dishes",
+                Text(
+                  state.t('home_hero_text'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 21,
                     fontWeight: FontWeight.w800,
@@ -547,9 +554,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(18),
                     ),
                   ),
-                  child: const Text(
-                    'Discover our Story',
-                    style: TextStyle(
+                  child: Text(
+                    state.t('home_discover_story'),
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.2,
@@ -576,7 +583,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 4),
           Expanded(
             child: Text(
-              'delivering to : ${state.currentStore}',
+              '${state.t('home_delivering_to')} ${state.t('store_${state.currentStore}')}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -596,19 +603,19 @@ class _HomeScreenState extends State<HomeScreen> {
               minimumSize: const Size(0, 28),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: const Text(
-              'Change location',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+            child: Text(
+              state.t('home_change_location'),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ),
           InkWell(
             onTap: () {
               _showStoreDialog(context);
             },
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
               child: Icon(
-                Icons.arrow_forward_ios_rounded,
+                Icons.adaptive.arrow_forward,
                 color: Colors.black,
                 size: 14,
               ),
@@ -622,13 +629,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showStoreDialog(BuildContext context) {
     final state = AppStateScope.of(context);
     final stores = [
-      _StoreChoice(flag: '🇵🇸', name: "Palestine", value: 'Palestine'),
-      _StoreChoice(flag: '🇲🇾', name: "Malaysia", value: 'Malaysia'),
-      _StoreChoice(flag: '🇪🇺', name: "Europe", value: 'Europe'),
-      _StoreChoice(flag: '🇦🇪', name: "UAE", value: 'UAE'),
-      _StoreChoice(flag: '🇸🇦', name: "KSA", value: 'KSA'),
-      _StoreChoice(flag: '🇨🇦', name: "Canada", value: 'Canada'),
-      _StoreChoice(flag: '🇨🇱', name: "Chile", value: 'Chile'),
+      _StoreChoice(flag: '🇵🇸', name: state.t('store_Palestine'), value: 'Palestine'),
+      _StoreChoice(flag: '🇲🇾', name: state.t('store_Malaysia'), value: 'Malaysia'),
+      _StoreChoice(flag: '🇪🇺', name: state.t('store_Europe'), value: 'Europe'),
+      _StoreChoice(flag: '🇦🇪', name: state.t('store_UAE'), value: 'UAE'),
+      _StoreChoice(flag: '🇸🇦', name: state.t('store_KSA'), value: 'KSA'),
+      _StoreChoice(flag: '🇨🇦', name: state.t('store_Canada'), value: 'Canada'),
+      _StoreChoice(flag: '🇨🇱', name: state.t('store_Chile'), value: 'Chile'),
     ];
 
     showDialog(
@@ -671,9 +678,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       vertical: 12,
                     ),
                   ),
-                  child: const Text(
-                    'Continue Shopping',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  child: Text(
+                    state.t('home_continue_shopping'),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -713,8 +720,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            const Icon(
-              Icons.chevron_right_rounded,
+            Icon(
+              Icons.adaptive.arrow_forward,
               color: Colors.black54,
               size: 20,
             ),
@@ -743,10 +750,10 @@ class _HomeScreenState extends State<HomeScreen> {
           const Spacer(),
           InkWell(
             onTap: onTap,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
               child: Icon(
-                Icons.arrow_forward_ios_rounded,
+                Icons.adaptive.arrow_forward,
                 color: Colors.black,
                 size: 16,
               ),
@@ -766,13 +773,13 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: products.length,
         separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
-          return _buildProductCard(context, products[index]);
+          return _buildProductCard(context, products[index], AppStateScope.of(context));
         },
       ),
     );
   }
 
-  Widget _buildProductCard(BuildContext context, Product product) {
+  Widget _buildProductCard(BuildContext context, Product product, AppState state) {
     return SizedBox(
       width: 78,
       child: Column(
@@ -787,7 +794,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 78,
                     width: 78,
                     alignment: Alignment.center,
-                    decoration: const BoxDecoration(color: Color(0xFFE9E3D9)),
+                    decoration: const BoxDecoration(color: Colors.white),
                     child: Hero(
                       tag: product.id,
                       child: Image.asset(
@@ -807,7 +814,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    _shortName(product),
+                    _shortName(product, state),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
@@ -848,10 +855,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(18),
                 ),
               ),
-              child: const Text(
-                'View details',
+              child: Text(
+                state.t('home_view_details'),
                 maxLines: 1,
-                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800),
+                style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800),
               ),
             ),
           ),
@@ -867,25 +874,27 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  String _shortName(Product product) {
+  String _shortName(Product product, AppState state) {
     switch (product.id) {
       case 'olive-oil-glass-500ml':
-        return 'Virgin olive oil\n1 liter plastic';
+        return state.t('product_short_oil_1l');
 
       case 'zaatar-packaging':
-        return '1KG Premium\nPalestinian Zaatar';
+        return state.t('product_short_zaatar_1kg');
 
       case 'dried-sage':
-        return '100g Dried Sage\nfrom the Mountains of Palestine';
+        return state.t('product_short_sage_100g');
 
       case 'olive-pickle-variety':
-        return '220g Local Palestinian\nGreen Olives';
+        return state.t('product_short_olives_220g');
 
       default:
-        if (product.subtitle.trim().isEmpty) {
-          return product.name;
+        final n = state.t(product.name);
+        final s = state.t(product.subtitle);
+        if (s.trim().isEmpty) {
+          return n;
         }
-        return '${product.name}\n${product.subtitle}';
+        return '$n\n$s';
     }
   }
 
@@ -922,6 +931,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 width: naturalWidth,
                 fontSize: miniTextFont,
+                state: AppStateScope.of(context),
               ),
               SizedBox(width: gap),
               _buildWhyImageCard(
@@ -930,7 +940,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 imageHeight: imageHeight,
                 titleFont: imageTitleFont,
                 imagePath: 'assets/palestinian_breakfast.png',
-                title: 'Palestinian\nBreakfast',
+                title: AppStateScope.of(context).t('home_palestinian_breakfast'),
               ),
               SizedBox(width: gap),
               _buildWhyImageCard(
@@ -939,7 +949,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 imageHeight: imageHeight,
                 titleFont: imageTitleFont,
                 imagePath: 'assets/olive_oil_dip.png',
-                title: 'Olive Oil Dip',
+                title: AppStateScope.of(context).t('home_olive_oil_dip'),
               ),
             ],
           ),
@@ -952,6 +962,7 @@ class _HomeScreenState extends State<HomeScreen> {
     BuildContext context, {
     required double width,
     required double fontSize,
+    required AppState state,
   }) {
     return InkWell(
       onTap: _goToWhyAlard,
@@ -966,8 +977,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: _MiniInfoBox(
                       icon: Icons.eco_outlined,
-                      line1: '100%',
-                      line2: 'Natural',
+                      line1: state.t('home_100_percent'),
+                      line2: state.t('home_natural'),
                       fontSize: fontSize,
                     ),
                   ),
@@ -975,8 +986,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: _MiniInfoBox(
                       icon: Icons.local_drink_outlined,
-                      line1: 'Premium',
-                      line2: 'Olive Oil',
+                      line1: state.t('home_premium'),
+                      line2: state.t('home_olive_oil_tag'),
                       fontSize: fontSize,
                     ),
                   ),

@@ -16,35 +16,30 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
 
   String _shopCategory = 'All';
   String _shopQuery = '';
   int _shopRefreshKey = 0;
 
   void _goToHome() {
-    setState(() {
-      _selectedIndex = 0;
-    });
+    AppStateScope.of(context).setSelectedIndex(0);
   }
 
   void _goToShop({
     String category = 'All',
     String query = '',
   }) {
-    setState(() {
-      _shopCategory = category;
-      _shopQuery = query;
-      _shopRefreshKey++;
-      _selectedIndex = 1;
-    });
+    _shopCategory = category;
+    _shopQuery = query;
+    _shopRefreshKey++;
+    AppStateScope.of(context).setSelectedIndex(1);
   }
 
   Widget _buildCurrentPage() {
     final state = AppStateScope.of(context);
     
     return IndexedStack(
-      index: _selectedIndex,
+      index: state.selectedIndex,
       children: [
         HomeScreen(
           onGoToShopFilter: _goToShop,
@@ -76,11 +71,13 @@ class _MainScreenState extends State<MainScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final state = AppStateScope.of(context);
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
     return Scaffold(
       body: _buildCurrentPage(),
       bottomNavigationBar: Container(
-        height: 85,
+        height: 85 + bottomPadding,
+        padding: EdgeInsets.only(bottom: bottomPadding),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF3EEE7),
           borderRadius: const BorderRadius.vertical(
@@ -98,29 +95,34 @@ class _MainScreenState extends State<MainScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildNavItem(
+              context,
               index: 0,
               icon: Icons.home_outlined,
               activeIcon: Icons.home,
               label: state.t('nav_home'),
             ),
             _buildNavItem(
+              context,
               index: 1,
               icon: Icons.shopping_bag_outlined,
               activeIcon: Icons.shopping_bag,
               label: state.t('nav_shop'),
             ),
             _buildImageNavItem(
+              context,
               index: 2,
               imagePath: 'assets/recipes.png',
               label: state.t('nav_recipes'),
             ),
             _buildNavItem(
+              context,
               index: 3,
               icon: Icons.feedback_outlined,
               activeIcon: Icons.feedback,
               label: state.t('nav_feedback'),
             ),
             _buildNavItem(
+              context,
               index: 4,
               icon: Icons.person_outline,
               activeIcon: Icons.person,
@@ -132,14 +134,16 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildNavItem({
+  Widget _buildNavItem(
+    BuildContext context, {
     required int index,
     required IconData icon,
     required IconData activeIcon,
     required String label,
   }) {
     final theme = Theme.of(context);
-    final isSelected = _selectedIndex == index;
+    final state = AppStateScope.of(context);
+    final isSelected = state.selectedIndex == index;
     final isDark = theme.brightness == Brightness.dark;
 
     final selectedColor = theme.colorScheme.primary;
@@ -147,15 +151,12 @@ class _MainScreenState extends State<MainScreen> {
 
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedIndex = index;
-
-          if (index == 1) {
-            _shopCategory = 'All';
-            _shopQuery = '';
-            _shopRefreshKey++;
-          }
-        });
+        if (index == 1) {
+          _shopCategory = 'All';
+          _shopQuery = '';
+          _shopRefreshKey++;
+        }
+        state.setSelectedIndex(index);
       },
       child: SizedBox(
         width: 70,
@@ -182,13 +183,15 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildImageNavItem({
+  Widget _buildImageNavItem(
+    BuildContext context, {
     required int index,
     required String imagePath,
     required String label,
   }) {
     final theme = Theme.of(context);
-    final isSelected = _selectedIndex == index;
+    final state = AppStateScope.of(context);
+    final isSelected = state.selectedIndex == index;
     final isDark = theme.brightness == Brightness.dark;
 
     final selectedColor = theme.colorScheme.primary;
@@ -196,9 +199,7 @@ class _MainScreenState extends State<MainScreen> {
 
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedIndex = index;
-        });
+        state.setSelectedIndex(index);
       },
       child: SizedBox(
         width: 70,

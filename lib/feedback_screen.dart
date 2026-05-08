@@ -116,13 +116,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   String _profileName(BuildContext context) {
-    final user = AppStateScope.of(context).currentUser;
+    final state = AppStateScope.of(context);
+    final user = state.currentUser;
 
     if (user != null && user.name.trim().isNotEmpty) {
       return user.name.trim();
     }
 
-    return 'Customer';
+    return state.t('customer');
   }
 
   void _openCart() {
@@ -140,9 +141,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
     if (comment.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please write your feedback.'),
-          duration: Duration(seconds: 1),
+        SnackBar(
+          content: Text(AppStateScope.of(context).t('feedback_write_hint')),
+          duration: const Duration(seconds: 1),
         ),
       );
       return;
@@ -166,15 +167,16 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Feedback added successfully.'),
-        duration: Duration(seconds: 1),
+      SnackBar(
+        content: Text(AppStateScope.of(context).t('feedback_success')),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
     final profileName = _profileName(context);
 
     return Scaffold(
@@ -209,10 +211,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Expanded(
+                              Expanded(
                                 child: Text(
-                                  'Customer Feedback',
-                                  style: TextStyle(
+                                  state.t('feedback_customer_feedback'),
+                                  style: const TextStyle(
                                     color: _olive,
                                     fontSize: 20,
                                     fontFamily: 'serif',
@@ -234,7 +236,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 style: const TextStyle(color: _olive, fontWeight: FontWeight.bold, fontSize: 13),
                                 dropdownColor: _cream,
                                 items: [
-                                  const DropdownMenuItem(value: 'All', child: Text('All Countries')),
+                                  DropdownMenuItem(value: 'All', child: Text(state.t('feedback_all_countries'))),
                                   ..._countries.map((c) => DropdownMenuItem(
                                         value: c['name'],
                                         child: Text('${c['flag']} ${c['name']}'),
@@ -307,8 +309,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   },
                 ),
               ),
-              Positioned(
-                left: 6,
+              PositionedDirectional(
+                start: 6,
                 child: IconButton(
                   onPressed: _goBackToHome,
                   padding: EdgeInsets.zero,
@@ -317,14 +319,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     height: buttonSize,
                   ),
                   icon: Icon(
-                    Icons.arrow_back_rounded,
+                    Icons.adaptive.arrow_back,
                     color: Colors.black,
                     size: 30,
                   ),
                 ),
               ),
-              Positioned(
-                right: 6,
+              PositionedDirectional(
+                end: 6,
                 child: IconButton(
                   onPressed: _openCart,
                   padding: EdgeInsets.zero,
@@ -332,7 +334,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     width: buttonSize,
                     height: buttonSize,
                   ),
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.shopping_cart_outlined,
                     color: Colors.black,
                     size: 28,
@@ -371,9 +373,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Add your feedback',
-            style: TextStyle(
+          Text(
+            AppStateScope.of(context).t('feedback_add_title'),
+            style: const TextStyle(
               color: _olive,
               fontSize: 18,
               fontFamily: 'serif',
@@ -387,7 +389,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           const SizedBox(height: 10),
           _field(
             controller: _commentController,
-            hint: 'Write your feedback...',
+            hint: AppStateScope.of(context).t('feedback_write_hint'),
             maxLines: 3,
           ),
           const SizedBox(height: 10),
@@ -430,9 +432,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          const Text(
-            'from profile',
-            style: TextStyle(
+          Text(
+            AppStateScope.of(context).t('feedback_from_profile'),
+            style: const TextStyle(
               color: Colors.black45,
               fontSize: 11,
             ),
@@ -592,11 +594,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             borderRadius: BorderRadius.circular(9),
           ),
         ),
-        child: const FittedBox(
+        child: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            'Add',
-            style: TextStyle(
+            AppStateScope.of(context).t('feedback_add_button'),
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
             ),
@@ -609,9 +611,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Rating:',
-            style: TextStyle(
+          Text(
+            AppStateScope.of(context).t('feedback_rating_label'),
+            style: const TextStyle(
               color: _olive,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -631,9 +633,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
     return Row(
       children: [
-        const Text(
-          'Rating:',
-          style: TextStyle(
+        Text(
+          AppStateScope.of(context).t('feedback_rating_label'),
+          style: const TextStyle(
             color: _olive,
             fontSize: 14,
             fontWeight: FontWeight.w600,

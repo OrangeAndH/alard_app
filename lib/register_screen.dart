@@ -43,12 +43,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email.isEmpty ||
       password.isEmpty ||
       confirmPassword.isEmpty) {
-    _showSnackBar('Please fill all fields');
+    _showSnackBar(AppStateScope.of(context).t('register_fill_fields'));
     return;
   }
 
   if (password != confirmPassword) {
-    _showSnackBar('Passwords do not match');
+    _showSnackBar(AppStateScope.of(context).t('register_password_mismatch'));
     return;
   }
 
@@ -89,6 +89,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -113,42 +114,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  "Join Al'Ard!",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                Text(
+                  state.t('register_subtitle'),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 15),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildRoleToggle("Trader", "assets/trader.png", true),
+                    _buildRoleToggle(state.t('login_trader'), "assets/trader.png", true),
                     const SizedBox(width: 12),
-                    _buildRoleToggle("Regular user", "assets/regular.png", false),
+                    _buildRoleToggle(state.t('login_customer'), "assets/regular.png", false),
                   ],
                 ),
                 const SizedBox(height: 25),
                 _buildTextField(
                   controller: usernameController,
-                  hint: "Full Name",
+                  hint: state.t('register_name'),
                   iconPath: "assets/email.png", // Reusing email icon style for placeholder
                 ),
                 const SizedBox(height: 15),
                 _buildTextField(
                   controller: emailController,
-                  hint: "Email",
+                  hint: state.t('register_email'),
                   iconPath: "assets/email.png",
                 ),
                 const SizedBox(height: 15),
                 _buildTextField(
                   controller: passwordController,
-                  hint: "Password",
+                  hint: state.t('register_password'),
                   iconPath: "assets/password.png",
                   obscure: true,
                 ),
                 const SizedBox(height: 15),
                 _buildTextField(
                   controller: confirmPasswordController,
-                  hint: "Confirm Password",
+                  hint: state.t('register_confirm_password'),
                   iconPath: "assets/password.png",
                   obscure: true,
                 ),
@@ -170,9 +171,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               width: 20,
                               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                             )
-                          : const Text(
-                              "Create Account",
-                              style: TextStyle(color: Color(0xFFE4DFC1), fontWeight: FontWeight.bold),
+                          : Text(
+                              state.t('register_button'),
+                              style: const TextStyle(color: Color(0xFFE4DFC1), fontWeight: FontWeight.bold),
                             ),
                     ),
                   ),
@@ -180,9 +181,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 15),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: const Text(
-                    "Already have an account? Log In",
-                    style: TextStyle(color: Color(0xFFF0E7DE), fontWeight: FontWeight.w600),
+                  child: Text(
+                    state.t('register_already_have'),
+                    style: const TextStyle(color: Color(0xFFF0E7DE), fontWeight: FontWeight.w600),
                   ),
                 ),
                 const SizedBox(height: 30),

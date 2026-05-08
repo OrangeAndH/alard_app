@@ -35,14 +35,14 @@ class _ShopScreenState extends State<ShopScreen> {
   String _selectedCountry = 'Palestine';
 
   final List<Map<String, String>> _countries = const [
-    {'name': 'Palestine', 'flag': '🇵🇸'},
-    {'name': 'Germany', 'flag': '🇩🇪'},
-    {'name': 'United States', 'flag': '🇺🇸'},
-    {'name': 'United Kingdom', 'flag': '🇬🇧'},
-    {'name': 'United Arab Emirates', 'flag': '🇦🇪'},
-    {'name': 'Saudi Arabia', 'flag': '🇸🇦'},
-    {'name': 'France', 'flag': '🇫🇷'},
-    {'name': 'Canada', 'flag': '🇨🇦'},
+    {'name': 'store_Palestine', 'flag': '🇵🇸'},
+    {'name': 'store_Germany', 'flag': '🇩🇪'},
+    {'name': 'store_USA', 'flag': '🇺🇸'},
+    {'name': 'store_UK', 'flag': '🇬🇧'},
+    {'name': 'store_UAE', 'flag': '🇦🇪'},
+    {'name': 'store_KSA', 'flag': '🇸🇦'},
+    {'name': 'store_France', 'flag': '🇫🇷'},
+    {'name': 'store_Canada', 'flag': '🇨🇦'},
   ];
 
   @override
@@ -143,10 +143,10 @@ class _ShopScreenState extends State<ShopScreen> {
                                 child: _buildSearchResultBar(),
                               ),
                             if (!state.productsLoaded)
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 8),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
                                 child: Text(
-                                  'Loading local catalog. Showing backup products for now.',
+                                  state.t('shop_catalog_loading_backup'),
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: Colors.black45,
@@ -166,8 +166,8 @@ class _ShopScreenState extends State<ShopScreen> {
                                         color: Colors.black38,
                                       ),
                                       const SizedBox(height: 10),
-                                      const Text(
-                                        'No products found',
+                                      Text(
+                                        state.t('shop_no_products'),
                                         style: TextStyle(
                                           fontSize: 15,
                                           color: Colors.black54,
@@ -176,8 +176,8 @@ class _ShopScreenState extends State<ShopScreen> {
                                       const SizedBox(height: 10),
                                       TextButton(
                                         onPressed: _clearFilters,
-                                        child: const Text(
-                                          'Show all products',
+                                        child: Text(
+                                          state.t('shop_show_all'),
                                           style: TextStyle(
                                             color: _olive,
                                             fontWeight: FontWeight.w700,
@@ -242,8 +242,8 @@ class _ShopScreenState extends State<ShopScreen> {
                   },
                 ),
               ),
-              Positioned(
-                left: 4,
+              PositionedDirectional(
+                start: 4,
                 child: IconButton(
                   onPressed: _goBackToHome,
                   padding: EdgeInsets.zero,
@@ -252,14 +252,14 @@ class _ShopScreenState extends State<ShopScreen> {
                     height: buttonSize,
                   ),
                   icon: Icon(
-                    Icons.arrow_back_rounded,
+                    Icons.adaptive.arrow_back,
                     color: Colors.black,
                     size: 30,
                   ),
                 ),
               ),
-              Positioned(
-                right: 4,
+              PositionedDirectional(
+                end: 4,
                 child: Stack(
                   children: [
                     IconButton(
@@ -276,15 +276,15 @@ class _ShopScreenState extends State<ShopScreen> {
                         width: buttonSize,
                         height: buttonSize,
                       ),
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.shopping_cart_outlined,
                         color: Colors.black,
                         size: 28,
                       ),
                     ),
                     if (state.cartCount > 0)
-                      Positioned(
-                        right: 2,
+                      PositionedDirectional(
+                        end: 2,
                         top: 4,
                         child: Container(
                           height: 16,
@@ -315,6 +315,7 @@ class _ShopScreenState extends State<ShopScreen> {
   }
 
   Widget _buildHeroHeader(double contentWidth) {
+    final state = AppStateScope.of(context);
     final isSmall = contentWidth < 360;
 
     final titleFont = isSmall ? 31.0 : 36.0;
@@ -331,7 +332,7 @@ class _ShopScreenState extends State<ShopScreen> {
         children: [
           const SizedBox(height: 6),
           Text(
-            'Our Products',
+            state.t('home_our_products'),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: _olive,
@@ -342,7 +343,7 @@ class _ShopScreenState extends State<ShopScreen> {
           ),
           const SizedBox(height: 3),
           Text(
-            "Al'Ard: Pure Authentic Palestinian\nHeritage - Available Worldwide",
+            state.t('shop_heritage_subtitle'),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: _olive,
@@ -389,14 +390,15 @@ class _ShopScreenState extends State<ShopScreen> {
   }
 
   Widget _buildFilterRow(List<String> categories) {
+    final state = AppStateScope.of(context);
     return Row(
       children: [
         Expanded(
           child: _smallFilterButton(
             icon: Icons.filter_alt_outlined,
             label: _selectedCategory == 'All'
-                ? 'Filter by Product Category'
-                : _selectedCategory,
+                ? state.t('shop_filter_category')
+                : state.t(_selectedCategory),
             onTap: () => _showCategoryPicker(categories),
           ),
         ),
@@ -404,7 +406,7 @@ class _ShopScreenState extends State<ShopScreen> {
         Expanded(
           child: _smallFilterButton(
             icon: Icons.language_rounded,
-            label: _selectedCountry,
+            label: state.t(_selectedCountry),
             onTap: _showCountryPicker,
           ),
         ),
@@ -453,6 +455,7 @@ class _ShopScreenState extends State<ShopScreen> {
   }
 
   Widget _buildSearchResultBar() {
+    final state = AppStateScope.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -473,7 +476,7 @@ class _ShopScreenState extends State<ShopScreen> {
           const SizedBox(width: 7),
           Expanded(
             child: Text(
-              'Showing results for "$_searchQuery"',
+              '${state.t('shop_showing_results')} "$_searchQuery"',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -485,10 +488,10 @@ class _ShopScreenState extends State<ShopScreen> {
           ),
           InkWell(
             onTap: _clearFilters,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
               child: Text(
-                'Clear',
+                state.t('shop_clear'),
                 style: TextStyle(
                   color: _olive,
                   fontSize: 12,
@@ -552,7 +555,7 @@ class _ShopScreenState extends State<ShopScreen> {
       child: Container(
         padding: const EdgeInsets.fromLTRB(6, 6, 6, 7),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.78),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
@@ -578,8 +581,8 @@ class _ShopScreenState extends State<ShopScreen> {
                     ),
                   ),
                   if (product.isBestSeller)
-                    Positioned(
-                      left: 0,
+                    PositionedDirectional(
+                      start: 0,
                       top: 0,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -590,9 +593,9 @@ class _ShopScreenState extends State<ShopScreen> {
                           color: _gold,
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Text(
-                          'Best',
-                          style: TextStyle(
+                        child: Text(
+                          state.t('shop_best'),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 7,
                             fontWeight: FontWeight.w800,
@@ -605,7 +608,7 @@ class _ShopScreenState extends State<ShopScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              product.name,
+              state.t(product.name),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -619,7 +622,7 @@ class _ShopScreenState extends State<ShopScreen> {
             if (product.subtitle.trim().isNotEmpty) ...[
               const SizedBox(height: 1),
               Text(
-                product.subtitle,
+                state.t(product.subtitle),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -644,8 +647,8 @@ class _ShopScreenState extends State<ShopScreen> {
               ),
             ),
             const SizedBox(height: 2),
-            const Text(
-              'regular price',
+            Text(
+              state.t('shop_regular_price'),
               style: TextStyle(
                 color: Colors.black45,
                 fontSize: 7,
@@ -662,7 +665,7 @@ class _ShopScreenState extends State<ShopScreen> {
                   setState(() {});
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('${product.name} added to cart'),
+                      content: Text(state.t('product_added_to_cart')),
                       duration: const Duration(milliseconds: 800),
                     ),
                   );
@@ -676,11 +679,11 @@ class _ShopScreenState extends State<ShopScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const FittedBox(
+                child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    'ADD TO CART',
-                    style: TextStyle(
+                    state.t('shop_add_to_cart'),
+                    style: const TextStyle(
                       fontSize: 8.5,
                       fontWeight: FontWeight.w900,
                     ),
@@ -697,6 +700,7 @@ class _ShopScreenState extends State<ShopScreen> {
 
 
   void _showCategoryPicker(List<String> categories) {
+    final state = AppStateScope.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -713,8 +717,8 @@ class _ShopScreenState extends State<ShopScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Filter by Product Category',
+                Text(
+                  state.t('shop_filter_category'),
                   style: TextStyle(
                     color: _olive,
                     fontSize: 18,
@@ -754,7 +758,7 @@ class _ShopScreenState extends State<ShopScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    category,
+                                    state.t(category),
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       color: _olive,
@@ -786,6 +790,7 @@ class _ShopScreenState extends State<ShopScreen> {
   }
 
   void _showCountryPicker() {
+    final state = AppStateScope.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -802,8 +807,8 @@ class _ShopScreenState extends State<ShopScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Select Country',
+                Text(
+                  state.t('home_change_location'),
                   style: TextStyle(
                     color: _olive,
                     fontSize: 18,
@@ -844,7 +849,7 @@ class _ShopScreenState extends State<ShopScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              country['name']!,
+                              state.t(country['name']!),
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: _olive,

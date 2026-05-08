@@ -95,9 +95,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildSteps(activeStep: 'Payment'),
+                        _buildSteps(state, activeStep: 'step_payment'),
                         const SizedBox(height: 18),
-                        _sectionTitle('1. Shipping Address'),
+                        _sectionTitle('1. ${state.t('personal_personal_details')}'),
                         const SizedBox(height: 10),
                         _addressBox(),
                         const SizedBox(height: 7),
@@ -109,7 +109,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         const SizedBox(height: 12),
                         _checkRow(
                           value: _saveAddress,
-                          text: 'Save this address',
+                          text: state.t('addr_save'), // I should add this key or use existing
                           onTap: () {
                             setState(() {
                               _saveAddress = !_saveAddress;
@@ -117,17 +117,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           },
                         ),
                         const Divider(height: 26, color: _line),
-                        _sectionTitle('2. Delivery Method'),
+                        _sectionTitle('2. ${state.t('checkout_delivery_method')}'),
                         const SizedBox(height: 10),
                         _deliveryReadOnlyBox(state),
                         const SizedBox(height: 16),
-                        _sectionTitle('3. Payment Method'),
+                        _sectionTitle('3. ${state.t('checkout_payment')}'),
                         const SizedBox(height: 10),
                         _paymentBox(),
                         const Divider(height: 26, color: _line),
                         _checkRow(
                           value: _billingSame,
-                          text: 'Billing Address',
+                          text: state.t('checkout_billing_address'),
                           onTap: () {
                             setState(() {
                               _billingSame = !_billingSame;
@@ -139,7 +139,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         const SizedBox(height: 24),
                         _totalRow(state),
                         const SizedBox(height: 26),
-                        _placeOrderButton(context, screenWidth),
+                        _placeOrderButton(context, state, screenWidth),
                       ],
                     ),
                   ),
@@ -183,8 +183,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   },
                 ),
               ),
-              Positioned(
-                left: 8,
+              PositionedDirectional(
+                start: 8,
                 child: IconButton(
                   onPressed: () {
                     Navigator.pop(context);
@@ -194,15 +194,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     width: buttonSize,
                     height: buttonSize,
                   ),
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.arrow_back_rounded,
                     color: Colors.black,
                     size: 30,
                   ),
                 ),
               ),
-              Positioned(
-                right: 8,
+              PositionedDirectional(
+                end: 8,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -213,7 +213,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         width: buttonSize,
                         height: buttonSize,
                       ),
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.search_rounded,
                         color: Colors.black,
                         size: 28,
@@ -228,7 +228,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         width: buttonSize,
                         height: buttonSize,
                       ),
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.shopping_cart_outlined,
                         color: Colors.black,
                         size: 28,
@@ -244,7 +244,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildSteps({
+  Widget _buildSteps(
+    AppState state, {
     required String activeStep,
   }) {
     return LayoutBuilder(
@@ -258,23 +259,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 4,
             children: [
-              _stepText('Cart', active: activeStep == 'Cart', fontSize: fontSize),
+              _stepText(state.t('step_cart'), active: activeStep == 'step_cart', fontSize: fontSize),
               _stepDivider(fontSize),
               _stepText(
-                'Shipping',
-                active: activeStep == 'Shipping',
+                state.t('step_shipping'),
+                active: activeStep == 'step_shipping',
                 fontSize: fontSize,
               ),
               _stepDivider(fontSize),
               _stepText(
-                'Payment',
-                active: activeStep == 'Payment',
+                state.t('step_payment'),
+                active: activeStep == 'step_payment',
                 fontSize: fontSize,
               ),
               _stepDivider(fontSize),
               _stepText(
-                'Review',
-                active: activeStep == 'Review',
+                state.t('step_review'),
+                active: activeStep == 'step_review',
                 fontSize: fontSize,
               ),
             ],
@@ -309,11 +310,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
         ),
         const SizedBox(height: 2),
-        Container(
-          height: 2,
-          width: active ? lineWidth : 0,
-          color: active ? _olive : Colors.transparent,
-        ),
+        if (active)
+          Container(
+            height: 2,
+            width: lineWidth,
+            color: _olive,
+          ),
       ],
     );
   }
@@ -704,9 +706,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget _totalRow(AppState state) {
     return Row(
       children: [
-        const Text(
-          'Total:',
-          style: TextStyle(
+        Text(
+          '${state.t('checkout_total')}:',
+          style: const TextStyle(
             color: _olive,
             fontSize: 20,
             fontFamily: 'serif',
@@ -743,7 +745,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _placeOrderButton(BuildContext context, double screenWidth) {
+  Widget _placeOrderButton(
+    BuildContext context,
+    AppState state,
+    double screenWidth,
+  ) {
     final width = screenWidth < 360 ? screenWidth * 0.58 : 198.0;
 
     return Center(
@@ -784,11 +790,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: const FittedBox(
+          child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              'Place Order',
-              style: TextStyle(
+              state.t('checkout_place_order'),
+              style: const TextStyle(
                 fontSize: 18,
                 fontFamily: 'serif',
               ),

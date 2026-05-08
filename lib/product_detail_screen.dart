@@ -79,7 +79,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   child: Row(
                     children: [
                       _circleButton(
-                        icon: Icons.arrow_back_ios_new_rounded,
+                        icon: Icons.adaptive.arrow_back,
                         onTap: () => Navigator.pop(context),
                       ),
                       const Spacer(),
@@ -119,8 +119,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                               },
                             ),
                             if (state.cartCount > 0)
-                              Positioned(
-                                right: 0,
+                              PositionedDirectional(
+                                end: 0,
                                 top: 0,
                                 child: CircleAvatar(
                                   radius: 9,
@@ -169,7 +169,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                             _badge(widget.product.category),
                             if (widget.product.isBestSeller) ...[
                               const SizedBox(width: 8),
-                              _badge('Best Seller',
+                              _badge(state.t('product_best_seller'),
                                   bg: const Color(0xFFCEB04B),
                                   fg: Colors.white),
                             ],
@@ -177,7 +177,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          widget.product.name,
+                          state.t(widget.product.name),
                           style: const TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
@@ -187,7 +187,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          widget.product.subtitle,
+                          state.t(widget.product.subtitle),
                           style: const TextStyle(
                             fontSize: 15,
                             color: Colors.black54,
@@ -208,9 +208,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                               ),
                             ),
                             const SizedBox(width: 4),
-                            const Text(
-                              '(Ratings)',
-                              style: TextStyle(
+                            Text(
+                              state.t('product_ratings_count'),
+                              style: const TextStyle(
                                   fontSize: 13, color: Colors.black45),
                             ),
                             const Spacer(),
@@ -227,9 +227,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         const SizedBox(height: 24),
                         const Divider(color: Color(0xFFDDD6CC)),
                         const SizedBox(height: 16),
-                        const Text(
-                          'About this product',
-                          style: TextStyle(
+                        Text(
+                          state.t('product_about'),
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF2D3112),
@@ -237,7 +237,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _getDescription(widget.product),
+                          _getDescription(widget.product, state),
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black54,
@@ -247,9 +247,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         const SizedBox(height: 24),
                         Row(
                           children: [
-                            const Text(
-                              'Quantity',
-                              style: TextStyle(
+                            Text(
+                              state.t('product_quantity'),
+                              style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF2D3112),
@@ -318,9 +318,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'Total price',
-                        style: TextStyle(fontSize: 12, color: Colors.black45),
+                      Text(
+                        state.t('product_total_price'),
+                        style: const TextStyle(fontSize: 12, color: Colors.black45),
                       ),
                       Text(
                         state.getFormattedPrice(widget.product.price * _quantity),
@@ -342,7 +342,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              '$_quantity × ${widget.product.name} added to cart',
+                              '$_quantity × ${state.t(widget.product.name)} ${state.t('product_added_to_cart')}',
                             ),
                             backgroundColor: const Color(0xFF56632C),
                             duration: const Duration(seconds: 2),
@@ -371,7 +371,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         size: 20,
                       ),
                       label: Text(
-                        inCart ? 'Add More' : 'Add to Cart',
+                        inCart ? state.t('product_add_more') : state.t('product_add_to_cart'),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -452,27 +452,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  String _getDescription(Product product) {
+  String _getDescription(Product product, dynamic state) {
     switch (product.category) {
       case 'Oil':
-        return 'Cold-pressed from hand-picked Palestinian olives, '
-            'this extra virgin olive oil carries centuries of tradition. '
-            'Rich in polyphenols and with a robust, fruity flavor, '
-            'it is the perfect companion for cooking, dipping, and dressing.';
+        return state.t('product_desc_oil');
       case 'Herbs':
-        return 'Sourced directly from the hills and mountains of Palestine, '
-            'our herbs are sun-dried to preserve their natural aroma and '
-            'medicinal properties. Each batch is carefully selected to '
-            'bring you the finest quality.';
+        return state.t('product_desc_herbs');
       case 'Olives':
-        return 'Traditionally cured Palestinian olives, harvested at peak '
-            'ripeness for maximum flavor. These olives carry the authentic '
-            'taste of the land, brined to perfection using time-honored methods.';
+        return state.t('product_desc_olives');
       default:
-        return 'Carefully sourced from Palestinian farmers and artisans, '
-            'this product reflects our commitment to quality, authenticity, '
-            'and supporting local communities. Every purchase helps sustain '
-            'the heritage and livelihoods of Palestinian families.';
+        return state.t('product_desc_default');
     }
   }
 }

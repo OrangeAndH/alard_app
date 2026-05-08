@@ -32,18 +32,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
   late String _searchQuery;
   late TextEditingController _searchController;
 
-  String _selectedCountry = 'Palestine';
 
-  final List<Map<String, String>> _countries = const [
-    {'name': 'Palestine', 'flag': '🇵🇸'},
-    {'name': 'Germany', 'flag': '🇩🇪'},
-    {'name': 'United States', 'flag': '🇺🇸'},
-    {'name': 'United Kingdom', 'flag': '🇬🇧'},
-    {'name': 'United Arab Emirates', 'flag': '🇦🇪'},
-    {'name': 'Saudi Arabia', 'flag': '🇸🇦'},
-    {'name': 'France', 'flag': '🇫🇷'},
-    {'name': 'Canada', 'flag': '🇨🇦'},
-  ];
 
   @override
   void initState() {
@@ -143,10 +132,10 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                             _buildCategoriesRow(categories),
                             const SizedBox(height: 16),
                             if (!state.productsLoaded)
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 8),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
                                 child: Text(
-                                  'Loading local catalog. Showing backup products for now.',
+                                  state.t('shop_catalog_loading_backup'),
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: Colors.black45,
@@ -166,8 +155,8 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                                         color: Colors.black38,
                                       ),
                                       const SizedBox(height: 10),
-                                      const Text(
-                                        'No products found',
+                                      Text(
+                                        state.t('shop_no_products'),
                                         style: TextStyle(
                                           fontSize: 15,
                                           color: Colors.black54,
@@ -176,8 +165,8 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                                       const SizedBox(height: 10),
                                       TextButton(
                                         onPressed: _clearFilters,
-                                        child: const Text(
-                                          'Show all products',
+                                        child: Text(
+                                          state.t('shop_show_all'),
                                           style: TextStyle(
                                             color: _olive,
                                             fontWeight: FontWeight.w700,
@@ -242,8 +231,8 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                   },
                 ),
               ),
-              Positioned(
-                left: 4,
+              PositionedDirectional(
+                start: 4,
                 child: IconButton(
                   onPressed: _goBackToHome,
                   padding: EdgeInsets.zero,
@@ -258,8 +247,8 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                   ),
                 ),
               ),
-              Positioned(
-                right: 4,
+              PositionedDirectional(
+                end: 4,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -299,8 +288,8 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                           ),
                         ),
                         if (state.cartCount > 0)
-                          Positioned(
-                            right: 2,
+                          PositionedDirectional(
+                            end: 2,
                             top: 4,
                             child: Container(
                               height: 16,
@@ -348,8 +337,8 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
           Expanded(
             child: TextField(
               controller: _searchController,
-              decoration: const InputDecoration(
-                hintText: 'search for products...',
+              decoration: InputDecoration(
+                hintText: AppStateScope.of(context).t('shop_search_hint'),
                 hintStyle: TextStyle(color: Colors.black54, fontSize: 16),
                 border: InputBorder.none,
                 isDense: true,
@@ -370,29 +359,30 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
   }
 
   Widget _buildAvailabilityText() {
-    return const Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Available in Germany, United Kingdom, France, Canada, USA',
-          style: TextStyle(
+          AppStateScope.of(context).t('shop_available_in'),
+          style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
           ),
         ),
-        SizedBox(width: 4),
-        Icon(Icons.arrow_forward_ios, size: 10, color: Colors.black87),
+        const SizedBox(width: 4),
+        Icon(Icons.adaptive.arrow_forward, size: 10, color: Colors.black87),
       ],
     );
   }
 
   Widget _buildTrendingSearches() {
+    final state = AppStateScope.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Tending Searches',
+        Text(
+          state.t('shop_trending_searches'),
           style: TextStyle(
             color: _olive,
             fontSize: 15,
@@ -409,9 +399,9 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
               const SizedBox(width: 12),
               _trendingChip('Zaatar'),
               const SizedBox(width: 12),
-              _trendingChip('organic products'),
+              _trendingChip('Organic'),
               const SizedBox(width: 12),
-              _trendingChip('Gifts'),
+              _trendingChip('Gift Boxes'),
             ],
           ),
         ),
@@ -439,7 +429,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
         ],
       ),
       child: Text(
-        label,
+        AppStateScope.of(context).t(label),
         style: const TextStyle(
           color: _olive,
           fontSize: 13,
@@ -449,6 +439,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
   }
 
   Widget _buildCategoriesRow(List<String> categories) {
+    final state = AppStateScope.of(context);
     final displayCategories = categories.where((c) => c != 'All').toList();
 
     return SingleChildScrollView(
@@ -475,7 +466,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
               child: Row(
                 children: [
                   Text(
-                    cat,
+                    state.t(cat),
                     style: TextStyle(
                       color: isSelected ? Colors.white : _olive,
                       fontSize: 15,
@@ -485,7 +476,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                   if (cat == 'Organic') ...[
                     const SizedBox(width: 4),
                     Icon(
-                      Icons.arrow_forward_ios,
+                      Icons.adaptive.arrow_forward,
                       size: 12,
                       color: isSelected ? Colors.white : _olive,
                     ),
@@ -549,7 +540,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
       child: Container(
         padding: const EdgeInsets.fromLTRB(6, 6, 6, 7),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.78),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
@@ -575,34 +566,34 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                     ),
                   ),
                   if (product.isBestSeller)
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 5,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _gold,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text(
-                          'Best',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 7,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
+                    PositionedDirectional(
+                     start: 0,
+                     top: 0,
+                     child: Container(
+                       padding: const EdgeInsets.symmetric(
+                         horizontal: 5,
+                         vertical: 2,
+                       ),
+                       decoration: BoxDecoration(
+                         color: _gold,
+                         borderRadius: BorderRadius.circular(6),
+                       ),
+                       child: Text(
+                         state.t('shop_best'),
+                         style: const TextStyle(
+                           color: Colors.white,
+                           fontSize: 7,
+                           fontWeight: FontWeight.w800,
+                         ),
+                       ),
+                     ),
+                   ),
                 ],
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              product.name,
+              state.t(product.name),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -616,7 +607,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
             if (product.subtitle.trim().isNotEmpty) ...[
               const SizedBox(height: 1),
               Text(
-                product.subtitle,
+                state.t(product.subtitle),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -641,8 +632,8 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
               ),
             ),
             const SizedBox(height: 2),
-            const Text(
-              'regular price',
+            Text(
+              state.t('shop_regular_price'),
               style: TextStyle(
                 color: Colors.black45,
                 fontSize: 7,
@@ -657,12 +648,12 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                 onPressed: () {
                   state.addToCart(product);
                   setState(() {});
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${product.name} added to cart'),
-                      duration: const Duration(milliseconds: 800),
-                    ),
-                  );
+                   ScaffoldMessenger.of(context).showSnackBar(
+                     SnackBar(
+                       content: Text(state.t('product_added_to_cart')),
+                       duration: const Duration(milliseconds: 800),
+                     ),
+                   );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _olive,
@@ -673,11 +664,11 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const FittedBox(
+                child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    'ADD TO CART',
-                    style: TextStyle(
+                    state.t('shop_add_to_cart'),
+                    style: const TextStyle(
                       fontSize: 8.5,
                       fontWeight: FontWeight.w900,
                     ),

@@ -13,11 +13,11 @@ class PaymentMethodsPage extends StatelessWidget {
     final methods = state.paymentMethods;
 
     return AppPageScaffold(
-      title: 'Payment Methods',
+      title: state.t('pay_title'),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showVisaDialog(context),
         icon: const Icon(Icons.add),
-        label: const Text('Add Visa'),
+        label: Text(state.t('pay_add_visa')),
       ),
       child: ListView.separated(
         itemCount: methods.length,
@@ -77,7 +77,7 @@ class PaymentMethodsPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  method.title,
+                  AppStateScope.of(context).t(method.title),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -86,7 +86,7 @@ class PaymentMethodsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  method.subtitle,
+                  AppStateScope.of(context).t(method.subtitle),
                   style: TextStyle(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
                   ),
@@ -95,7 +95,7 @@ class PaymentMethodsPage extends StatelessWidget {
                     method.cardHolderName != null) ...[
                   const SizedBox(height: 4),
                   Text(
-                    'Holder: ${method.cardHolderName}',
+                    '${AppStateScope.of(context).t('pay_holder')}: ${method.cardHolderName}',
                     style: TextStyle(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
                     ),
@@ -113,7 +113,7 @@ class PaymentMethodsPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'Default',
+                      AppStateScope.of(context).t('addr_default'),
                       style: TextStyle(
                         color: theme.colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -129,7 +129,7 @@ class PaymentMethodsPage extends StatelessWidget {
             children: [
               if (onEdit != null)
                 IconButton(
-                  tooltip: 'Edit Visa',
+                  tooltip: AppStateScope.of(context).t('pay_edit_visa_tooltip'),
                   onPressed: onEdit,
                   icon: Icon(
                     Icons.edit_outlined,
@@ -138,7 +138,7 @@ class PaymentMethodsPage extends StatelessWidget {
                 ),
               if (onDelete != null)
                 IconButton(
-                  tooltip: 'Delete Visa',
+                  tooltip: AppStateScope.of(context).t('pay_delete_visa_tooltip'),
                   onPressed: onDelete,
                   icon: const Icon(
                     Icons.delete_outline,
@@ -148,7 +148,7 @@ class PaymentMethodsPage extends StatelessWidget {
               if (!method.isDefault)
                 TextButton(
                   onPressed: onUse,
-                  child: const Text('Use'),
+                  child: Text(AppStateScope.of(context).t('pay_use')),
                 ),
             ],
           ),
@@ -185,17 +185,17 @@ class PaymentMethodsPage extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(isEditing ? 'Edit Visa Card' : 'Add Visa Card'),
+          title: Text(isEditing ? state.t('pay_edit_card_title') : state.t('pay_add_card_title')),
           content: SingleChildScrollView(
             child: Column(
               children: [
                 TextField(
                   controller: holderController,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Card holder name',
-                    hintText: 'Example: Mohammed Ahmad',
-                    prefixIcon: Icon(Icons.person_outline),
+                  decoration: InputDecoration(
+                    labelText: state.t('pay_label_holder'),
+                    hintText: state.t('pay_hint_holder'),
+                    prefixIcon: const Icon(Icons.person_outline),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -203,10 +203,10 @@ class PaymentMethodsPage extends StatelessWidget {
                   controller: numberController,
                   keyboardType: TextInputType.number,
                   maxLength: 16,
-                  decoration: const InputDecoration(
-                    labelText: 'Card number',
-                    hintText: '16 digits',
-                    prefixIcon: Icon(Icons.credit_card),
+                  decoration: InputDecoration(
+                    labelText: state.t('pay_label_number'),
+                    hintText: state.t('pay_hint_number'),
+                    prefixIcon: const Icon(Icons.credit_card),
                     counterText: '',
                   ),
                 ),
@@ -218,9 +218,9 @@ class PaymentMethodsPage extends StatelessWidget {
                         controller: monthController,
                         keyboardType: TextInputType.number,
                         maxLength: 2,
-                        decoration: const InputDecoration(
-                          labelText: 'Month',
-                          hintText: 'MM',
+                        decoration: InputDecoration(
+                          labelText: state.t('pay_label_month'),
+                          hintText: state.t('pay_hint_month'),
                           counterText: '',
                         ),
                       ),
@@ -231,9 +231,9 @@ class PaymentMethodsPage extends StatelessWidget {
                         controller: yearController,
                         keyboardType: TextInputType.number,
                         maxLength: 4,
-                        decoration: const InputDecoration(
-                          labelText: 'Year',
-                          hintText: 'YYYY',
+                        decoration: InputDecoration(
+                          labelText: state.t('pay_label_year'),
+                          hintText: state.t('pay_hint_year'),
                           counterText: '',
                         ),
                       ),
@@ -246,16 +246,16 @@ class PaymentMethodsPage extends StatelessWidget {
                   keyboardType: TextInputType.number,
                   maxLength: 4,
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'CVV',
-                    hintText: '3 or 4 digits',
-                    prefixIcon: Icon(Icons.lock_outline),
+                  decoration: InputDecoration(
+                    labelText: state.t('pay_label_cvv'),
+                    hintText: state.t('pay_hint_cvv'),
+                    prefixIcon: const Icon(Icons.lock_outline),
                     counterText: '',
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'For this demo app, card information is stored only inside the app state. Do not use real card details.',
+                  state.t('pay_demo_warning'),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context)
                             .colorScheme
@@ -269,7 +269,7 @@ class PaymentMethodsPage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(state.t('ui_cancel')),
             ),
             ElevatedButton(
               onPressed: () {
@@ -280,6 +280,7 @@ class PaymentMethodsPage extends StatelessWidget {
                 final cvv = cvvController.text.trim();
 
                 final error = _validateVisaFields(
+                  context,
                   holder: holder,
                   number: number,
                   month: month,
@@ -315,7 +316,7 @@ class PaymentMethodsPage extends StatelessWidget {
 
                 Navigator.pop(dialogContext);
               },
-              child: Text(isEditing ? 'Save' : 'Add'),
+              child: Text(isEditing ? state.t('pay_save') : state.t('ui_add')),
             ),
           ],
         );
@@ -323,7 +324,8 @@ class PaymentMethodsPage extends StatelessWidget {
     );
   }
 
-  String? _validateVisaFields({
+  String? _validateVisaFields(
+    BuildContext context, {
     required String holder,
     required String number,
     required String month,
@@ -335,24 +337,24 @@ class PaymentMethodsPage extends StatelessWidget {
         month.isEmpty ||
         year.isEmpty ||
         cvv.isEmpty) {
-      return 'Please fill all card information';
+      return AppStateScope.of(context).t('pay_error_fill');
     }
 
     if (number.length != 16 || int.tryParse(number) == null) {
-      return 'Card number must be 16 digits';
+      return AppStateScope.of(context).t('pay_error_number');
     }
 
     final monthValue = int.tryParse(month);
     if (monthValue == null || monthValue < 1 || monthValue > 12) {
-      return 'Expiry month must be between 01 and 12';
+      return AppStateScope.of(context).t('pay_error_month');
     }
 
     if (year.length != 4 || int.tryParse(year) == null) {
-      return 'Expiry year must be 4 digits';
+      return AppStateScope.of(context).t('pay_error_year');
     }
 
     if ((cvv.length != 3 && cvv.length != 4) || int.tryParse(cvv) == null) {
-      return 'CVV must be 3 or 4 digits';
+      return AppStateScope.of(context).t('pay_error_cvv');
     }
 
     return null;
@@ -365,14 +367,14 @@ class PaymentMethodsPage extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Delete Visa Card'),
+          title: Text(state.t('pay_delete_card_title')),
           content: Text(
-            'Are you sure you want to delete "${method.title}"?',
+            '${state.t('addr_delete_confirm_msg')} "${AppStateScope.of(context).t(method.title)}"?',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(state.t('ui_cancel')),
             ),
             ElevatedButton(
               onPressed: () {
@@ -380,8 +382,8 @@ class PaymentMethodsPage extends StatelessWidget {
                 Navigator.pop(dialogContext);
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Visa card deleted'),
+                  SnackBar(
+                    content: Text(state.t('pay_deleted_snack')),
                   ),
                 );
               },
@@ -389,7 +391,7 @@ class PaymentMethodsPage extends StatelessWidget {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Delete'),
+              child: Text(state.t('ui_delete')),
             ),
           ],
         );

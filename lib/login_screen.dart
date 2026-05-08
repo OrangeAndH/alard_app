@@ -154,6 +154,7 @@ Future<void> loginWithFacebook() async {
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -181,9 +182,9 @@ Future<void> loginWithFacebook() async {
 
                 const SizedBox(height: 20),
 
-                const Text(
-                  "Continue as:",
-                  style: TextStyle(
+                Text(
+                  state.t('login_continue_as'),
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
@@ -216,7 +217,7 @@ Future<void> loginWithFacebook() async {
                           children: [
                             Image.asset("assets/trader.png", width: 36),
                             const SizedBox(width: 6),
-                            const Text("Trader"),
+                            Text(state.t('login_trader')),
                           ],
                         ),
                       ),
@@ -244,7 +245,7 @@ Future<void> loginWithFacebook() async {
                           children: [
                             Image.asset("assets/regular.png", width: 36),
                             const SizedBox(width: 6),
-                            const Text("Regular user"),
+                            Text(state.t('login_customer')),
                           ],
                         ),
                       ),
@@ -254,9 +255,9 @@ Future<void> loginWithFacebook() async {
 
                 const SizedBox(height: 20),
 
-                const Text(
-                  "Welcome to Al'Ard!",
-                  style: TextStyle(
+                Text(
+                  state.t('login_welcome'),
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -264,9 +265,9 @@ Future<void> loginWithFacebook() async {
 
                 const SizedBox(height: 5),
 
-                const Text(
-                  "Log in or create an account to continue",
-                  style: TextStyle(
+                Text(
+                  state.t('login_subtext'),
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Color(0xFFF5E2E2),
                   ),
@@ -286,7 +287,7 @@ Future<void> loginWithFacebook() async {
                         padding: const EdgeInsets.all(12.0),
                         child: Image.asset("assets/email.png"),
                       ),
-                      hintText: "Email",
+                      hintText: state.t('login_email'),
                       filled: true,
                       fillColor: const Color(0xFFF0E7DE),
                       border: OutlineInputBorder(
@@ -325,7 +326,7 @@ Future<void> loginWithFacebook() async {
                         padding: const EdgeInsets.all(12.0),
                         child: Image.asset("assets/password.png"),
                       ),
-                      hintText: "Password",
+                      hintText: state.t('login_password'),
                       filled: true,
                       fillColor: const Color(0xFFF0E7DE),
                       border: OutlineInputBorder(
@@ -347,9 +348,9 @@ Future<void> loginWithFacebook() async {
     ),
   );
 },
-      child: const Text(
-        "Forgot password?",
-        style: TextStyle(
+      child: Text(
+        state.t('login_forgot_password'),
+        style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: Color(0xFFF0E7DE),
@@ -373,9 +374,9 @@ Future<void> loginWithFacebook() async {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: const Text(
-                        "Log In",
-                        style: TextStyle(
+                      child: Text(
+                        state.t('login_button'),
+                        style: const TextStyle(
                           color: Color(0xFFE4DFC1),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -407,9 +408,9 @@ Future<void> loginWithFacebook() async {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: const Text(
-                        "Create New Account",
-                        style: TextStyle(
+                      child: Text(
+                        state.t('login_create_account'),
+                        style: const TextStyle(
                           color: Color(0xFFE4DFC1),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -421,9 +422,9 @@ Future<void> loginWithFacebook() async {
 
                 const SizedBox(height: 20),
 
-                const Text(
-                  "Or log in with",
-                  style: TextStyle(
+                Text(
+                  state.t('login_or_with'),
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Color(0xFFF0E7DE),
                   ),

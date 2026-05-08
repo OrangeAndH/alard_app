@@ -21,7 +21,7 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
 
-  String _country = 'Palestine';
+  String _country = 'country_palestine';
   bool _initialized = false;
 
   @override
@@ -33,7 +33,20 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
         _nameController.text = user.name;
         _emailController.text = user.email;
         _phoneController.text = user.phone;
-        _country = user.location.isNotEmpty ? user.location : 'Palestine';
+        
+        // Handle both key format 'country_palestine' and display format 'Palestine'
+        final loc = user.location.toLowerCase();
+        if (loc.contains('palestine')) {
+          _country = 'country_palestine';
+        } else if (loc.contains('germany')) {
+          _country = 'country_germany';
+        } else if (loc.contains('usa')) {
+          _country = 'country_usa';
+        } else if (loc.contains('uae')) {
+          _country = 'country_uae';
+        } else {
+          _country = 'country_palestine';
+        }
       }
       _initialized = true;
     }
@@ -63,9 +76,9 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
                   children: [
                     _buildHeroImage(),
                     const SizedBox(height: 18),
-                    const Text(
-                      'Personal Details',
-                      style: TextStyle(
+                    Text(
+                      AppStateScope.of(context).t('profile_personal_details'),
+                      style: const TextStyle(
                         color: Colors.black,
                         fontSize: 21,
                         fontWeight: FontWeight.w500,
@@ -175,24 +188,25 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
   }
 
   Widget _buildForm() {
+    final state = AppStateScope.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 36),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _label('Full Name'),
+          _label(state.t('personal_full_name')),
           _textField(_nameController),
           const SizedBox(height: 13),
-          _label('Email Address'),
+          _label(state.t('personal_email_address')),
           _textField(_emailController),
           const SizedBox(height: 13),
-          _label('Phone Number'),
+          _label(state.t('personal_phone_number')),
           _textField(_phoneController),
           const SizedBox(height: 13),
-          _label('Country'),
+          _label(state.t('personal_country')),
           _countryDropDown(),
           const SizedBox(height: 13),
-          _label('City'),
+          _label(state.t('personal_city')),
           _textField(_cityController),
           const SizedBox(height: 22),
           Center(
@@ -207,29 +221,29 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
 
                   if (name.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Name cannot be empty')),
+                      SnackBar(content: Text(state.t('personal_error_name'))),
                     );
                     return;
                   }
 
                   if (email.isEmpty || !email.contains('@') || !email.contains('.')) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter a valid email address')),
+                      SnackBar(content: Text(state.t('personal_error_email'))),
                     );
                     return;
                   }
 
                   if (phone.isEmpty || phone.length < 8) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter a valid phone number')),
+                      SnackBar(content: Text(state.t('personal_error_phone'))),
                     );
                     return;
                   }
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Changes saved successfully'),
-                      duration: Duration(milliseconds: 900),
+                    SnackBar(
+                      content: Text(state.t('personal_success_saved')),
+                      duration: const Duration(milliseconds: 900),
                     ),
                   );
                 },
@@ -242,9 +256,9 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text(
-                  'Save Changes',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                child: Text(
+                  state.t('personal_save_changes'),
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                 ),
               ),
             ),
@@ -291,6 +305,7 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
   }
 
   Widget _countryDropDown() {
+    final state = AppStateScope.of(context);
     return Container(
       height: 31,
       padding: const EdgeInsets.symmetric(horizontal: 9),
@@ -307,11 +322,11 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
             color: Colors.black,
           ),
           style: const TextStyle(color: Colors.black87, fontSize: 13),
-          items: const [
-            DropdownMenuItem(value: 'Palestine', child: Text('Palestine')),
-            DropdownMenuItem(value: 'Germany', child: Text('Germany')),
-            DropdownMenuItem(value: 'USA', child: Text('USA')),
-            DropdownMenuItem(value: 'UAE', child: Text('UAE')),
+          items: [
+            DropdownMenuItem(value: 'country_palestine', child: Text(state.t('country_palestine'))),
+            DropdownMenuItem(value: 'country_germany', child: Text(state.t('country_germany'))),
+            DropdownMenuItem(value: 'country_usa', child: Text(state.t('country_usa'))),
+            DropdownMenuItem(value: 'country_uae', child: Text(state.t('country_uae'))),
           ],
           onChanged: (value) {
             if (value == null) return;

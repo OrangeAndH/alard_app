@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'app_state.dart';
+import 'app_state_scope.dart';
 
 class RecipesScreen extends StatefulWidget {
   const RecipesScreen({super.key});
@@ -18,143 +20,143 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   bool _showSearch = false;
   String _query = '';
-  String _selectedCookingItem = 'All';
+  String _selectedCookingItem = 'recipe_cat_all';
 
   static const List<String> _cookingItems = [
-    'All',
-    'Olive Oil',
-    'Zaatar',
-    'Sumac',
-    'Tahini',
-    'Freekeh',
-    'Maftoul',
-    'Black Seed',
+    'recipe_cat_all',
+    'recipe_cat_olive_oil',
+    'recipe_cat_zaatar',
+    'recipe_cat_sumac',
+    'recipe_cat_tahini',
+    'recipe_cat_freekeh',
+    'recipe_cat_maftoul',
+    'recipe_cat_black_seed',
   ];
 
-  static final List<RecipeItem> _recipes = [
-    RecipeItem(
-      title: 'Olive Oil & Zaatar Bread Dip',
-      image: 'assets/10.png',
-      duration: '5 min',
-      cookingItems: [
-        'Olive Oil',
-        'Zaatar',
-      ],
-      description:
-          'A quick Palestinian-style dip made with extra virgin olive oil and zaatar. It is simple, authentic, and perfect with fresh bread.',
-      ingredients: [
-        '4 tbsp Al’Ard Extra Virgin Olive Oil',
-        '2 tbsp Palestinian Zaatar',
-        'Fresh bread for serving',
-        'Optional: sesame seeds',
-      ],
-      steps: [
-        'Pour the olive oil into a shallow serving bowl.',
-        'Add zaatar on top and mix lightly.',
-        'Serve immediately with fresh bread.',
-      ],
-    ),
-    RecipeItem(
-      title: 'Palestinian Sumac Salad',
-      image: 'assets/11.png',
-      duration: '10 min',
-      cookingItems: [
-        'Olive Oil',
-        'Sumac',
-      ],
-      description:
-          'A fresh Palestinian salad with chopped vegetables, herbs, olive oil, and sumac for a bright tangy flavor.',
-      ingredients: [
-        '2 cucumbers, chopped',
-        '2 tomatoes, chopped',
-        'Fresh parsley',
-        '2 tbsp Al’Ard Olive Oil',
-        '1 tsp Palestinian sumac',
-        'Salt to taste',
-      ],
-      steps: [
-        'Chop all vegetables and place them in a bowl.',
-        'Add parsley, salt, and sumac.',
-        'Drizzle olive oil over the salad.',
-        'Mix well and serve fresh.',
-      ],
-    ),
-    RecipeItem(
-      title: 'Zaatar Eggs Breakfast',
-      image: 'assets/12.png',
-      duration: '8 min',
-      cookingItems: [
-        'Olive Oil',
-        'Zaatar',
-      ],
-      description:
-          'A warm breakfast recipe using eggs, olive oil, and zaatar for a simple Palestinian-inspired morning dish.',
-      ingredients: [
-        '2 eggs',
-        '1 tbsp Al’Ard Olive Oil',
-        '1 tsp Palestinian Zaatar',
-        'Salt and pepper',
-        'Bread for serving',
-      ],
-      steps: [
-        'Heat olive oil in a small pan.',
-        'Add the eggs and cook gently.',
-        'Sprinkle zaatar, salt, and pepper.',
-        'Serve hot with bread.',
-      ],
-    ),
-    RecipeItem(
-      title: 'Zaatar Roasted Chicken',
-      image: 'assets/13.png',
-      duration: '35 min',
-      cookingItems: [
-        'Olive Oil',
-        'Zaatar',
-      ],
-      description:
-          'A rich roasted chicken recipe flavored with olive oil, zaatar, lemon, and herbs.',
-      ingredients: [
-        'Chicken pieces',
-        '3 tbsp Al’Ard Olive Oil',
-        '2 tbsp Palestinian Zaatar',
-        'Lemon juice',
-        'Salt and pepper',
-        'Potatoes, optional',
-      ],
-      steps: [
-        'Mix olive oil, zaatar, lemon juice, salt, and pepper.',
-        'Coat the chicken well with the mixture.',
-        'Place in a baking tray with potatoes.',
-        'Bake until golden and fully cooked.',
-      ],
-    ),
-  ];
+  static List<RecipeItem> _getTranslatedRecipes(BuildContext context) {
+    final state = AppStateScope.of(context);
+    return [
+      RecipeItem(
+        title: state.t('recipe_1_title'),
+        image: 'assets/10.png',
+        duration: '5 min',
+        cookingItems: ['Olive Oil', 'Zaatar'],
+        description: state.t('recipe_1_desc'),
+        ingredients: [
+          state.t('recipe_1_ing_1'),
+          state.t('recipe_1_ing_2'),
+          state.t('recipe_1_ing_3'),
+          state.t('recipe_1_ing_4'),
+        ],
+        steps: [
+          state.t('recipe_1_step_1'),
+          state.t('recipe_1_step_2'),
+          state.t('recipe_1_step_3'),
+        ],
+      ),
+      RecipeItem(
+        title: state.t('recipe_2_title'),
+        image: 'assets/11.png',
+        duration: '10 min',
+        cookingItems: ['Olive Oil', 'Sumac'],
+        description: state.t('recipe_2_desc'),
+        ingredients: [
+          state.t('recipe_2_ing_1'),
+          state.t('recipe_2_ing_2'),
+          state.t('recipe_2_ing_3'),
+          state.t('recipe_2_ing_4'),
+          state.t('recipe_2_ing_5'),
+        ],
+        steps: [
+          state.t('recipe_2_step_1'),
+          state.t('recipe_2_step_2'),
+          state.t('recipe_2_step_3'),
+          state.t('recipe_2_step_4'),
+        ],
+      ),
+      RecipeItem(
+        title: state.t('recipe_3_title'),
+        image: 'assets/12.png',
+        duration: '8 min',
+        cookingItems: ['Olive Oil', 'Zaatar'],
+        description: state.t('recipe_3_desc'),
+        ingredients: [
+          state.t('recipe_3_ing_1'),
+          state.t('recipe_3_ing_2'),
+          state.t('recipe_3_ing_3'),
+          state.t('recipe_3_ing_4'),
+        ],
+        steps: [
+          state.t('recipe_3_step_1'),
+          state.t('recipe_3_step_2'),
+          state.t('recipe_3_step_3'),
+          state.t('recipe_3_step_4'),
+        ],
+      ),
+      RecipeItem(
+        title: state.t('recipe_4_title'),
+        image: 'assets/13.png',
+        duration: '35 min',
+        cookingItems: ['Olive Oil', 'Zaatar'],
+        description: state.t('recipe_4_desc'),
+        ingredients: [
+          state.t('recipe_4_ing_1'),
+          state.t('recipe_4_ing_2'),
+          state.t('recipe_4_ing_3'),
+          state.t('recipe_4_ing_4'),
+        ],
+        steps: [
+          state.t('recipe_4_step_1'),
+          state.t('recipe_4_step_2'),
+          state.t('recipe_4_step_3'),
+          state.t('recipe_4_step_4'),
+        ],
+      ),
+    ];
+  }
 
   List<RecipeItem> get _filteredRecipes {
     final search = _query.trim().toLowerCase();
-    final selectedItem = _selectedCookingItem.trim().toLowerCase();
 
-    return _recipes.where((recipe) {
-      final title = recipe.title.toLowerCase();
-      final duration = recipe.duration.toLowerCase();
-      final description = recipe.description.toLowerCase();
-      final ingredients = recipe.ingredients.join(' ').toLowerCase();
-      final cookingItems = recipe.cookingItems.join(' ').toLowerCase();
+    return _getTranslatedRecipes(context).where((recipe) {
+      final matchesSearch =
+          search.isEmpty ||
+          recipe.title.toLowerCase().contains(search) ||
+          recipe.duration.toLowerCase().contains(search) ||
+          recipe.description.toLowerCase().contains(search) ||
+          recipe.ingredients.join(' ').toLowerCase().contains(search);
 
-      final matchesSearch = search.isEmpty ||
-          title.contains(search) ||
-          duration.contains(search) ||
-          description.contains(search) ||
-          ingredients.contains(search) ||
-          cookingItems.contains(search);
-
-      final matchesCookingItem = selectedItem == 'all' ||
-          recipe.cookingItems.any(
-            (item) => item.toLowerCase() == selectedItem,
-          );
+      final matchesCookingItem =
+          _selectedCookingItem == 'recipe_cat_all' ||
+          recipe.cookingItems.any((item) {
+            // Map items to their keys for filtering consistency
+            final key = _getCategoryKey(item);
+            return key == _selectedCookingItem;
+          });
 
       return matchesSearch && matchesCookingItem;
     }).toList();
+  }
+
+  String _getCategoryKey(String item) {
+    switch (item) {
+      case 'Olive Oil':
+        return 'recipe_cat_olive_oil';
+      case 'Zaatar':
+        return 'recipe_cat_zaatar';
+      case 'Sumac':
+        return 'recipe_cat_sumac';
+      case 'Tahini':
+        return 'recipe_cat_tahini';
+      case 'Freekeh':
+        return 'recipe_cat_freekeh';
+      case 'Maftoul':
+        return 'recipe_cat_maftoul';
+      case 'Black Seed':
+        return 'recipe_cat_black_seed';
+      default:
+        return 'recipe_cat_all';
+    }
   }
 
   @override
@@ -165,6 +167,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
     final recipes = _filteredRecipes;
 
     return Scaffold(
@@ -188,72 +191,70 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(14, 6, 14, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.eco_outlined,
-                          color: _olive,
-                          size: 22,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            "Recipes using Al'Ard Products",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.black87,
-                                ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.eco_outlined,
+                            color: _olive,
+                            size: 22,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    if (recipes.isEmpty)
-                      _buildEmptySearch()
-                    else
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final width = constraints.maxWidth;
-                          final itemWidth = (width - 14) / 2;
-                          // Calculate item height: image (aspect ratio 1.15) + text/button fixed heights + padding
-                          final itemHeight = (itemWidth / 1.15) + 138;
-                          final aspectRatio = itemWidth / itemHeight;
-
-                          return GridView.builder(
-                            itemCount: recipes.length,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 14,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: aspectRatio,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              state.t('recipes_title'),
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.black87,
+                                  ),
                             ),
-                            itemBuilder: (context, index) {
-                              final recipe = recipes[index];
-
-                              return _RecipeCard(
-                                recipe: recipe,
-                                onOpen: () {
-                                  _openRecipe(context, recipe);
-                                },
-                              );
-                            },
-                          );
-                        },
+                          ),
+                        ],
                       ),
-                  ],
+                      const SizedBox(height: 16),
+                      if (recipes.isEmpty)
+                        _buildEmptySearch()
+                      else
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final width = constraints.maxWidth;
+                            final itemWidth = (width - 14) / 2;
+                            // Calculate item height: image (aspect ratio 1.15) + text/button fixed heights + padding
+                            final itemHeight = (itemWidth / 1.15) + 138;
+                            final aspectRatio = itemWidth / itemHeight;
+
+                            return GridView.builder(
+                              itemCount: recipes.length,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 14,
+                                    mainAxisSpacing: 16,
+                                    childAspectRatio: aspectRatio,
+                                  ),
+                              itemBuilder: (context, index) {
+                                final recipe = recipes[index];
+
+                                return _RecipeCard(
+                                  recipe: recipe,
+                                  onOpen: () {
+                                    _openRecipe(context, recipe);
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
             ),
           ],
         ),
@@ -292,8 +293,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
                   },
                 ),
               ),
-              Positioned(
-                right: 4,
+              PositionedDirectional(
+                end: 4,
                 child: IconButton(
                   onPressed: () {
                     setState(() {
@@ -301,7 +302,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
                       if (!_showSearch) {
                         _query = '';
-                        _selectedCookingItem = 'All';
+                        _selectedCookingItem = 'recipe_cat_all';
                         _searchController.clear();
                       }
                     });
@@ -326,6 +327,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Widget _buildSearchBar() {
+    final state = AppStateScope.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
       child: TextField(
@@ -337,7 +339,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
           });
         },
         decoration: InputDecoration(
-          hintText: 'Search recipes...',
+          hintText: state.t('recipes_search_hint'),
           prefixIcon: const Icon(Icons.search_rounded),
           suffixIcon: _query.trim().isEmpty
               ? null
@@ -366,6 +368,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Widget _buildCookingItemsButtons() {
+    final state = AppStateScope.of(context);
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -395,7 +398,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
               ),
               child: Center(
                 child: Text(
-                  item,
+                  state.t(item),
                   style: TextStyle(
                     color: isSelected ? Colors.white : _olive,
                     fontWeight: FontWeight.w800,
@@ -411,6 +414,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Widget _buildEmptySearch() {
+    final state = AppStateScope.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 18),
@@ -420,15 +424,11 @@ class _RecipesScreenState extends State<RecipesScreen> {
       ),
       child: Column(
         children: [
-          const Icon(
-            Icons.search_off_rounded,
-            size: 52,
-            color: Colors.black38,
-          ),
+          const Icon(Icons.search_off_rounded, size: 52, color: Colors.black38),
           const SizedBox(height: 12),
-          const Text(
-            'No recipes found',
-            style: TextStyle(
+          Text(
+            state.t('recipes_no_results'),
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
               color: Colors.black87,
@@ -436,7 +436,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Try Olive Oil, Zaatar, Sumac, Tahini, or Freekeh.',
+            state.t('recipes_try_items'),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -452,9 +452,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   void _openRecipe(BuildContext context, RecipeItem recipe) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => RecipeDetailsScreen(recipe: recipe),
-      ),
+      MaterialPageRoute(builder: (_) => RecipeDetailsScreen(recipe: recipe)),
     );
   }
 }
@@ -463,10 +461,7 @@ class _RecipeCard extends StatelessWidget {
   final RecipeItem recipe;
   final VoidCallback onOpen;
 
-  const _RecipeCard({
-    required this.recipe,
-    required this.onOpen,
-  });
+  const _RecipeCard({required this.recipe, required this.onOpen});
 
   @override
   Widget build(BuildContext context) {
@@ -537,10 +532,7 @@ class _RecipeCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     recipe.duration,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.black87,
-                    ),
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
                   ),
                 ],
               ),
@@ -561,11 +553,9 @@ class _RecipeCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'View recipe',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                    ),
+                  child: Text(
+                    AppStateScope.of(context).t('recipes_view_button'),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -580,10 +570,7 @@ class _RecipeCard extends StatelessWidget {
 class RecipeDetailsScreen extends StatelessWidget {
   final RecipeItem recipe;
 
-  const RecipeDetailsScreen({
-    super.key,
-    required this.recipe,
-  });
+  const RecipeDetailsScreen({super.key, required this.recipe});
 
   static const Color _background = Color(0xFFF7F3EE);
   static const Color _olive = Color(0xFF55682A);
@@ -591,6 +578,7 @@ class RecipeDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
     return Scaffold(
       backgroundColor: _background,
       body: SafeArea(
@@ -671,9 +659,9 @@ class RecipeDetailsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 18),
-                    const Text(
-                      'Ingredients',
-                      style: TextStyle(
+                    Text(
+                      state.t('recipes_ingredients'),
+                      style: const TextStyle(
                         fontSize: 19,
                         fontWeight: FontWeight.w800,
                         color: _olive,
@@ -688,11 +676,7 @@ class RecipeDetailsScreen extends StatelessWidget {
                           children: [
                             const Padding(
                               padding: EdgeInsets.only(top: 5),
-                              child: Icon(
-                                Icons.circle,
-                                size: 8,
-                                color: _olive,
-                              ),
+                              child: Icon(Icons.circle, size: 8, color: _olive),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
@@ -709,9 +693,9 @@ class RecipeDetailsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 18),
-                    const Text(
-                      'Steps',
-                      style: TextStyle(
+                    Text(
+                      state.t('recipes_steps'),
+                      style: const TextStyle(
                         fontSize: 19,
                         fontWeight: FontWeight.w800,
                         color: _olive,
@@ -774,6 +758,7 @@ class RecipeDetailsScreen extends StatelessWidget {
   Widget _buildTopBar(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final state = AppStateScope.of(context);
         final width = constraints.maxWidth;
         final barHeight = (width * 0.16).clamp(56.0, 70.0);
         final buttonSize = (width * 0.11).clamp(38.0, 46.0);
@@ -792,17 +777,17 @@ class RecipeDetailsScreen extends StatelessWidget {
                   width: buttonSize,
                   height: buttonSize,
                 ),
-                icon: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
+                icon: Icon(
+                  Icons.adaptive.arrow_back,
                   size: 30,
                   color: Colors.black87,
                 ),
               ),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Recipe details',
+                  state.t('recipe_details_title'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: Colors.black87,
