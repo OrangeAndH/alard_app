@@ -253,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Expanded(
                       child: Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: IconButton(
                           onPressed: () {
                             _showHomeMenu(context);

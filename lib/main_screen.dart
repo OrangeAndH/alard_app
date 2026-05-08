@@ -224,7 +224,7 @@ class _MainScreenState extends State<MainScreen> {
                 fit: BoxFit.contain,
                 errorBuilder: (_, _, _) {
                   return Icon(
-                    Icons.restaurant_menu,
+                    Icons.restaurant_rounded,
                     color: isSelected ? selectedColor : unselectedColor,
                     size: 28,
                   );

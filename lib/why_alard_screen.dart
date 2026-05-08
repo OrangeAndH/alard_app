@@ -54,7 +54,7 @@ class WhyAlardScreen extends StatelessWidget {
                     const SizedBox(height: 30),
 
                     _buildWhyCard(
-                      icon: Icons.restaurant_menu_outlined,
+                      icon: Icons.restaurant_rounded,
                       title: state.t('why_taste_title'),
                       text: state.t('why_taste_desc'),
                     ),
@@ -73,6 +73,93 @@ class WhyAlardScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showNavMenu(BuildContext context) {
+    final state = AppStateScope.of(context);
+    final menuItems = [
+      {'title': state.t('nav_home'), 'index': 0, 'icon': Icons.home_rounded},
+      {'title': state.t('nav_shop'), 'index': 1, 'icon': Icons.shopping_bag_rounded},
+      {'title': state.t('nav_recipes'), 'index': 2, 'icon': Icons.restaurant_rounded},
+      {'title': state.t('nav_feedback'), 'index': 3, 'icon': Icons.feedback_rounded},
+      {'title': state.t('nav_profile'), 'index': 4, 'icon': Icons.person_rounded},
+    ];
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'NavMenu',
+      barrierColor: Colors.black.withValues(alpha: 0.15),
+      transitionDuration: const Duration(milliseconds: 180),
+      pageBuilder: (dialogContext, animation, secondaryAnimation) {
+        return Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.82,
+              height: double.infinity,
+              color: _background,
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 64,
+                      width: double.infinity,
+                      color: _cream,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        'Menu',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: _olive,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemCount: menuItems.length,
+                        itemBuilder: (context, index) {
+                          final item = menuItems[index];
+                          return ListTile(
+                            leading: Icon(item['icon'] as IconData, color: _olive),
+                            title: Text(
+                              item['title'] as String,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.pop(dialogContext);
+                              state.setSelectedIndex(item['index'] as int);
+                              Navigator.popUntil(context, (route) => route.isFirst);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(-1, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        );
+      },
     );
   }
 
@@ -102,7 +189,9 @@ class WhyAlardScreen extends StatelessWidget {
                 child: Align(
                   alignment: AlignmentDirectional.centerStart,
                   child: IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _showNavMenu(context);
+                    },
                     padding: EdgeInsets.zero,
                     constraints: BoxConstraints.tightFor(
                       width: buttonSize,
@@ -133,40 +222,7 @@ class WhyAlardScreen extends StatelessWidget {
                 },
               ),
               const Spacer(),
-              SizedBox(
-                width: 84,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints.tightFor(
-                        width: buttonSize,
-                        height: buttonSize,
-                      ),
-                      icon: const Icon(
-                        Icons.search_rounded,
-                        size: 28,
-                        color: Colors.black,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints.tightFor(
-                        width: buttonSize,
-                        height: buttonSize,
-                      ),
-                      icon: const Icon(
-                        Icons.public_outlined,
-                        size: 28,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(width: 84),
             ],
           ),
         );

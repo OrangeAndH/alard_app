@@ -198,7 +198,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                       Row(
                         children: [
                           const Icon(
-                            Icons.eco_outlined,
+                            Icons.restaurant_rounded,
                             color: _olive,
                             size: 22,
                           ),
@@ -604,7 +604,7 @@ class RecipeDetailsScreen extends StatelessWidget {
                             color: const Color(0xFFE9E1D5),
                             child: const Center(
                               child: Icon(
-                                Icons.restaurant_menu,
+                                Icons.restaurant_rounded,
                                 size: 50,
                                 color: Colors.black38,
                               ),

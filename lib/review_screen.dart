@@ -702,7 +702,7 @@ class ReviewScreen extends StatelessWidget {
                 fit: BoxFit.contain,
                 errorBuilder: (_, _, _) {
                   return Icon(
-                    Icons.restaurant_menu,
+                    Icons.restaurant_rounded,
                     color: isSelected ? selectedColor : unselectedColor,
                     size: 28,
                   );
@@ -806,11 +806,11 @@ class _PopularProductCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const FittedBox(
+              child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  'Add to cart',
-                  style: TextStyle(
+                  AppStateScope.of(context).t('shop_add_to_cart'),
+                  style: const TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w600,
                   ),
