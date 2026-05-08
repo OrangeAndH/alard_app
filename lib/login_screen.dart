@@ -202,14 +202,15 @@ Future<void> loginWithFacebook() async {
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
+                          horizontal: 14,
+                          vertical: 6,
                         ),
                         decoration: BoxDecoration(
                           color: isTrader
                               ? const Color(0xFFCEB04B)
                               : const Color(0xFFE6D8A6),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.black54, width: 0.6),
                         ),
                         child: Row(
                           children: [
@@ -229,14 +230,15 @@ Future<void> loginWithFacebook() async {
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
+                          horizontal: 14,
+                          vertical: 6,
                         ),
                         decoration: BoxDecoration(
                           color: !isTrader
                               ? const Color(0xFFCEB04B)
                               : const Color(0xFFE6D8A6),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.black54, width: 0.6),
                         ),
                         child: Row(
                           children: [
@@ -277,8 +279,11 @@ Future<void> loginWithFacebook() async {
                   child: TextField(
                     controller: emailController,
                     decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                      prefixIconConstraints: const BoxConstraints(minWidth: 46, minHeight: 46),
                       prefixIcon: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(12.0),
                         child: Image.asset("assets/email.png"),
                       ),
                       hintText: "Email",
@@ -299,6 +304,10 @@ Future<void> loginWithFacebook() async {
                     controller: passwordController,
                     obscureText: obscurePassword,
                     decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                      prefixIconConstraints: const BoxConstraints(minWidth: 46, minHeight: 46),
+                      suffixIconConstraints: const BoxConstraints(minWidth: 46, minHeight: 46),
                       suffixIcon: IconButton(
                         onPressed: () {
                           setState(() {
@@ -309,10 +318,11 @@ Future<void> loginWithFacebook() async {
                           obscurePassword
                               ? Icons.visibility_off
                               : Icons.visibility,
+                          size: 20,
                         ),
                       ),
                       prefixIcon: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(12.0),
                         child: Image.asset("assets/password.png"),
                       ),
                       hintText: "Password",
@@ -358,15 +368,16 @@ Future<void> loginWithFacebook() async {
                       onPressed: login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 62, 70, 14),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
                       child: const Text(
                         "Log In",
                         style: TextStyle(
                           color: Color(0xFFE4DFC1),
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -391,15 +402,16 @@ Future<void> loginWithFacebook() async {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFA2B52D),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
                       child: const Text(
                         "Create New Account",
                         style: TextStyle(
                           color: Color(0xFFE4DFC1),
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

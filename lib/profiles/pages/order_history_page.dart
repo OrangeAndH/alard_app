@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../../app_state.dart';
+import '../../app_state_scope.dart';
 import 'notifications_page.dart';
 
-class OrderHistoryPage extends StatelessWidget {
+class OrderHistoryPage extends StatefulWidget {
   const OrderHistoryPage({super.key});
 
+  @override
+  State<OrderHistoryPage> createState() => _OrderHistoryPageState();
+}
+
+class _OrderHistoryPageState extends State<OrderHistoryPage> {
   static const Color _background = Color(0xFFF7F3EE);
   static const Color _cream = Color(0xFFF2EDE6);
   static const Color _card = Color(0xFFF0E6DC);
@@ -12,26 +19,56 @@ class OrderHistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
+    final orders = state.orders;
+
     return Scaffold(
       backgroundColor: _background,
-      bottomNavigationBar: const _ProfileBottomNav(currentIndex: 4),
       body: SafeArea(
         child: Column(
           children: [
             _topBar(context),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
+              child: RefreshIndicator(
+                color: _olive,
+                backgroundColor: _cream,
+                onRefresh: () async {
+                  await Future.delayed(const Duration(seconds: 1));
+                  setState(() {});
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
                 child: Column(
                   children: [
                     _searchBox(),
                     const SizedBox(height: 28),
-                    _orderCard(),
-                    const SizedBox(height: 24),
-                    _trackingUpdates(),
+                    if (orders.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40),
+                        child: Center(
+                          child: Text(
+                            'No orders found',
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      )
+                    else ...[
+                      ...orders.map((order) => Padding(
+                            padding: const EdgeInsets.only(bottom: 24),
+                            child: _orderCard(order),
+                          )),
+                      const SizedBox(height: 24),
+                      _trackingUpdates(),
+                    ],
                   ],
                 ),
               ),
+            ),
             ),
           ],
         ),
@@ -40,66 +77,74 @@ class OrderHistoryPage extends StatelessWidget {
   }
 
   Widget _topBar(BuildContext context) {
-    return Container(
-      height: 84,
-      color: _cream,
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: 44,
-              height: 44,
-            ),
-            icon: const Icon(
-              Icons.menu_rounded,
-              color: Colors.black,
-              size: 38,
-            ),
-          ),
-          const Spacer(),
-          Image.asset(
-            'assets/alard_icon.png',
-            height: 62,
-            fit: BoxFit.contain,
-            errorBuilder: (_, _, _) {
-              return const Text(
-                "AL'ARD",
-                style: TextStyle(
-                  color: _olive,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
+
+        return Container(
+          height: barHeight,
+          color: _cream,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tightFor(
+                  width: buttonSize,
+                  height: buttonSize,
                 ),
-              );
-            },
-          ),
-          const Spacer(),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const NotificationsPage(),
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: Colors.black,
+                  size: 30,
                 ),
-              );
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: 44,
-              height: 44,
-            ),
-            icon: const Icon(
-              Icons.notifications_none_rounded,
-              color: Colors.black,
-              size: 34,
-            ),
+              ),
+              const Spacer(),
+              Image.asset(
+                'assets/321.png',
+                height: 38,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) {
+                  return const Text(
+                    "AL'ARD",
+                    style: TextStyle(
+                      color: _olive,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationsPage(),
+                    ),
+                  );
+                },
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tightFor(
+                  width: buttonSize,
+                  height: buttonSize,
+                ),
+                icon: const Icon(
+                  Icons.notifications_none_rounded,
+                  color: Colors.black,
+                  size: 30,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -111,15 +156,10 @@ class OrderHistoryPage extends StatelessWidget {
             height: 42,
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.horizontal(
-                left: Radius.circular(18),
-              ),
+              borderRadius: BorderRadius.horizontal(left: Radius.circular(18)),
             ),
             child: const TextField(
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: Colors.black, fontSize: 13),
               decoration: InputDecoration(
                 prefixIcon: Icon(
                   Icons.search_rounded,
@@ -127,36 +167,42 @@ class OrderHistoryPage extends StatelessWidget {
                   size: 28,
                 ),
                 hintText: 'Enter your tracking number',
-                hintStyle: TextStyle(
-                  color: Colors.black26,
-                  fontSize: 12,
-                ),
+                hintStyle: TextStyle(color: Colors.black26, fontSize: 12),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(vertical: 12),
               ),
             ),
           ),
         ),
-        Container(
-          height: 42,
-          width: 62,
-          decoration: const BoxDecoration(
-            color: _olive,
-            borderRadius: BorderRadius.horizontal(
-              right: Radius.circular(18),
+        InkWell(
+          onTap: () {
+            // Future tracking number verification can be added here
+          },
+          child: Container(
+            height: 42,
+            width: 62,
+            decoration: const BoxDecoration(
+              color: _olive,
+              borderRadius: BorderRadius.horizontal(right: Radius.circular(18)),
             ),
-          ),
-          child: const Icon(
-            Icons.arrow_forward_rounded,
-            color: Colors.white,
-            size: 36,
+            child: const Icon(
+              Icons.arrow_forward_rounded,
+              color: Colors.white,
+              size: 36,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _orderCard() {
+  Widget _orderCard(AppOrder order) {
+    final firstItemName = order.items.isNotEmpty ? order.items.first.productName : 'ORDER';
+    final firstItemImage = order.items.isNotEmpty ? order.items.first.image : 'assets/catalog_images/premium_palestinian_olive_oil_tins.png';
+    final estDelivery = order.date.add(const Duration(days: 7));
+    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final formattedDate = '${months[estDelivery.month - 1]} ${estDelivery.day}, ${estDelivery.year}';
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
@@ -167,9 +213,9 @@ class OrderHistoryPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Order #15321890',
-            style: TextStyle(
+          Text(
+            'Order ${order.id}',
+            style: const TextStyle(
               color: Colors.black,
               fontSize: 17,
               fontWeight: FontWeight.w400,
@@ -178,7 +224,7 @@ class OrderHistoryPage extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: SizedBox(
                   height: 88,
                   child: Column(
@@ -186,15 +232,15 @@ class OrderHistoryPage extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.calendar_today_outlined,
                             size: 13,
                             color: Colors.black54,
                           ),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Text(
-                            'Est.Delivery:Aprile 27,2026',
-                            style: TextStyle(
+                            'Est.Delivery: $formattedDate',
+                            style: const TextStyle(
                               color: Colors.black,
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -202,29 +248,32 @@ class OrderHistoryPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
-                        'EXTRA VIRGIN OLIVE OIL',
-                        style: TextStyle(
+                        firstItemName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
                           color: Colors.black,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
-                          Text(
-                            '🇩🇪',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            'shipping to Germany',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                          const Text('🇩🇪', style: TextStyle(fontSize: 16)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'shipping to ${order.deliveryAddress}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ],
@@ -234,7 +283,7 @@ class OrderHistoryPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              _productBox(),
+              _productBox(firstItemImage),
             ],
           ),
           const SizedBox(height: 12),
@@ -244,35 +293,30 @@ class OrderHistoryPage extends StatelessWidget {
     );
   }
 
-  Widget _productBox() {
-    return Container(
+  Widget _productBox(String imagePath) {
+    return SizedBox(
       width: 62,
       height: 76,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: const Center(
-        child: Text(
-          "AL'ARD\nOLIVE\nOIL",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Color(0xFFD54A3B),
-            fontSize: 9,
-            fontWeight: FontWeight.w900,
-            height: 1.2,
-          ),
-        ),
+      child: Image.asset(
+        imagePath,
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) {
+          return const Icon(
+            Icons.image_not_supported_outlined,
+            color: Colors.black38,
+            size: 34,
+          );
+        },
       ),
     );
   }
 
   Widget _progressLine() {
     final steps = [
-      'Order\nPlaced',
-      'Order\nProcessed',
-      'Shipped',
-      'Out for\nDelivery',
+      {'title': 'Order\nPlaced', 'icon': Icons.shopping_cart},
+      {'title': 'Order\nProcessed', 'icon': Icons.fact_check},
+      {'title': 'Shipped', 'icon': Icons.local_shipping},
+      {'title': 'Out for\nDelivery', 'icon': Icons.home},
     ];
 
     return Column(
@@ -289,19 +333,14 @@ class OrderHistoryPage extends StatelessWidget {
                       color: _olive,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.check_rounded,
+                    child: Icon(
+                      steps[index]['icon'] as IconData,
                       color: Colors.white,
-                      size: 15,
+                      size: 13,
                     ),
                   ),
                   if (index != steps.length - 1)
-                    Expanded(
-                      child: Container(
-                        height: 3,
-                        color: _olive,
-                      ),
-                    ),
+                    Expanded(child: Container(height: 3, color: _olive)),
                 ],
               ),
             );
@@ -313,7 +352,7 @@ class OrderHistoryPage extends StatelessWidget {
               .map(
                 (step) => Expanded(
                   child: Text(
-                    step,
+                    step['title'] as String,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.black,
@@ -336,18 +375,9 @@ class OrderHistoryPage extends StatelessWidget {
         title: 'Out for Delivery - Arriving Today',
         subtitle: '🇩🇪 Berlin, Germany',
       ),
-      _TrackingUpdate(
-        title: 'Shipped',
-        subtitle: 'Apr 26, 2026 PM',
-      ),
-      _TrackingUpdate(
-        title: 'Order Processed',
-        subtitle: 'Apr 26, 10:00 AM',
-      ),
-      _TrackingUpdate(
-        title: 'Order placed',
-        subtitle: 'Apr 25, 9:31 PM',
-      ),
+      _TrackingUpdate(title: 'Shipped', subtitle: 'Apr 26, 2026 PM'),
+      _TrackingUpdate(title: 'Order Processed', subtitle: 'Apr 26, 10:00 AM'),
+      _TrackingUpdate(title: 'Order placed', subtitle: 'Apr 25, 9:31 PM'),
     ];
 
     return Container(
@@ -371,18 +401,10 @@ class OrderHistoryPage extends StatelessWidget {
                   ),
                 ),
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: 34,
-                color: Colors.black,
-              ),
+              Icon(Icons.chevron_right_rounded, size: 34, color: Colors.black),
             ],
           ),
-          const Divider(
-            color: Colors.black45,
-            height: 10,
-            thickness: 1,
-          ),
+          const Divider(color: Colors.black45, height: 10, thickness: 1),
           const SizedBox(height: 8),
           ...List.generate(updates.length, (index) {
             final update = updates[index];
@@ -395,21 +417,21 @@ class OrderHistoryPage extends StatelessWidget {
                     Container(
                       height: 18,
                       width: 18,
-                      decoration: const BoxDecoration(
-                        color: _olive,
+                      decoration: BoxDecoration(
+                        color: index == 0 ? const Color(0xFFA5B87E) : _olive,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.check_rounded,
                         color: Colors.white,
-                        size: 12,
+                        size: 14,
                       ),
                     ),
                     if (index != updates.length - 1)
                       Container(
                         width: 2,
                         height: 35,
-                        color: _olive.withOpacity(0.45),
+                        color: const Color(0xFFA5B87E),
                       ),
                   ],
                 ),
@@ -453,95 +475,5 @@ class _TrackingUpdate {
   final String title;
   final String subtitle;
 
-  const _TrackingUpdate({
-    required this.title,
-    required this.subtitle,
-  });
-}
-
-class _ProfileBottomNav extends StatelessWidget {
-  final int currentIndex;
-
-  const _ProfileBottomNav({
-    required this.currentIndex,
-  });
-
-  static const Color _cream = Color(0xFFF2EDE6);
-  static const Color _olive = Color(0xFF55682A);
-
-  @override
-  Widget build(BuildContext context) {
-    final items = [
-      _BottomItem(Icons.home_outlined, 'Home'),
-      _BottomItem(Icons.shopping_bag_outlined, 'Shop'),
-      _BottomItem(Icons.receipt_long_outlined, 'Recipes', circular: true),
-      _BottomItem(Icons.feedback_outlined, 'Feedback'),
-      _BottomItem(Icons.person_outline, 'Profile'),
-    ];
-
-    return Container(
-      height: 74,
-      color: _cream,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(items.length, (index) {
-          final item = items[index];
-          final active = currentIndex == index;
-
-          return InkWell(
-            onTap: () {
-              if (index == 4) Navigator.pop(context);
-            },
-            child: SizedBox(
-              width: 58,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: item.circular ? 33 : 30,
-                    width: item.circular ? 33 : 30,
-                    decoration: item.circular
-                        ? BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: active ? _olive : Colors.black,
-                              width: 1.4,
-                            ),
-                          )
-                        : null,
-                    child: Icon(
-                      item.icon,
-                      size: item.circular ? 22 : 28,
-                      color: active ? _olive : Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.label,
-                    style: TextStyle(
-                      color: active ? _olive : Colors.black,
-                      fontSize: 12,
-                      fontWeight: active ? FontWeight.w800 : FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-}
-
-class _BottomItem {
-  final IconData icon;
-  final String label;
-  final bool circular;
-
-  const _BottomItem(
-    this.icon,
-    this.label, {
-    this.circular = false,
-  });
+  const _TrackingUpdate({required this.title, required this.subtitle});
 }

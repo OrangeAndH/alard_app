@@ -84,8 +84,8 @@ class _CartScreenState extends State<CartScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final barHeight = (width * 0.23).clamp(76.0, 100.0);
-        final buttonSize = (width * 0.12).clamp(40.0, 48.0);
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
 
         return Container(
           height: barHeight,
@@ -258,7 +258,7 @@ class _CartScreenState extends State<CartScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -325,7 +325,7 @@ class _CartScreenState extends State<CartScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  _formatMoney(item.lineTotal),
+                  state.getFormattedPrice(item.lineTotal),
                   textAlign: TextAlign.right,
                   style: TextStyle(
                     color: _olive,
@@ -374,7 +374,7 @@ class _CartScreenState extends State<CartScreen> {
           Container(
             width: 1,
             height: 14,
-            color: _olive.withOpacity(0.35),
+            color: _olive.withValues(alpha: 0.35),
           ),
           Expanded(
             child: Center(
@@ -390,7 +390,7 @@ class _CartScreenState extends State<CartScreen> {
           Container(
             width: 1,
             height: 14,
-            color: _olive.withOpacity(0.35),
+            color: _olive.withValues(alpha: 0.35),
           ),
           _qtyButton(
             label: '+',
@@ -564,11 +564,4 @@ class _CartScreenState extends State<CartScreen> {
     return '';
   }
 
-  String _formatMoney(double value) {
-    if (value % 1 == 0) {
-      return '${value.toStringAsFixed(0)} NIS';
-    }
-
-    return '${value.toStringAsFixed(2)} NIS';
-  }
 }

@@ -215,7 +215,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                             ),
                             const Spacer(),
                             Text(
-                              '₪${widget.product.price.toStringAsFixed(2)}',
+                              state.getFormattedPrice(widget.product.price),
                               style: const TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
@@ -306,7 +306,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 color: const Color(0xFFF7F3EE),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 16,
                     offset: const Offset(0, -4),
                   ),
@@ -323,7 +323,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         style: TextStyle(fontSize: 12, color: Colors.black45),
                       ),
                       Text(
-                        '₪${(widget.product.price * _quantity).toStringAsFixed(2)}',
+                        state.getFormattedPrice(widget.product.price * _quantity),
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -403,7 +403,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

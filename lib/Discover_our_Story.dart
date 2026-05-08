@@ -10,12 +10,8 @@ class DiscoverOurStory extends StatelessWidget {
       backgroundColor: const Color(0xFFF7F3EE),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 20),
           child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFEFE8DF),
-              borderRadius: BorderRadius.circular(22),
-            ),
+            color: const Color(0xFFEFE8DF),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -33,61 +29,86 @@ class DiscoverOurStory extends StatelessWidget {
   }
 
   Widget _buildTopBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: const Icon(
-              Icons.arrow_back_ios_new,
-              size: 30,
-              color: Color(0xFF27304B),
-            ),
-          ),
-          const Spacer(),
-          Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
+
+        return Container(
+          height: barHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
             children: [
-              Image.asset(
-                'assets/321.png',
-                height: 38,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Text(
-                    "AL'ARD",
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          const Spacer(),
-          Row(
-            children: [
-              const Icon(Icons.search, size: 28, color: Colors.black),
-              const SizedBox(width: 14),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CartScreen(),
-                    ),
-                  );
-                },
-                child: const Icon(
-                  Icons.shopping_cart_outlined,
-                  size: 28,
-                  color: Colors.black,
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: buttonSize,
+                  height: buttonSize,
+                  alignment: Alignment.centerLeft,
+                  child: const Icon(
+                    Icons.arrow_back_ios_new,
+                    size: 30,
+                    color: Color(0xFF27304B),
+                  ),
                 ),
               ),
+              const Spacer(),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/321.png',
+                    height: 38,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Text(
+                        "AL'ARD",
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Row(
+                children: [
+                  Container(
+                    width: buttonSize,
+                    height: buttonSize,
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.search, size: 28, color: Colors.black),
+                  ),
+                  const SizedBox(width: 4),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CartScreen(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: buttonSize,
+                      height: buttonSize,
+                      alignment: Alignment.centerRight,
+                      child: const Icon(
+                        Icons.shopping_cart_outlined,
+                        size: 28,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -98,6 +119,7 @@ class DiscoverOurStory extends StatelessWidget {
         width: double.infinity,
         height: 205,
         fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
         errorBuilder: (context, error, stackTrace) {
           return Container(
             width: double.infinity,
@@ -187,27 +209,42 @@ class DiscoverOurStory extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.asset(
-              'assets/dis_photo3.png',
-              width: double.infinity,
-              height: 200,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: double.infinity,
-                  height: 200,
-                  color: Colors.brown.shade200,
-                  child: const Icon(Icons.image, size: 40),
-                );
-              },
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Expanded(
+                child: Text(
+                  "Al’Ard was founded by Ziad Anabtawi to support poor Palestinian farmers who struggled to sell their olive oil at a fair price.\n\n"
+                  "He helped them by providing modern facilities and connecting them with international markets.",
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.45,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  'assets/dis_photo3.png',
+                  width: 120,
+                  height: 160,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 120,
+                      height: 160,
+                      color: Colors.brown.shade200,
+                      child: const Icon(Icons.image, size: 40),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           const Text(
-            "Al’Ard was founded by Ziad Anabtawi to support poor Palestinian farmers who struggled to sell their olive oil at a fair price.\n"
-            "He helped them by providing modern facilities and connecting them with international markets.\n"
             "Now, more than ten years later, his son Sobhi returned to Palestine after traveling across Europe to learn about organic farming and fair-trade practices. Today, the company continues to support farmers first by maintaining transparent and ethical business practices while helping farmers access tools, storage facilities, and internationally recognized certifications.",
             style: TextStyle(
               fontSize: 15,

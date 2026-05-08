@@ -1,5 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'pages/favorites_page.dart';
+import 'pages/help_support_page.dart';
+import 'pages/notifications_page.dart';
+import 'pages/order_history_page.dart';
+import 'pages/payment_methods_page.dart';
+import 'pages/personal_details_page.dart';
+import 'pages/settings_page.dart';
+import 'pages/shipping_addresses_page.dart';
+import '../app_state_scope.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -24,7 +36,7 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     _buildHeroImage(),
                     const SizedBox(height: 10),
-                    _buildProfileInfo(),
+                    _buildProfileInfo(context),
                     const SizedBox(height: 16),
                     _buildMenuList(context),
                   ],
@@ -38,72 +50,81 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildTopBar(BuildContext context) {
-    return Container(
-      height: 78,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: const BoxDecoration(
-        color: _cream,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Menu will open here'),
-                  duration: Duration(milliseconds: 900),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
+
+        return Container(
+          height: barHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: const BoxDecoration(
+            color: _cream,
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Menu will open here'),
+                      duration: Duration(milliseconds: 900),
+                    ),
+                  );
+                },
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tightFor(
+                  width: buttonSize,
+                  height: buttonSize,
                 ),
-              );
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: 44,
-              height: 44,
-            ),
-            icon: const Icon(
-              Icons.menu_rounded,
-              size: 30,
-              color: _darkBlue,
-            ),
-          ),
-          const Spacer(),
-          Image.asset(
-            'assets/321.png',
-            height: 38,
-            fit: BoxFit.contain,
-            errorBuilder: (_, _, _) {
-              return const Text(
-                "AL'ARD",
-                style: TextStyle(
-                  fontSize: 21,
-                  color: _olive,
-                  fontWeight: FontWeight.bold,
+                icon: const Icon(
+                  Icons.menu_rounded,
+                  size: 30,
+                  color: _darkBlue,
                 ),
-              );
-            },
+              ),
+              const Spacer(),
+              Image.asset(
+                'assets/321.png',
+                height: 38,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) {
+                  return const Text(
+                    "AL'ARD",
+                    style: TextStyle(
+                      fontSize: 21,
+                      color: _olive,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationsPage(),
+                    ),
+                  );
+                },
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tightFor(
+                  width: buttonSize,
+                  height: buttonSize,
+                ),
+                icon: const Icon(
+                  Icons.notifications_none_rounded,
+                  size: 30,
+                  color: Colors.black,
+                ),
+              ),
+            ],
           ),
-          const Spacer(),
-          IconButton(
-            onPressed: () {
-              _openSimplePage(
-                context,
-                title: 'Notifications',
-                icon: Icons.notifications_none_rounded,
-              );
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: 44,
-              height: 44,
-            ),
-            icon: const Icon(
-              Icons.notifications_none_rounded,
-              size: 30,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -129,68 +150,134 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileInfo() {
+  Widget _buildProfileInfo(BuildContext context) {
+    final user = AppStateScope.of(context).currentUser;
+    final name = user?.name ?? 'Mohammed';
+    final email = user?.email ?? 'Mohammed@gmail.com';
+    final location = user?.location ?? 'Palestine';
+    final phone = user?.phone ?? '+970 23456789';
+
     return Column(
       children: [
-        Container(
-          height: 56,
-          width: 56,
-          decoration: BoxDecoration(
-            color: _background,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.black,
-              width: 4,
-            ),
-          ),
-          child: const Icon(
-            Icons.person_outline_rounded,
-            size: 39,
-            color: Colors.black,
+        GestureDetector(
+          onTap: () async {
+            final picker = ImagePicker();
+            final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+            if (pickedFile != null) {
+              final croppedFile = await ImageCropper().cropImage(
+                sourcePath: pickedFile.path,
+                uiSettings: [
+                  AndroidUiSettings(
+                    toolbarTitle: 'Crop Profile Picture',
+                    toolbarColor: _olive,
+                    toolbarWidgetColor: Colors.white,
+                    initAspectRatio: CropAspectRatioPreset.square,
+                    lockAspectRatio: true,
+                  ),
+                  IOSUiSettings(
+                    title: 'Crop Profile Picture',
+                    aspectRatioLockEnabled: true,
+                  ),
+                ],
+              );
+              
+              if (croppedFile != null) {
+                final bytes = await croppedFile.readAsBytes();
+                if (context.mounted) {
+                  AppStateScope.of(context).setProfileImageBytes(bytes);
+                }
+              }
+            }
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                height: 64,
+                width: 64,
+                decoration: BoxDecoration(
+                  color: _background,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 4,
+                  ),
+                  image: AppStateScope.of(context).profileImageBytes != null
+                      ? DecorationImage(
+                          image: MemoryImage(AppStateScope.of(context).profileImageBytes!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                child: AppStateScope.of(context).profileImageBytes == null
+                    ? const Icon(
+                        Icons.person_outline_rounded,
+                        size: 44,
+                        color: Colors.black,
+                      )
+                    : null,
+              ),
+              Positioned(
+                bottom: -2,
+                right: -2,
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: const BoxDecoration(
+                    color: _olive,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    size: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 6),
-        const Text(
-          'Mohammed',
-          style: TextStyle(
+        const SizedBox(height: 8),
+        Text(
+          name,
+          style: const TextStyle(
             color: Colors.black,
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: FontWeight.w800,
           ),
         ),
         const SizedBox(height: 2),
-        const Text(
-          'Mohammed@gmail.com',
-          style: TextStyle(
+        Text(
+          email,
+          style: const TextStyle(
             color: Colors.black45,
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: FontWeight.w400,
           ),
         ),
         const SizedBox(height: 4),
-        const Text(
-          'Palestine',
-          style: TextStyle(
+        Text(
+          location,
+          style: const TextStyle(
             color: Colors.black45,
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: FontWeight.w400,
           ),
         ),
         const SizedBox(height: 4),
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.phone_outlined,
               size: 12,
               color: Colors.black38,
             ),
-            SizedBox(width: 5),
+            const SizedBox(width: 5),
             Text(
-              '+970 23456789',
-              style: TextStyle(
+              phone,
+              style: const TextStyle(
                 color: Colors.black38,
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -237,7 +324,7 @@ class ProfileScreen extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 44),
+      padding: const EdgeInsets.symmetric(horizontal: 22),
       child: Column(
         children: [
           for (final item in items) ...[
@@ -245,7 +332,7 @@ class ProfileScreen extends StatelessWidget {
               context,
               item: item,
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 10),
           ],
         ],
       ),
@@ -266,8 +353,8 @@ class ProfileScreen extends StatelessWidget {
         );
       },
       child: Container(
-        height: 34,
-        padding: const EdgeInsets.symmetric(horizontal: 9),
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color: _rowColor,
           borderRadius: BorderRadius.circular(8),
@@ -276,7 +363,7 @@ class ProfileScreen extends StatelessWidget {
           children: [
             Icon(
               item.icon,
-              size: 23,
+              size: 26,
               color: Colors.black,
             ),
             const SizedBox(width: 16),
@@ -285,8 +372,8 @@ class ProfileScreen extends StatelessWidget {
                 item.title,
                 style: const TextStyle(
                   color: Colors.black,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -306,14 +393,39 @@ class ProfileScreen extends StatelessWidget {
     required String title,
     required IconData icon,
   }) {
+    Widget page;
+    switch (title) {
+      case 'Personal Details':
+        page = const PersonalDetailsPage();
+        break;
+      case 'Shipping Addresses':
+        page = const ShippingAddressesPage();
+        break;
+      case 'Order History':
+        page = const OrderHistoryPage();
+        break;
+      case 'My Favorites':
+        page = const FavoritesPage();
+        break;
+      case 'Payment Methods':
+        page = const PaymentMethodsPage();
+        break;
+      case 'Notifications':
+        page = const NotificationsPage();
+        break;
+      case 'Help & Support':
+        page = const HelpSupportPage();
+        break;
+      case 'Settings':
+        page = const SettingsPage();
+        break;
+      default:
+        page = _ProfilePlaceholderPage(title: title, icon: icon);
+    }
+
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => _ProfilePlaceholderPage(
-          title: title,
-          icon: icon,
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => page),
     );
   }
 }

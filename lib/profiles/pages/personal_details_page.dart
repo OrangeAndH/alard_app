@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app_state_scope.dart';
 import 'notifications_page.dart';
 
 class PersonalDetailsPage extends StatefulWidget {
@@ -15,16 +16,28 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
   static const Color _fieldColor = Color(0xFFF0E6DC);
   static const Color _olive = Color(0xFF55682A);
 
-  final TextEditingController _nameController =
-      TextEditingController(text: 'Mohammed');
-  final TextEditingController _emailController =
-      TextEditingController(text: 'Mohammed@gmail.com');
-  final TextEditingController _phoneController =
-      TextEditingController(text: '+970     593245879');
-  final TextEditingController _cityController =
-      TextEditingController(text: 'Nablus');
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
 
   String _country = 'Palestine';
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      final user = AppStateScope.of(context).currentUser;
+      if (user != null) {
+        _nameController.text = user.name;
+        _emailController.text = user.email;
+        _phoneController.text = user.phone;
+        _country = user.location.isNotEmpty ? user.location : 'Palestine';
+      }
+      _initialized = true;
+    }
+  }
 
   @override
   void dispose() {
@@ -39,7 +52,6 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _background,
-      bottomNavigationBar: const _ProfileBottomNav(currentIndex: 4),
       body: SafeArea(
         child: Column(
           children: [
@@ -72,66 +84,74 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
   }
 
   Widget _buildTopBar(BuildContext context) {
-    return Container(
-      height: 84,
-      color: _cream,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: 44,
-              height: 44,
-            ),
-            icon: const Icon(
-              Icons.arrow_back_rounded,
-              color: Colors.black,
-              size: 36,
-            ),
-          ),
-          const Spacer(),
-          Image.asset(
-            'assets/alard_icon.png',
-            height: 62,
-            fit: BoxFit.contain,
-            errorBuilder: (_, _, _) {
-              return const Text(
-                "AL'ARD",
-                style: TextStyle(
-                  color: _olive,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
+
+        return Container(
+          height: barHeight,
+          color: _cream,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tightFor(
+                  width: buttonSize,
+                  height: buttonSize,
                 ),
-              );
-            },
-          ),
-          const Spacer(),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const NotificationsPage(),
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: Colors.black,
+                  size: 30,
                 ),
-              );
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: 44,
-              height: 44,
-            ),
-            icon: const Icon(
-              Icons.notifications_none_rounded,
-              color: Colors.black,
-              size: 34,
-            ),
+              ),
+              const Spacer(),
+              Image.asset(
+                'assets/321.png',
+                height: 38,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) {
+                  return const Text(
+                    "AL'ARD",
+                    style: TextStyle(
+                      color: _olive,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationsPage(),
+                    ),
+                  );
+                },
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tightFor(
+                  width: buttonSize,
+                  height: buttonSize,
+                ),
+                icon: const Icon(
+                  Icons.notifications_none_rounded,
+                  color: Colors.black,
+                  size: 30,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -146,11 +166,7 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
           return Container(
             color: const Color(0xFFD8CDBE),
             child: const Center(
-              child: Icon(
-                Icons.landscape_outlined,
-                color: _olive,
-                size: 48,
-              ),
+              child: Icon(Icons.landscape_outlined, color: _olive, size: 48),
             ),
           );
         },
@@ -181,13 +197,38 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
           const SizedBox(height: 22),
           Center(
             child: SizedBox(
-              width: 132,
-              height: 32,
+              width: 156,
+              height: 38,
               child: ElevatedButton(
                 onPressed: () {
+                  final name = _nameController.text.trim();
+                  final email = _emailController.text.trim();
+                  final phone = _phoneController.text.trim();
+
+                  if (name.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Name cannot be empty')),
+                    );
+                    return;
+                  }
+
+                  if (email.isEmpty || !email.contains('@') || !email.contains('.')) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please enter a valid email address')),
+                    );
+                    return;
+                  }
+
+                  if (phone.isEmpty || phone.length < 8) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please enter a valid phone number')),
+                    );
+                    return;
+                  }
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Changes saved'),
+                      content: Text('Changes saved successfully'),
                       duration: Duration(milliseconds: 900),
                     ),
                   );
@@ -198,15 +239,12 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
                   foregroundColor: Colors.black,
                   padding: EdgeInsets.zero,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(11),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
                 child: const Text(
                   'Save Changes',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                  ),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
                 ),
               ),
             ),
@@ -235,10 +273,7 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
       height: 31,
       child: TextField(
         controller: controller,
-        style: const TextStyle(
-          color: Colors.black87,
-          fontSize: 13,
-        ),
+        style: const TextStyle(color: Colors.black87, fontSize: 13),
         decoration: InputDecoration(
           filled: true,
           fillColor: _fieldColor,
@@ -271,27 +306,12 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
             Icons.keyboard_arrow_down_rounded,
             color: Colors.black,
           ),
-          style: const TextStyle(
-            color: Colors.black87,
-            fontSize: 13,
-          ),
+          style: const TextStyle(color: Colors.black87, fontSize: 13),
           items: const [
-            DropdownMenuItem(
-              value: 'Palestine',
-              child: Text('Palestine'),
-            ),
-            DropdownMenuItem(
-              value: 'Germany',
-              child: Text('Germany'),
-            ),
-            DropdownMenuItem(
-              value: 'USA',
-              child: Text('USA'),
-            ),
-            DropdownMenuItem(
-              value: 'UAE',
-              child: Text('UAE'),
-            ),
+            DropdownMenuItem(value: 'Palestine', child: Text('Palestine')),
+            DropdownMenuItem(value: 'Germany', child: Text('Germany')),
+            DropdownMenuItem(value: 'USA', child: Text('USA')),
+            DropdownMenuItem(value: 'UAE', child: Text('UAE')),
           ],
           onChanged: (value) {
             if (value == null) return;
@@ -303,93 +323,4 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
       ),
     );
   }
-}
-
-class _ProfileBottomNav extends StatelessWidget {
-  final int currentIndex;
-
-  const _ProfileBottomNav({
-    required this.currentIndex,
-  });
-
-  static const Color _cream = Color(0xFFF2EDE6);
-  static const Color _olive = Color(0xFF55682A);
-
-  @override
-  Widget build(BuildContext context) {
-    final items = [
-      _BottomItem(Icons.home_outlined, 'Home'),
-      _BottomItem(Icons.shopping_bag_outlined, 'Shop'),
-      _BottomItem(Icons.receipt_long_outlined, 'Recipes', circular: true),
-      _BottomItem(Icons.feedback_outlined, 'Feedback'),
-      _BottomItem(Icons.person_outline, 'Profile'),
-    ];
-
-    return Container(
-      height: 74,
-      decoration: const BoxDecoration(
-        color: _cream,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(items.length, (index) {
-          final item = items[index];
-          final active = currentIndex == index;
-
-          return InkWell(
-            onTap: () {
-              if (index == 4) Navigator.pop(context);
-            },
-            child: SizedBox(
-              width: 58,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: item.circular ? 33 : 30,
-                    width: item.circular ? 33 : 30,
-                    decoration: item.circular
-                        ? BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: active ? _olive : Colors.black,
-                              width: 1.4,
-                            ),
-                          )
-                        : null,
-                    child: Icon(
-                      item.icon,
-                      size: item.circular ? 22 : 28,
-                      color: active ? _olive : Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.label,
-                    style: TextStyle(
-                      color: active ? _olive : Colors.black,
-                      fontSize: 12,
-                      fontWeight: active ? FontWeight.w800 : FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-}
-
-class _BottomItem {
-  final IconData icon;
-  final String label;
-  final bool circular;
-
-  const _BottomItem(
-    this.icon,
-    this.label, {
-    this.circular = false,
-  });
 }

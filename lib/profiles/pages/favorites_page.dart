@@ -14,13 +14,10 @@ class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
-    final favorites = state.favoriteProducts;
-    final fallbackProducts = state.products.take(4).toList();
-    final products = favorites.isNotEmpty ? favorites : fallbackProducts;
+    final products = state.favoriteProducts;
 
     return Scaffold(
       backgroundColor: _background,
-      bottomNavigationBar: const _ProfileBottomNav(currentIndex: 4),
       body: SafeArea(
         child: Column(
           children: [
@@ -56,15 +53,15 @@ class FavoritesPage extends StatelessWidget {
                         final aspectRatio = itemWidth / itemHeight;
 
                         return GridView.builder(
-                          padding: const EdgeInsets.fromLTRB(42, 0, 42, 22),
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 22),
                           itemCount: products.length,
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 18,
-                            crossAxisSpacing: 24,
-                            childAspectRatio: aspectRatio,
-                          ),
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 18,
+                                crossAxisSpacing: 16,
+                                childAspectRatio: aspectRatio,
+                              ),
                           itemBuilder: (context, index) {
                             final product = products[index];
 
@@ -78,8 +75,9 @@ class FavoritesPage extends StatelessWidget {
                                 state.addToCart(product);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content:
-                                        Text('${product.name} added to cart'),
+                                    content: Text(
+                                      '${product.name} added to cart',
+                                    ),
                                     duration: const Duration(milliseconds: 900),
                                   ),
                                 );
@@ -97,57 +95,67 @@ class FavoritesPage extends StatelessWidget {
   }
 
   Widget _topBar(BuildContext context) {
-    return Container(
-      height: 78,
-      color: _cream,
-      padding: const EdgeInsets.symmetric(horizontal: 22),
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints.tightFor(
-                width: 44,
-                height: 44,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
+
+        return Container(
+          height: barHeight,
+          color: _cream,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tightFor(
+                  width: buttonSize,
+                  height: buttonSize,
+                ),
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: Colors.black,
+                  size: 30,
+                ),
               ),
-              icon: const Icon(
-                Icons.arrow_back_rounded,
-                color: Colors.black,
-                size: 34,
+              const Spacer(),
+              Image.asset(
+                'assets/321.png',
+                height: 38,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) {
+                  return const Text(
+                    "AL'ARD",
+                    style: TextStyle(
+                      color: _olive,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
               ),
-            ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {},
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tightFor(
+                  width: buttonSize,
+                  height: buttonSize,
+                ),
+                icon: const Icon(
+                  Icons.search_rounded,
+                  color: Colors.black,
+                  size: 30,
+                ),
+              ),
+            ],
           ),
-          Center(
-            child: Image.asset(
-              'assets/alard_icon.png',
-              height: 62,
-              fit: BoxFit.contain,
-              errorBuilder: (_, _, _) {
-                return const Text(
-                  "AL'ARD",
-                  style: TextStyle(
-                    color: _olive,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                );
-              },
-            ),
-          ),
-          const Align(
-            alignment: Alignment.centerRight,
-            child: Icon(
-              Icons.search_rounded,
-              color: Colors.black,
-              size: 34,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -169,11 +177,7 @@ class FavoritesPage extends StatelessWidget {
             alignment: Alignment.topRight,
             child: InkWell(
               onTap: onHeart,
-              child: const Icon(
-                Icons.favorite,
-                color: _heart,
-                size: 22,
-              ),
+              child: const Icon(Icons.favorite, color: _heart, size: 22),
             ),
           ),
           Expanded(
@@ -198,7 +202,7 @@ class FavoritesPage extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.black,
-                fontSize: 9,
+                fontSize: 14,
                 fontWeight: FontWeight.w900,
                 height: 1.1,
               ),
@@ -212,7 +216,7 @@ class FavoritesPage extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.black,
-                fontSize: 8,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -221,28 +225,25 @@ class FavoritesPage extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               'Regular price',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 8,
-              ),
+              style: TextStyle(color: Colors.black, fontSize: 11),
             ),
           ),
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              product.displayPrice,
+              AppStateScope.of(context).getFormattedPrice(product.price),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.black,
-                fontSize: 9,
+                fontSize: 14,
                 fontWeight: FontWeight.w900,
               ),
             ),
           ),
           const SizedBox(height: 5),
           SizedBox(
-            height: 22,
+            height: 32,
             width: double.infinity,
             child: ElevatedButton(
               onPressed: onAdd,
@@ -257,10 +258,7 @@ class FavoritesPage extends StatelessWidget {
               ),
               child: const Text(
                 'Add To Cart',
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
               ),
             ),
           ),
@@ -268,91 +266,4 @@ class FavoritesPage extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ProfileBottomNav extends StatelessWidget {
-  final int currentIndex;
-
-  const _ProfileBottomNav({
-    required this.currentIndex,
-  });
-
-  static const Color _cream = Color(0xFFF2EDE6);
-  static const Color _olive = Color(0xFF55682A);
-
-  @override
-  Widget build(BuildContext context) {
-    final items = [
-      _BottomItem(Icons.home_outlined, 'Home'),
-      _BottomItem(Icons.shopping_bag_outlined, 'Shop'),
-      _BottomItem(Icons.receipt_long_outlined, 'Recipes', circular: true),
-      _BottomItem(Icons.feedback_outlined, 'Feedback'),
-      _BottomItem(Icons.person_outline, 'Profile'),
-    ];
-
-    return Container(
-      height: 74,
-      color: _cream,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(items.length, (index) {
-          final item = items[index];
-          final active = currentIndex == index;
-
-          return InkWell(
-            onTap: () {
-              if (index == 4) Navigator.pop(context);
-            },
-            child: SizedBox(
-              width: 58,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: item.circular ? 33 : 30,
-                    width: item.circular ? 33 : 30,
-                    decoration: item.circular
-                        ? BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: active ? _olive : Colors.black,
-                              width: 1.4,
-                            ),
-                          )
-                        : null,
-                    child: Icon(
-                      item.icon,
-                      size: item.circular ? 22 : 28,
-                      color: active ? _olive : Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.label,
-                    style: TextStyle(
-                      color: active ? _olive : Colors.black,
-                      fontSize: 12,
-                      fontWeight: active ? FontWeight.w800 : FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-}
-
-class _BottomItem {
-  final IconData icon;
-  final String label;
-  final bool circular;
-
-  const _BottomItem(
-    this.icon,
-    this.label, {
-    this.circular = false,
-  });
 }

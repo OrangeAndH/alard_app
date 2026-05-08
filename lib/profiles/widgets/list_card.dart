@@ -38,7 +38,7 @@ class ListCard extends StatelessWidget {
         subtitle: Text(
           subtitle,
           style: TextStyle(
-            color: theme.colorScheme.onSurface.withOpacity(0.65),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
           ),
         ),
         trailing: Text(

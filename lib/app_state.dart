@@ -90,11 +90,6 @@ class Product {
   }
 
   bool get hasPrice => price > 0;
-
-  String get displayPrice {
-    if (!hasPrice) return 'Request quote';
-    return '₪${price.toStringAsFixed(2)}';
-  }
 }
 
 class CartItem {
@@ -127,11 +122,6 @@ class OrderLine {
   double get lineTotal => price * quantity;
 
   bool get hasPrice => price > 0;
-
-  String get displayPrice {
-    if (!hasPrice) return 'Request quote';
-    return '₪${lineTotal.toStringAsFixed(2)}';
-  }
 }
 
 class AppOrder {
@@ -253,17 +243,56 @@ class PaymentMethod {
   }
 }
 
+class StoreCurrency {
+  final String storeName;
+  final String symbol;
+  final double exchangeRate;
+
+  const StoreCurrency(this.storeName, this.symbol, this.exchangeRate);
+}
+
 class AppState extends ChangeNotifier {
   static const double deliveryFee = 3.0;
+
+  static const Map<String, StoreCurrency> _storeCurrencies = {
+    'Palestine': StoreCurrency('Palestine', '₪', 1.0),
+    'Malaysia': StoreCurrency('Malaysia', 'RM', 1.25),
+    'Europe': StoreCurrency('Europe', '€', 0.25),
+    'UAE': StoreCurrency('UAE', 'AED', 0.98),
+    'KSA': StoreCurrency('KSA', 'SAR', 1.0),
+    'Canada': StoreCurrency('Canada', 'C\$', 0.37),
+    'Chile': StoreCurrency('Chile', 'CLP', 255.0),
+  };
 
   AppUser? _currentUser;
   Uint8List? _profileImageBytes;
 
   Locale _locale = const Locale('en');
+  String _currentStore = 'Palestine';
 
   AppUser? get currentUser => _currentUser;
   Uint8List? get profileImageBytes => _profileImageBytes;
   bool get isLoggedIn => _currentUser != null;
+
+  String get currentStore => _currentStore;
+
+  void setCurrentStore(String storeName) {
+    if (_storeCurrencies.containsKey(storeName) && _currentStore != storeName) {
+      _currentStore = storeName;
+      notifyListeners();
+    }
+  }
+
+  String getFormattedPrice(double basePrice) {
+    if (basePrice <= 0) return 'Request quote';
+    final currency = _storeCurrencies[_currentStore] ?? _storeCurrencies['Palestine']!;
+    final converted = basePrice * currency.exchangeRate;
+    
+    if (converted % 1 == 0) {
+      return '${converted.toStringAsFixed(0)} ${currency.symbol}';
+    }
+    return '${converted.toStringAsFixed(2)} ${currency.symbol}';
+  }
 
   Locale get locale => _locale;
   String get languageCode => _locale.languageCode;

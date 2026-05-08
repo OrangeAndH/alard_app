@@ -88,7 +88,7 @@ class PaymentMethodsPage extends StatelessWidget {
                 Text(
                   method.subtitle,
                   style: TextStyle(
-                    color: theme.colorScheme.onSurface.withOpacity(0.65),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
                   ),
                 ),
                 if (!method.isCashOnDelivery &&
@@ -97,7 +97,7 @@ class PaymentMethodsPage extends StatelessWidget {
                   Text(
                     'Holder: ${method.cardHolderName}',
                     style: TextStyle(
-                      color: theme.colorScheme.onSurface.withOpacity(0.65),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
                     ),
                   ),
                 ],
@@ -109,7 +109,7 @@ class PaymentMethodsPage extends StatelessWidget {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.15),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -260,7 +260,7 @@ class PaymentMethodsPage extends StatelessWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .onSurface
-                            .withOpacity(0.6),
+                            .withValues(alpha: 0.6),
                       ),
                 ),
               ],

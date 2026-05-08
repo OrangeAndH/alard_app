@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'app_state.dart';
+import 'app_state_scope.dart';
 import 'payment_screen.dart';
 
 class ShippingScreen extends StatefulWidget {
@@ -33,6 +35,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
     return Scaffold(
       backgroundColor: _background,
       body: SafeArea(
@@ -61,15 +64,16 @@ class _ShippingScreenState extends State<ShippingScreen> {
                         ...widget.orderItems.map(
                           (item) => _buildReadOnlyItemCard(
                             item,
+                            state,
                             screenWidth: screenWidth,
                           ),
                         ),
                         const SizedBox(height: 10),
-                        _buildLocationRow(),
+                        _buildLocationRow(state),
                         const SizedBox(height: 8),
-                        _buildDeliveryOptions(),
+                        _buildDeliveryOptions(state),
                         const SizedBox(height: 18),
-                        _buildOrderSummary(),
+                        _buildOrderSummary(state),
                         const SizedBox(height: 16),
                         _buildTrustSection(),
                         const SizedBox(height: 10),
@@ -90,8 +94,8 @@ class _ShippingScreenState extends State<ShippingScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final barHeight = (width * 0.23).clamp(76.0, 100.0);
-        final buttonSize = (width * 0.12).clamp(40.0, 48.0);
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
 
         return Container(
           height: barHeight,
@@ -245,7 +249,8 @@ class _ShippingScreenState extends State<ShippingScreen> {
   }
 
   Widget _buildReadOnlyItemCard(
-    Map<String, dynamic> item, {
+    Map<String, dynamic> item,
+    AppState state, {
     required double screenWidth,
   }) {
     final name = item['name']?.toString() ?? '';
@@ -264,7 +269,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -328,7 +333,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
           SizedBox(
             width: screenWidth < 360 ? 48 : 62,
             child: Text(
-              _formatMoney(lineTotal),
+              state.getFormattedPrice(lineTotal),
               textAlign: TextAlign.right,
               style: TextStyle(
                 color: _olive,
@@ -361,8 +366,8 @@ class _ShippingScreenState extends State<ShippingScreen> {
     );
   }
 
-  Widget _buildLocationRow() {
-    final country = widget.profileData['country'] ?? 'Palestine';
+  Widget _buildLocationRow(AppState state) {
+    final country = state.currentStore;
 
     return Row(
       children: [
@@ -394,7 +399,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
     );
   }
 
-  Widget _buildDeliveryOptions() {
+  Widget _buildDeliveryOptions(AppState state) {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: _olive, width: 1),
@@ -406,12 +411,14 @@ class _ShippingScreenState extends State<ShippingScreen> {
             title: 'Standard International',
             days: '5-7 days',
             price: 50,
+            state: state,
           ),
           const Divider(height: 1, color: _line),
           _deliveryLine(
             title: 'Express',
             days: '2-3 days',
             price: 100,
+            state: state,
           ),
         ],
       ),
@@ -422,6 +429,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
     required String title,
     required String days,
     required double price,
+    required AppState state,
   }) {
     final selected = _deliveryTitle == title;
 
@@ -471,7 +479,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              '${price.toStringAsFixed(0)} NIS',
+              state.getFormattedPrice(price),
               style: const TextStyle(
                 color: _olive,
                 fontSize: 12,
@@ -485,33 +493,33 @@ class _ShippingScreenState extends State<ShippingScreen> {
     );
   }
 
-  Widget _buildOrderSummary() {
+  Widget _buildOrderSummary(AppState state) {
     return Column(
       children: [
         _summaryRow(
           left: 'Order Summary',
-          right: _formatMoney(widget.subtotal),
+          right: state.getFormattedPrice(widget.subtotal),
           large: true,
         ),
         const Divider(height: 16, color: _line),
         _summaryRow(
-          left: 'Subtotal: ${_formatMoney(widget.subtotal)}',
-          right: _formatMoney(widget.subtotal),
+          left: 'Subtotal: ${state.getFormattedPrice(widget.subtotal)}',
+          right: state.getFormattedPrice(widget.subtotal),
         ),
         const SizedBox(height: 7),
         _summaryRow(
-          left: 'Shipping: ${_formatMoney(_shippingFee)}',
-          right: _formatMoney(_shippingFee),
+          left: 'Shipping: ${state.getFormattedPrice(_shippingFee)}',
+          right: state.getFormattedPrice(_shippingFee),
         ),
         const SizedBox(height: 7),
         _summaryRow(
-          left: 'Vat: ${_vat.toStringAsFixed(2)} NIS',
-          right: '${_vat.toStringAsFixed(2)} NIS',
+          left: 'Vat: ${state.getFormattedPrice(_vat)}',
+          right: state.getFormattedPrice(_vat),
         ),
         const Divider(height: 16, color: _line),
         _summaryRow(
           left: 'Total:',
-          right: '${_total.toStringAsFixed(2)} NIS',
+          right: state.getFormattedPrice(_total),
           large: true,
         ),
       ],
@@ -651,10 +659,4 @@ class _ShippingScreenState extends State<ShippingScreen> {
     );
   }
 
-  String _formatMoney(double value) {
-    if (value % 1 == 0) {
-      return '${value.toStringAsFixed(0)} NIS';
-    }
-    return '${value.toStringAsFixed(2)} NIS';
-  }
 }

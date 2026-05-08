@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_state_scope.dart';
+import '../widgets/app_page_scaffold.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -11,23 +12,9 @@ class SettingsScreen extends StatelessWidget {
 
     return Directionality(
       textDirection: state.isArabic ? TextDirection.rtl : TextDirection.ltr,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF7F3EE),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFFF7F3EE),
-          elevation: 0,
-          centerTitle: true,
-          iconTheme: const IconThemeData(color: Colors.black),
-          title: Text(
-            state.t('settings'),
-            style: const TextStyle(
-              color: Color(0xFF5D6B1F),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+      child: AppPageScaffold(
+        title: state.t('settings'),
+        child: SingleChildScrollView(
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),

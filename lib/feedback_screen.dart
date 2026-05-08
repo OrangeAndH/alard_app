@@ -26,6 +26,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   int _selectedStars = 5;
   String _selectedCountry = 'Palestine';
+  String _filterCountry = 'All';
 
   final List<Map<String, String>> _countries = const [
     {'name': 'Palestine', 'flag': '🇵🇸'},
@@ -205,24 +206,52 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             profileName: profileName,
                           ),
                           const SizedBox(height: 16),
-                          const Text(
-                            'Customer Feedback',
-                            style: TextStyle(
-                              color: _olive,
-                              fontSize: 20,
-                              fontFamily: 'serif',
-                              fontWeight: FontWeight.w700,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black26,
-                                  blurRadius: 3,
-                                  offset: Offset(1, 1),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Expanded(
+                                child: Text(
+                                  'Customer Feedback',
+                                  style: TextStyle(
+                                    color: _olive,
+                                    fontSize: 20,
+                                    fontFamily: 'serif',
+                                    fontWeight: FontWeight.w700,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black26,
+                                        blurRadius: 3,
+                                        offset: Offset(1, 1),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              DropdownButton<String>(
+                                value: _filterCountry,
+                                icon: const Icon(Icons.filter_list, color: _olive),
+                                underline: const SizedBox(),
+                                style: const TextStyle(color: _olive, fontWeight: FontWeight.bold, fontSize: 13),
+                                dropdownColor: _cream,
+                                items: [
+                                  const DropdownMenuItem(value: 'All', child: Text('All Countries')),
+                                  ..._countries.map((c) => DropdownMenuItem(
+                                        value: c['name'],
+                                        child: Text('${c['flag']} ${c['name']}'),
+                                      )),
+                                ],
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _filterCountry = value;
+                                    });
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 12),
-                          ..._feedbacks.map(
+                          ..._feedbacks.where((f) => _filterCountry == 'All' || f.country.toLowerCase().contains(_filterCountry.toLowerCase()) || (f.country == 'UAE' && _filterCountry == 'United Arab Emirates')).map(
                             (item) => Padding(
                               padding: const EdgeInsets.only(bottom: 12),
                               child: _BigFeedbackCard(
@@ -251,8 +280,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final barHeight = (width * 0.20).clamp(72.0, 88.0);
-        final buttonSize = (width * 0.12).clamp(40.0, 48.0);
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
 
         return Container(
           height: barHeight,
@@ -335,7 +364,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         color: _cream,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _olive.withOpacity(0.35),
+          color: _olive.withValues(alpha: 0.35),
           width: 0.8,
         ),
       ),
@@ -496,7 +525,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color: _olive.withOpacity(0.65),
+          color: _olive.withValues(alpha: 0.65),
           fontSize: 14,
         ),
         filled: true,
@@ -688,7 +717,7 @@ class _BigFeedbackCard extends StatelessWidget {
             12,
           ),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.96),
+            color: Colors.white.withValues(alpha: 0.96),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(

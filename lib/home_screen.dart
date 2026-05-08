@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'Discover_our_Story.dart';
+import 'discover_our_story.dart';
 import 'app_state.dart';
 import 'app_state_scope.dart';
 import 'cart_screen.dart';
@@ -18,8 +18,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String selectedStore = 'Germany';
-
   final TextEditingController _homeSearchController = TextEditingController();
   bool _showHomeSearch = false;
 
@@ -146,210 +144,218 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTopBar(BuildContext context, AppState state) {
-    return Container(
-      height: 84,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: const BoxDecoration(
-        color: _cream,
-        border: Border(bottom: BorderSide(color: Color(0xFFE2DAD0), width: 1)),
-      ),
-      child: _showHomeSearch
-          ? Row(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _showHomeSearch = false;
-                      _homeSearchController.clear();
-                    });
-                  },
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 38,
-                    height: 42,
-                  ),
-                  icon: const Icon(
-                    Icons.arrow_back_rounded,
-                    size: 30,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Container(
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: _olive, width: 1),
-                    ),
-                    child: TextField(
-                      controller: _homeSearchController,
-                      autofocus: true,
-                      textInputAction: TextInputAction.search,
-                      onSubmitted: (_) => _submitHomeSearch(),
-                      style: const TextStyle(color: Colors.black, fontSize: 14),
-                      decoration: InputDecoration(
-                        hintText: 'search for products...',
-                        hintStyle: TextStyle(
-                          color: Colors.black.withOpacity(0.45),
-                          fontSize: 13,
-                        ),
-                        prefixIcon: const Icon(
-                          Icons.search_rounded,
-                          color: Colors.black,
-                          size: 24,
-                        ),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            if (_homeSearchController.text.trim().isEmpty) {
-                              setState(() {
-                                _showHomeSearch = false;
-                              });
-                            } else {
-                              _homeSearchController.clear();
-                            }
-                          },
-                          icon: const Icon(
-                            Icons.close_rounded,
-                            color: Colors.black,
-                            size: 22,
-                          ),
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _submitHomeSearch,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 38,
-                    height: 42,
-                  ),
-                  icon: const Icon(
-                    Icons.arrow_forward_rounded,
-                    size: 30,
-                    color: _olive,
-                  ),
-                ),
-              ],
-            )
-          : Row(
-              children: [
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
+
+        return Container(
+          height: barHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: const BoxDecoration(
+            color: _cream,
+            border: Border(bottom: BorderSide(color: Color(0xFFE2DAD0), width: 1)),
+          ),
+          child: _showHomeSearch
+              ? Row(
+                  children: [
+                    IconButton(
                       onPressed: () {
-                        _showHomeMenu(context);
+                        setState(() {
+                          _showHomeSearch = false;
+                          _homeSearchController.clear();
+                        });
                       },
                       padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints.tightFor(
-                        width: 42,
-                        height: 42,
+                      constraints: BoxConstraints.tightFor(
+                        width: buttonSize,
+                        height: buttonSize,
                       ),
                       icon: const Icon(
-                        Icons.menu_rounded,
+                        Icons.arrow_back_rounded,
                         size: 30,
-                        color: _darkBlue,
+                        color: Colors.black,
                       ),
                     ),
-                  ),
-                ),
-                Image.asset(
-                  'assets/321.png',
-                  height: 38,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) {
-                    return const Text(
-                      "AL'ARD",
-                      style: TextStyle(
-                        fontSize: 21,
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Container(
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: _olive, width: 1),
+                        ),
+                        child: TextField(
+                          controller: _homeSearchController,
+                          autofocus: true,
+                          textInputAction: TextInputAction.search,
+                          onSubmitted: (_) => _submitHomeSearch(),
+                          style: const TextStyle(color: Colors.black, fontSize: 14),
+                          decoration: InputDecoration(
+                            hintText: 'search for products...',
+                            hintStyle: TextStyle(
+                              color: Colors.black.withValues(alpha: 0.45),
+                              fontSize: 13,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.search_rounded,
+                              color: Colors.black,
+                              size: 24,
+                            ),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                if (_homeSearchController.text.trim().isEmpty) {
+                                  setState(() {
+                                    _showHomeSearch = false;
+                                  });
+                                } else {
+                                  _homeSearchController.clear();
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.close_rounded,
+                                color: Colors.black,
+                                size: 22,
+                              ),
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: _submitHomeSearch,
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints.tightFor(
+                        width: buttonSize,
+                        height: buttonSize,
+                      ),
+                      icon: const Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 30,
                         color: _olive,
-                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  },
-                ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _showHomeSearch = true;
-                          });
-                        },
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints.tightFor(
-                          width: 40,
-                          height: 42,
-                        ),
-                        icon: const Icon(
-                          Icons.search_rounded,
-                          size: 28,
-                          color: Colors.black,
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: IconButton(
+                          onPressed: () {
+                            _showHomeMenu(context);
+                          },
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints.tightFor(
+                            width: buttonSize,
+                            height: buttonSize,
+                          ),
+                          icon: const Icon(
+                            Icons.menu_rounded,
+                            size: 30,
+                            color: _darkBlue,
+                          ),
                         ),
                       ),
-                      Stack(
-                        clipBehavior: Clip.none,
+                    ),
+                    Image.asset(
+                      'assets/321.png',
+                      height: 38,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) {
+                        return const Text(
+                          "AL'ARD",
+                          style: TextStyle(
+                            fontSize: 21,
+                            color: _olive,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
+                    ),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           IconButton(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const CartScreen(),
-                                ),
-                              );
+                              setState(() {
+                                _showHomeSearch = true;
+                              });
                             },
                             padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints.tightFor(
-                              width: 42,
-                              height: 42,
+                            constraints: BoxConstraints.tightFor(
+                              width: buttonSize,
+                              height: buttonSize,
                             ),
                             icon: const Icon(
-                              Icons.shopping_cart_outlined,
+                              Icons.search_rounded,
                               size: 28,
                               color: Colors.black,
                             ),
                           ),
-                          if (state.cartCount > 0)
-                            Positioned(
-                              right: 2,
-                              top: 2,
-                              child: Container(
-                                height: 18,
-                                width: 18,
-                                alignment: Alignment.center,
-                                decoration: const BoxDecoration(
-                                  color: _olive,
-                                  shape: BoxShape.circle,
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const CartScreen(),
+                                    ),
+                                  );
+                                },
+                                padding: EdgeInsets.zero,
+                                constraints: BoxConstraints.tightFor(
+                                  width: buttonSize,
+                                  height: buttonSize,
                                 ),
-                                child: Text(
-                                  state.cartCount.toString(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                icon: const Icon(
+                                  Icons.shopping_cart_outlined,
+                                  size: 28,
+                                  color: Colors.black,
                                 ),
                               ),
-                            ),
+                              if (state.cartCount > 0)
+                                Positioned(
+                                  right: 2,
+                                  top: 2,
+                                  child: Container(
+                                    height: 18,
+                                    width: 18,
+                                    alignment: Alignment.center,
+                                    decoration: const BoxDecoration(
+                                      color: _olive,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Text(
+                                      state.cartCount.toString(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+        );
+      },
     );
   }
 
@@ -405,7 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Menu',
-      barrierColor: Colors.black.withOpacity(0.15),
+      barrierColor: Colors.black.withValues(alpha: 0.15),
       transitionDuration: const Duration(milliseconds: 180),
       pageBuilder: (dialogContext, animation, secondaryAnimation) {
         return Align(
@@ -496,7 +502,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-          Container(color: Colors.black.withOpacity(0.18)),
+          Container(color: Colors.black.withValues(alpha: 0.18)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 34),
             child: Column(
@@ -559,6 +565,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildLocationBar(BuildContext context) {
+    final state = AppStateScope.of(context);
     return Container(
       height: 31,
       color: _locationGreen,
@@ -569,7 +576,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 4),
           Expanded(
             child: Text(
-              'delivering to : $selectedStore',
+              'delivering to : ${state.currentStore}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -613,6 +620,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showStoreDialog(BuildContext context) {
+    final state = AppStateScope.of(context);
     final stores = [
       _StoreChoice(flag: '🇵🇸', name: "Palestine", value: 'Palestine'),
       _StoreChoice(flag: '🇲🇾', name: "Malaysia", value: 'Malaysia'),
@@ -641,9 +649,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildStoreChoice(
                     store: store,
                     onTap: () {
-                      setState(() {
-                        selectedStore = store.value;
-                      });
+                      state.setCurrentStore(store.value);
                       Navigator.pop(dialogContext);
                     },
                   ),
@@ -814,7 +820,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const Spacer(),
                   Text(
-                    _homePrice(product),
+                    _homePrice(product, AppStateScope.of(context)),
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
@@ -883,30 +889,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  String _homePrice(Product product) {
-    if (product.price <= 0) return 'Quote';
-
-    final price = product.price.toStringAsFixed(0);
-
-    String currency = 'NIS';
-    if (selectedStore == 'USA')
-      currency = 'USD';
-    else if (selectedStore == 'KSA')
-      currency = 'SAR';
-    else if (selectedStore == 'UAE')
-      currency = 'AED';
-    else if (selectedStore == 'Palestine')
-      currency = 'NIS';
-    else if (selectedStore == 'Europe')
-      currency = 'EUR';
-    else if (selectedStore == 'Malaysia')
-      currency = 'MYR';
-    else if (selectedStore == 'Canada')
-      currency = 'CAD';
-    else if (selectedStore == 'Chile')
-      currency = 'CLP';
-
-    return '$price $currency';
+  String _homePrice(Product product, AppState state) {
+    return state.getFormattedPrice(product.price);
   }
 
   Widget _buildWhyAlardFrame(BuildContext context) {

@@ -178,8 +178,16 @@ class _RecipesScreenState extends State<RecipesScreen> {
               _buildCookingItemsButtons(),
             ],
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(14, 6, 14, 20),
+              child: RefreshIndicator(
+                color: _olive,
+                backgroundColor: _cardColor,
+                onRefresh: () async {
+                  await Future.delayed(const Duration(seconds: 1));
+                  setState(() {});
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(14, 6, 14, 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -246,6 +254,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 ),
               ),
             ),
+            ),
           ],
         ),
       ),
@@ -253,53 +262,66 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Widget _buildHeader() {
-    return SizedBox(
-      height: 80,
-      width: double.infinity,
-      child: Stack(
-        children: [
-          Center(
-            child: Image.asset(
-              'assets/321.png',
-              height: 38,
-              fit: BoxFit.contain,
-              errorBuilder: (_, _, _) {
-                return const Text(
-                  "AL'ARD",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: _olive,
-                  ),
-                );
-              },
-            ),
-          ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
 
-          Positioned(
-            top: 14,
-            right: 10,
-            child: IconButton(
-              onPressed: () {
-                setState(() {
-                  _showSearch = !_showSearch;
-
-                  if (!_showSearch) {
-                    _query = '';
-                    _selectedCookingItem = 'All';
-                    _searchController.clear();
-                  }
-                });
-              },
-              icon: Icon(
-                _showSearch ? Icons.close_rounded : Icons.search_rounded,
-                size: 30,
-                color: Colors.black87,
+        return Container(
+          height: barHeight,
+          width: double.infinity,
+          color: _background,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Center(
+                child: Image.asset(
+                  'assets/321.png',
+                  height: 38,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) {
+                    return const Text(
+                      "AL'ARD",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: _olive,
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
+              Positioned(
+                right: 4,
+                child: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _showSearch = !_showSearch;
+
+                      if (!_showSearch) {
+                        _query = '';
+                        _selectedCookingItem = 'All';
+                        _searchController.clear();
+                      }
+                    });
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints.tightFor(
+                    width: buttonSize,
+                    height: buttonSize,
+                  ),
+                  icon: Icon(
+                    _showSearch ? Icons.close_rounded : Icons.search_rounded,
+                    size: 28,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -368,7 +390,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 color: isSelected ? _olive : _lightOlive,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: isSelected ? _olive : _olive.withOpacity(0.25),
+                  color: isSelected ? _olive : _olive.withValues(alpha: 0.25),
                 ),
               ),
               child: Center(
@@ -418,7 +440,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.black.withOpacity(0.55),
+              color: Colors.black.withValues(alpha: 0.55),
               height: 1.4,
             ),
           ),
@@ -750,35 +772,48 @@ class RecipeDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildTopBar(BuildContext context) {
-    return Container(
-      height: 74,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              size: 30,
-              color: Colors.black87,
-            ),
-          ),
-          const Expanded(
-            child: Text(
-              'Recipe details',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: Colors.black87,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
+
+        return Container(
+          height: barHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tightFor(
+                  width: buttonSize,
+                  height: buttonSize,
+                ),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 30,
+                  color: Colors.black87,
+                ),
               ),
-            ),
+              const Expanded(
+                child: Text(
+                  'Recipe details',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              SizedBox(width: buttonSize),
+            ],
           ),
-          const SizedBox(width: 48),
-        ],
-      ),
+        );
+      },
     );
   }
 }

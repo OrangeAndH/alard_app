@@ -115,7 +115,7 @@ class ShippingAddressesPage extends StatelessWidget {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.15),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -134,14 +134,14 @@ class ShippingAddressesPage extends StatelessWidget {
             address.details,
             style: TextStyle(
               height: 1.4,
-              color: theme.colorScheme.onSurface.withOpacity(0.75),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Mailbox: ${address.mailboxAddress}',
             style: TextStyle(
-              color: theme.colorScheme.onSurface.withOpacity(0.75),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
             ),
           ),
           const SizedBox(height: 12),
@@ -206,14 +206,14 @@ class ShippingAddressesPage extends StatelessWidget {
           Text(
             'Delivery address: $address',
             style: TextStyle(
-              color: theme.colorScheme.onSurface.withOpacity(0.75),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             'Mailbox: $mailbox',
             style: TextStyle(
-              color: theme.colorScheme.onSurface.withOpacity(0.75),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
             ),
           ),
         ],
@@ -234,7 +234,7 @@ class ShippingAddressesPage extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          color: theme.colorScheme.onSurface.withOpacity(0.75),
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
         ),
       ),
     );

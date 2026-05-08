@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'app_state.dart';
+import 'app_state_scope.dart';
 import 'feedback_screen.dart';
 import 'shop_screen.dart';
 
@@ -28,7 +30,6 @@ class ReviewScreen extends StatelessWidget {
   static const Color _background = Color(0xFFF7F3EE);
   static const Color _cream = Color(0xFFF2EDE6);
   static const Color _olive = Color(0xFF55682A);
-  static const Color _gold = Color(0xFFE0A323);
 
   static const List<_PopularItem> _popularItems = [
     _PopularItem(
@@ -57,6 +58,7 @@ class ReviewScreen extends StatelessWidget {
       body: SafeArea(
         child: Builder(
           builder: (context) {
+            final state = AppStateScope.of(context);
             final screenWidth = MediaQuery.of(context).size.width;
             final horizontalPadding = screenWidth < 360 ? 8.0 : 10.0;
 
@@ -75,7 +77,7 @@ class ReviewScreen extends StatelessWidget {
                       const SizedBox(height: 4),
                       _buildSteps(context, activeStep: 'Review'),
                       const SizedBox(height: 16),
-                      _orderSummary(),
+                      _orderSummary(state),
                       const SizedBox(height: 16),
                       _searchBar(),
                       const SizedBox(height: 10),
@@ -232,7 +234,7 @@ class ReviewScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.20),
+            color: Colors.black.withValues(alpha: 0.20),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -283,7 +285,7 @@ class ReviewScreen extends StatelessWidget {
           ),
           Container(
             height: 145,
-            color: Colors.black.withOpacity(0.18),
+            color: Colors.black.withValues(alpha: 0.18),
           ),
           const Positioned.fill(
             child: Center(
@@ -426,7 +428,7 @@ class ReviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _orderSummary() {
+  Widget _orderSummary(AppState state) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -466,7 +468,7 @@ class ReviewScreen extends StatelessWidget {
                       style: const TextStyle(fontSize: 14, fontFamily: 'serif'),
                     ),
                     Text(
-                      '£${(item['price'] ?? 0.0).toStringAsFixed(2)}',
+                      state.getFormattedPrice(item['price'] ?? 0.0),
                       style: const TextStyle(fontSize: 14, fontFamily: 'serif'),
                     ),
                   ],
@@ -475,11 +477,11 @@ class ReviewScreen extends StatelessWidget {
             }),
             const Divider(color: _cream),
           ],
-          _summaryRow('Subtotal', subtotal),
-          _summaryRow(shippingTitle, shippingFee),
-          _summaryRow('VAT', vat),
+          _summaryRow('Subtotal', state.getFormattedPrice(subtotal)),
+          _summaryRow(shippingTitle, state.getFormattedPrice(shippingFee)),
+          _summaryRow('VAT', state.getFormattedPrice(vat)),
           const Divider(color: _cream),
-          _summaryRow('Total', total, isBold: true),
+          _summaryRow('Total', state.getFormattedPrice(total), isBold: true),
           const SizedBox(height: 12),
           Text(
             'Payment Method: $paymentMethod',
@@ -494,7 +496,7 @@ class ReviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _summaryRow(String label, double amount, {bool isBold = false}) {
+  Widget _summaryRow(String label, String formattedAmount, {bool isBold = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -510,7 +512,7 @@ class ReviewScreen extends StatelessWidget {
             ),
           ),
           Text(
-            '£${amount.toStringAsFixed(2)}',
+            formattedAmount,
             style: TextStyle(
               color: _olive,
               fontSize: isBold ? 16 : 14,
@@ -610,7 +612,7 @@ class _PopularProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.fromLTRB(5, 6, 5, 5),
@@ -703,7 +705,7 @@ class _FeedbackCard extends StatelessWidget {
       height: 80,
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.92),
+        color: Colors.white.withValues(alpha: 0.92),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

@@ -40,36 +40,25 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildCurrentPage() {
-    switch (_selectedIndex) {
-      case 0:
-        return HomeScreen(
+    return IndexedStack(
+      index: _selectedIndex,
+      children: [
+        HomeScreen(
           onGoToShopFilter: _goToShop,
-        );
-
-      case 1:
-        return ShopScreen(
+        ),
+        ShopScreen(
           key: ValueKey('shop-$_shopRefreshKey-$_shopCategory-$_shopQuery'),
           initialCategory: _shopCategory,
           initialQuery: _shopQuery,
           onGoHome: _goToHome,
-        );
-
-      case 2:
-        return const RecipesScreen();
-
-      case 3:
-        return FeedbackScreen(
+        ),
+        const RecipesScreen(),
+        FeedbackScreen(
           onGoHome: _goToHome,
-        );
-
-      case 4:
-        return const ProfileScreen();
-
-      default:
-        return HomeScreen(
-          onGoToShopFilter: _goToShop,
-        );
-    }
+        ),
+        const ProfileScreen(),
+      ],
+    );
   }
 
   @override

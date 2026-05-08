@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'app_state.dart';
+import 'app_state_scope.dart';
 import 'review_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -70,6 +72,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
     return Scaffold(
       backgroundColor: _background,
       body: SafeArea(
@@ -116,7 +119,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         const Divider(height: 26, color: _line),
                         _sectionTitle('2. Delivery Method'),
                         const SizedBox(height: 10),
-                        _deliveryReadOnlyBox(),
+                        _deliveryReadOnlyBox(state),
                         const SizedBox(height: 16),
                         _sectionTitle('3. Payment Method'),
                         const SizedBox(height: 10),
@@ -134,7 +137,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         const SizedBox(height: 5),
                         _sameAsShippingBadge(),
                         const SizedBox(height: 24),
-                        _totalRow(),
+                        _totalRow(state),
                         const SizedBox(height: 26),
                         _placeOrderButton(context, screenWidth),
                       ],
@@ -153,8 +156,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final barHeight = (width * 0.23).clamp(76.0, 100.0);
-        final buttonSize = (width * 0.12).clamp(40.0, 48.0);
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
 
         return Container(
           height: barHeight,
@@ -523,7 +526,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _deliveryReadOnlyBox() {
+  Widget _deliveryReadOnlyBox(AppState state) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 5),
       decoration: _outlineBox(),
@@ -533,6 +536,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             title: 'Express International',
             price: 100,
             selected: _isExpress,
+            state: state,
           ),
           const Padding(
             padding: EdgeInsets.only(left: 34, right: 16),
@@ -542,6 +546,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             title: 'Standard International',
             price: 50,
             selected: _isStandard,
+            state: state,
           ),
         ],
       ),
@@ -552,6 +557,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     required String title,
     required double price,
     required bool selected,
+    required AppState state,
   }) {
     return SizedBox(
       height: 31,
@@ -576,7 +582,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
           ),
           Text(
-            '${price.toStringAsFixed(0)} NIS',
+            state.getFormattedPrice(price),
             style: const TextStyle(
               color: _olive,
               fontSize: 13,
@@ -695,7 +701,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _totalRow() {
+  Widget _totalRow(AppState state) {
     return Row(
       children: [
         const Text(
@@ -716,7 +722,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         const Spacer(),
         Flexible(
           child: Text(
-            '${_total.toStringAsFixed(2)} NIS',
+            state.getFormattedPrice(_total),
             textAlign: TextAlign.right,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(

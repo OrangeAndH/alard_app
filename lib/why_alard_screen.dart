@@ -77,97 +77,100 @@ class WhyAlardScreen extends StatelessWidget {
   }
 
   Widget _buildTopBar(BuildContext context) {
-    return Container(
-      height: 84,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: const BoxDecoration(
-        color: _cream,
-        border: Border(
-          bottom: BorderSide(
-            color: Color(0xFFE2DAD0),
-            width: 1,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 84,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                onPressed: () {},
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints.tightFor(
-                  width: 42,
-                  height: 42,
-                ),
-                icon: const Icon(
-                  Icons.menu_rounded,
-                  size: 30,
-                  color: _darkBlue,
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final barHeight = (width * 0.16).clamp(56.0, 70.0);
+        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
+
+        return Container(
+          height: barHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: const BoxDecoration(
+            color: _cream,
+            border: Border(
+              bottom: BorderSide(
+                color: Color(0xFFE2DAD0),
+                width: 1,
               ),
             ),
           ),
-
-          const Spacer(),
-
-          Image.asset(
-            'assets/alard_icon.png',
-            height: 62,
-            fit: BoxFit.contain,
-            errorBuilder: (_, _, _) {
-              return const Text(
-                "AL'ARD",
-                style: TextStyle(
-                  fontSize: 21,
-                  color: _olive,
-                  fontWeight: FontWeight.bold,
+          child: Row(
+            children: [
+              SizedBox(
+                width: 84,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    onPressed: () {},
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints.tightFor(
+                      width: buttonSize,
+                      height: buttonSize,
+                    ),
+                    icon: const Icon(
+                      Icons.menu_rounded,
+                      size: 30,
+                      color: _darkBlue,
+                    ),
+                  ),
                 ),
-              );
-            },
+              ),
+              const Spacer(),
+              Image.asset(
+                'assets/321.png',
+                height: 38,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) {
+                  return const Text(
+                    "AL'ARD",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: _olive,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
+              ),
+              const Spacer(),
+              SizedBox(
+                width: 84,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints.tightFor(
+                        width: buttonSize,
+                        height: buttonSize,
+                      ),
+                      icon: const Icon(
+                        Icons.search_rounded,
+                        size: 28,
+                        color: Colors.black,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints.tightFor(
+                        width: buttonSize,
+                        height: buttonSize,
+                      ),
+                      icon: const Icon(
+                        Icons.public_outlined,
+                        size: 28,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-
-          const Spacer(),
-
-          SizedBox(
-            width: 84,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  onPressed: () {},
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 42,
-                    height: 42,
-                  ),
-                  icon: const Icon(
-                    Icons.search_rounded,
-                    size: 28,
-                    color: Colors.black,
-                  ),
-                ),
-
-                IconButton(
-                  onPressed: () {},
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 42,
-                    height: 42,
-                  ),
-                  icon: const Icon(
-                    Icons.public_outlined,
-                    size: 28,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
