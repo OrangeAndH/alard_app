@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:alard_app/app_setting.dart';
-import 'package:alard_app/app_state.dart';
+import 'package:alard_app/state/app_setting.dart';
+import 'package:alard_app/state/app_state.dart';
 import 'package:alard_app/main.dart';
 
 void main() {

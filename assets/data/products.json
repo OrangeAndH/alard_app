@@ -1,37 +1,26 @@
 [
   {
-    "id": "olive-oil-glass-250ml",
+    "id": "olive-oil-glass",
     "name": "Palestinian Extra Virgin Olive Oil",
-    "subtitle": "Glass bottle - 250ml / 8.4 fl.oz",
+    "subtitle": "Glass bottle - Various sizes",
     "price": 25.0,
-    "rating": 4.7,
-    "category": "Olive Oil",
-    "image": "assets/img/palestinian_olive_oil_product_display.png",
-    "isBestSeller": true,
-    "description": "Premium Palestinian extra virgin olive oil.",
-    "weight": "250ml / 8.4 fl.oz",
-    "unitCase": "X 12",
-    "caseLayer": "31",
-    "upc": "",
-    "catalogPage": 1,
-    "currency": "NIS"
-  },
-  {
-    "id": "olive-oil-glass-500ml",
-    "name": "Palestinian Extra Virgin Olive Oil",
-    "subtitle": "Glass bottle - 500ml / 16.9 fl.oz",
-    "price": 45.0,
     "rating": 4.8,
     "category": "Olive Oil",
     "image": "assets/img/olive_oil_bottles_in_elegant_arrangement.png",
     "isBestSeller": true,
-    "description": "Authentic Palestinian olive oil collection.",
-    "weight": "500ml / 16.9 fl.oz",
+    "isFeatured": true,
+    "description": "Premium Palestinian extra virgin olive oil collection in elegant glass bottles.",
+    "weight": "Various sizes",
     "unitCase": "X 12",
     "caseLayer": "20",
     "upc": "",
-    "catalogPage": 2,
-    "currency": "NIS"
+    "catalogPage": 1,
+    "currency": "NIS",
+    "variants": [
+      { "id": "250ml", "size": "250ml", "price": 25.0 },
+      { "id": "500ml", "size": "500ml", "price": 45.0 },
+      { "id": "750ml", "size": "750ml", "price": 65.0 }
+    ]
   },
   {
     "id": "premium-organic-olive-oils",
@@ -48,7 +37,13 @@
     "caseLayer": "",
     "upc": "",
     "catalogPage": 3,
-    "currency": "NIS"
+    "currency": "NIS",
+    "variants": [
+      { "id": "250ml", "size": "250ml", "price": 25.0 },
+      { "id": "500ml", "size": "500ml", "price": 45.0 },
+      { "id": "750ml", "size": "750ml", "price": 65.0 },
+      { "id": "1L", "size": "1L", "price": 85.0 }
+    ]
   },
   {
     "id": "olive-oil-tins",
@@ -65,7 +60,12 @@
     "caseLayer": "",
     "upc": "",
     "catalogPage": 4,
-    "currency": "NIS"
+    "currency": "NIS",
+    "variants": [
+      { "id": "500ml", "size": "500ml", "price": 40.0 },
+      { "id": "1L", "size": "1L", "price": 75.0 },
+      { "id": "3L", "size": "3L", "price": 190.0 }
+    ]
   },
   {
     "id": "zaatar-packaging",
@@ -76,6 +76,7 @@
     "category": "Herbs & Spices",
     "image": "assets/img/premium_palestinian_za_atar_packaging_display.png",
     "isBestSeller": true,
+    "isFeatured": true,
     "description": "Traditional Palestinian za'atar blend prepared with authentic herbs and spices.",
     "weight": "100g",
     "unitCase": "X 24",
@@ -99,7 +100,12 @@
     "caseLayer": "",
     "upc": "",
     "catalogPage": 6,
-    "currency": "NIS"
+    "currency": "NIS",
+    "variants": [
+      { "id": "250g", "size": "250g", "price": 15.0 },
+      { "id": "500g", "size": "500g", "price": 28.0 },
+      { "id": "1kg", "size": "1kg", "price": 50.0 }
+    ]
   },
   {
     "id": "dried-sage",
@@ -110,6 +116,7 @@
     "category": "Herbs & Spices",
     "image": "assets/img/palestinian_dried_sage_product_pouch.png",
     "isBestSeller": false,
+    "isFeatured": true,
     "description": "Aromatic dried sage from Palestine.",
     "weight": "100g",
     "unitCase": "",
@@ -127,6 +134,7 @@
     "category": "Herbs & Spices",
     "image": "assets/img/sumac_from_palestine_product_display.png",
     "isBestSeller": false,
+    "isFeatured": true,
     "description": "Tangy Palestinian sumac spice for traditional dishes.",
     "weight": "100g",
     "unitCase": "",
@@ -201,7 +209,11 @@
     "caseLayer": "",
     "upc": "",
     "catalogPage": 12,
-    "currency": "NIS"
+    "currency": "NIS",
+    "variants": [
+      { "id": "450g", "size": "450g", "price": 18.0 },
+      { "id": "900g", "size": "900g", "price": 32.0 }
+    ]
   },
   {
     "id": "red-tahini",

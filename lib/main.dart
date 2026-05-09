@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'app_setting.dart';
-import 'app_state.dart';
-import 'app_state_scope.dart';
-import 'login_screen.dart';
+import 'state/app_setting.dart';
+import 'state/app_state.dart';
+import 'state/app_state_scope.dart';
+import 'screens/auth/login_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
