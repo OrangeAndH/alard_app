@@ -13,6 +13,10 @@ class AppState extends ChangeNotifier {
 
   static const Map<String, StoreCurrency> _storeCurrencies = {
     'Palestine': StoreCurrency('Palestine', '₪', 1.0),
+    'Germany': StoreCurrency('Germany', '€', 0.25),
+    'USA': StoreCurrency('USA', '\$', 0.27),
+    'UK': StoreCurrency('UK', '£', 0.21),
+    'France': StoreCurrency('France', '€', 0.25),
     'Malaysia': StoreCurrency('Malaysia', 'RM', 1.25),
     'Europe': StoreCurrency('Europe', '€', 0.25),
     'UAE': StoreCurrency('UAE', 'AED', 0.98),
@@ -107,7 +111,20 @@ class AppState extends ChangeNotifier {
   }
 
   String t(String key) {
-    return AppTranslations.translations[_locale.languageCode]?[key] ?? key;
+    final translation = AppTranslations.translations[_locale.languageCode]?[key];
+    if (translation != null) return translation;
+    
+    // Fallback: remove common prefixes and replace underscores with spaces
+    String result = key;
+    final prefixes = ['home_', 'shop_', 'menu_', 'profile_', 'ui_', 'product_'];
+    for (final p in prefixes) {
+      if (result.startsWith(p)) {
+        result = result.substring(p.length);
+        break;
+      }
+    }
+    
+    return result.replaceAll('_', ' ');
   }
 
   void setCurrentUser(AppUser user) {

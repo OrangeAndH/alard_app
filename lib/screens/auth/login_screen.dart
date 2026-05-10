@@ -125,12 +125,18 @@ Future<void> loginWithApple() async {
                 const SizedBox(height: 60),
 
                 Center(
-                  child: ClipOval(
-                    child: Image.asset(
-                      "assets/alard_icon.png",
-                      width: 120,
-                      height: 120,
-                      fit: BoxFit.cover,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white24, width: 2),
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        "assets/alard_login_logo.png",
+                        width: 150,
+                        height: 150,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),

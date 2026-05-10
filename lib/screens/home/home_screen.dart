@@ -760,31 +760,28 @@ class _HomeScreenState extends State<HomeScreen> {
     required String title,
     required VoidCallback onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: _olive,
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const Spacer(),
-          InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Icon(
-                Icons.adaptive.arrow_forward,
-                color: Colors.black,
-                size: 16,
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        child: Row(
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: _olive,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
               ),
             ),
-          ),
-        ],
+            const Spacer(),
+            Icon(
+              Icons.adaptive.arrow_forward,
+              color: Colors.black,
+              size: 16,
+            ),
+          ],
+        ),
       ),
     );
   }

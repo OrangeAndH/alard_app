@@ -137,7 +137,7 @@ class ProfileScreen extends StatelessWidget {
       width: double.infinity,
       height: 136,
       child: Image.asset(
-        'assets/photo2.png',
+        'assets/profile_banner.jpg',
         fit: BoxFit.cover,
         errorBuilder: (_, _, _) {
           return Container(

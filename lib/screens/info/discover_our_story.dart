@@ -119,48 +119,21 @@ class DiscoverOurStory extends StatelessWidget {
   }
 
   Widget _buildHeroImage() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        ClipRRect(
-          child: Image.asset(
-            'assets/dis_photo4.png',
+    return ClipRRect(
+      child: Image.asset(
+        'assets/dis_photo4.png',
+        width: double.infinity,
+        height: 205,
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
             width: double.infinity,
             height: 205,
-            fit: BoxFit.cover,
-            filterQuality: FilterQuality.high,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                width: double.infinity,
-                height: 205,
-                color: Colors.brown.shade200,
-              );
-            },
-          ),
-        ),
-        Container(
-          width: double.infinity,
-          height: 205,
-          color: Colors.black.withValues(alpha: 0.15),
-        ),
-        const Text(
-          "About Al'Ard",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 34,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-            fontFamily: 'serif',
-            shadows: [
-              Shadow(
-                color: Colors.black45,
-                blurRadius: 10,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-        ),
-      ],
+            color: Colors.brown.shade200,
+          );
+        },
+      ),
     );
   }
 

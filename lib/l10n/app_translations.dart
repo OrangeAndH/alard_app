@@ -98,6 +98,12 @@ class AppTranslations {
       'shop_heritage_subtitle': "Al'Ard: Pure Authentic Palestinian Heritage - Available Worldwide",
       'shop_filter_category': 'Filter by Product Category',
       'shop_clear': 'Clear',
+      'home_100_percent': '100%',
+      'home_natural': 'Natural',
+      'home_premium': 'Premium',
+      'home_olive_oil_tag': 'Olive Oil',
+      'home_palestinian_breakfast': 'Palestinian Breakfast',
+      'home_olive_oil_dip': 'Olive Oil Dip',
       'shop_showing_results': 'Showing results for',
       'product_select_size': 'Select Size',
       'product_total_price': 'Total Price',
@@ -525,6 +531,12 @@ class AppTranslations {
       'story_fair_trade': 'تجارة عادلة',
       'story_palestinian_products': 'منتجات فلسطينية',
       'story_supporting_farmers': 'دعم المزارعين',
+      'home_100_percent': '100%',
+      'home_natural': 'طبيعي',
+      'home_premium': 'فاخر',
+      'home_olive_oil_tag': 'زيت زيتون',
+      'home_palestinian_breakfast': 'فطور فلسطيني',
+      'home_olive_oil_dip': 'غموس زيت الزيتون',
     }
   };
 }
