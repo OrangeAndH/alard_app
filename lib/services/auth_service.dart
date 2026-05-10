@@ -11,6 +11,7 @@ class AuthService {
   }) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
+    if (!context.mounted) return false;
     final state = AppStateScope.of(context);
     state.setCurrentUser(AppUser(
       name: isTrader ? 'Trader User' : 'Customer User',
@@ -29,6 +30,7 @@ class AuthService {
   }) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
+    if (!context.mounted) return false;
     final state = AppStateScope.of(context);
     state.setCurrentUser(AppUser(
       name: isTrader ? 'Trader Google' : 'Customer Google',
@@ -47,6 +49,7 @@ class AuthService {
   }) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
+    if (!context.mounted) return false;
     final state = AppStateScope.of(context);
     state.setCurrentUser(AppUser(
       name: isTrader ? 'Trader Apple' : 'Customer Apple',
