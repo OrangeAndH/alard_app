@@ -352,7 +352,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     required double contentWidth,
     required String profileName,
   }) {
-    final isSmall = contentWidth < 360;
+    final isSmall = contentWidth < 415;
 
     return Container(
       width: double.infinity,

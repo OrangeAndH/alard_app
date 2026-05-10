@@ -9,7 +9,8 @@ class AuthService {
     required String password,
     bool isTrader = false,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 800));
+    // Reduced delay for instant feel
+    await Future.delayed(const Duration(milliseconds: 150));
 
     if (!context.mounted) return false;
     final state = AppStateScope.of(context);
@@ -28,7 +29,7 @@ class AuthService {
     required BuildContext context,
     bool isTrader = false,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future.delayed(const Duration(milliseconds: 150));
 
     if (!context.mounted) return false;
     final state = AppStateScope.of(context);
@@ -47,7 +48,7 @@ class AuthService {
     required BuildContext context,
     bool isTrader = false,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future.delayed(const Duration(milliseconds: 150));
 
     if (!context.mounted) return false;
     final state = AppStateScope.of(context);
@@ -68,12 +69,12 @@ class AuthService {
     required String password,
     bool isTrader = false,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 200));
     return AuthResponse(isSuccess: true, message: 'Registration successful');
   }
 
   Future<void> logout() async {
-    // In a real app, clear tokens, etc.
+    // Instant logout
   }
 }
 

@@ -83,7 +83,12 @@
     "caseLayer": "25",
     "upc": "",
     "catalogPage": 5,
-    "currency": "NIS"
+    "currency": "NIS",
+    "variants": [
+      { "id": "100g", "size": "100g", "price": 10.0 },
+      { "id": "250g", "size": "250g", "price": 22.0 },
+      { "id": "500g", "size": "500g", "price": 40.0 }
+    ]
   },
   {
     "id": "zaatar-lineup",
@@ -298,7 +303,11 @@
     "caseLayer": "",
     "upc": "",
     "catalogPage": 17,
-    "currency": "NIS"
+    "currency": "NIS",
+    "variants": [
+      { "id": "500g", "size": "500g", "price": 35.0 },
+      { "id": "1kg", "size": "1kg", "price": 65.0 }
+    ]
   },
   {
     "id": "olive-pickle-variety",

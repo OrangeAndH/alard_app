@@ -119,7 +119,7 @@ class _ShopScreenState extends State<ShopScreen> {
                         backgroundColor: _cream,
                         onRefresh: () async {
                           // Simulate network delay for frontend UX
-                          await Future.delayed(const Duration(seconds: 1));
+                          await Future.delayed(const Duration(milliseconds: 400));
                           setState(() {});
                         },
                         child: SingleChildScrollView(
@@ -635,7 +635,7 @@ class _ShopScreenState extends State<ShopScreen> {
             ],
             const SizedBox(height: 2),
             Text(
-              state.getFormattedPrice(product.price),
+              '${product.variants != null && product.variants!.isNotEmpty ? "${state.t('shop_from')} " : ""}${state.getFormattedPrice(product.price)}',
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

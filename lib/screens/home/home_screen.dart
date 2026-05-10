@@ -430,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         if (item.closeOnly) return;
 
-                        Future.delayed(const Duration(milliseconds: 120), () {
+                        Future.delayed(const Duration(milliseconds: 40), () {
                           _goToShopFilter(
                             category: item.category,
                             query: item.query,

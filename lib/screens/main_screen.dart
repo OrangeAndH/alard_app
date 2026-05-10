@@ -19,8 +19,6 @@ class _MainScreenState extends State<MainScreen> {
 
   String _shopCategory = 'All';
   String _shopQuery = '';
-  int _shopRefreshKey = 0;
-
   void _goToHome() {
     AppStateScope.of(context).setSelectedIndex(0);
   }
@@ -29,9 +27,10 @@ class _MainScreenState extends State<MainScreen> {
     String category = 'All',
     String query = '',
   }) {
-    _shopCategory = category;
-    _shopQuery = query;
-    _shopRefreshKey++;
+    setState(() {
+      _shopCategory = category;
+      _shopQuery = query;
+    });
     AppStateScope.of(context).setSelectedIndex(1);
   }
 
@@ -46,13 +45,11 @@ class _MainScreenState extends State<MainScreen> {
         ),
         state.currentUser?.isTrader == true
             ? TraderShopScreen(
-                key: ValueKey('shop-$_shopRefreshKey-$_shopCategory-$_shopQuery'),
                 initialCategory: _shopCategory,
                 initialQuery: _shopQuery,
                 onGoHome: _goToHome,
               )
             : ShopScreen(
-                key: ValueKey('shop-$_shopRefreshKey-$_shopCategory-$_shopQuery'),
                 initialCategory: _shopCategory,
                 initialQuery: _shopQuery,
                 onGoHome: _goToHome,
@@ -152,9 +149,10 @@ class _MainScreenState extends State<MainScreen> {
     return GestureDetector(
       onTap: () {
         if (index == 1) {
-          _shopCategory = 'All';
-          _shopQuery = '';
-          _shopRefreshKey++;
+          setState(() {
+            _shopCategory = 'All';
+            _shopQuery = '';
+          });
         }
         state.setSelectedIndex(index);
       },
