@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../state/app_state.dart';
 import '../../state/app_state_scope.dart';
+import '../auth/login_screen.dart';
 import 'shipping_screen.dart';
 
 class CartScreen extends StatefulWidget {
@@ -433,6 +434,10 @@ class _CartScreenState extends State<CartScreen> {
         height: 34,
         child: ElevatedButton(
           onPressed: () {
+            if (!state.isLoggedIn) {
+              _showLoginPrompt(context);
+              return;
+            }
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -568,4 +573,58 @@ class _CartScreenState extends State<CartScreen> {
     return '';
   }
 
+  void _showLoginPrompt(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.lock_outline_rounded, size: 48, color: Color(0xFF7A8D2F)),
+            const SizedBox(height: 16),
+            const Text(
+              'Login Required',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Please login to place orders or save details.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black54),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7A8D2F),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Go to Login', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Maybe Later', style: TextStyle(color: Colors.black45)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 import 'state/app_setting.dart';
 import 'state/app_state.dart';
 import 'state/app_state_scope.dart';
-import 'screens/auth/login_screen.dart';
+import 'screens/main_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -114,7 +113,7 @@ class AlardApp extends StatelessWidget {
                   ),
                 ),
               ),
-              home: const LoginScreen(),
+              home: const MainScreen(),
             ),
           ),
         );

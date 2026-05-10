@@ -57,13 +57,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildLocationBar(context),
                     const SizedBox(height: 8),
                     _buildSectionHeader(
-                      title: state.t('home_our_products'),
+                      title: state.t('shop_best_sellers'),
                       onTap: () {
                         _goToShopFilter(category: 'All', query: '');
                       },
                     ),
                     const SizedBox(height: 6),
                     _buildProductsRow(context, products),
+                    const SizedBox(height: 12),
+                    _buildSectionHeader(
+                      title: state.t('home_customer_feedback'),
+                      onTap: () {
+                        state.setSelectedIndex(3); // Go to Feedback tab
+                      },
+                    ),
+                    const SizedBox(height: 6),
+                    _buildFeedbackRow(context),
                     const SizedBox(height: 12),
                     _buildSectionHeader(
                       title: state.t('home_why_alard'),
@@ -618,11 +627,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final state = AppStateScope.of(context);
     final stores = [
       _StoreChoice(flag: '🇵🇸', name: state.t('store_Palestine'), value: 'Palestine'),
-      _StoreChoice(flag: '🇲🇾', name: state.t('store_Malaysia'), value: 'Malaysia'),
-      _StoreChoice(flag: '🇪🇺', name: state.t('store_Europe'), value: 'Europe'),
+      _StoreChoice(flag: '🇩🇪', name: state.t('store_Germany'), value: 'Germany'),
+      _StoreChoice(flag: '🇺🇸', name: state.t('store_USA'), value: 'USA'),
+      _StoreChoice(flag: '🇬🇧', name: state.t('store_UK'), value: 'UK'),
       _StoreChoice(flag: '🇦🇪', name: state.t('store_UAE'), value: 'UAE'),
       _StoreChoice(flag: '🇸🇦', name: state.t('store_KSA'), value: 'KSA'),
+      _StoreChoice(flag: '🇫🇷', name: state.t('store_France'), value: 'France'),
       _StoreChoice(flag: '🇨🇦', name: state.t('store_Canada'), value: 'Canada'),
+      _StoreChoice(flag: '🇲🇾', name: state.t('store_Malaysia'), value: 'Malaysia'),
+      _StoreChoice(flag: '🇪🇺', name: state.t('store_Europe'), value: 'Europe'),
       _StoreChoice(flag: '🇨🇱', name: state.t('store_Chile'), value: 'Chile'),
     ];
 
@@ -631,44 +644,68 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (dialogContext) {
         return Dialog(
           backgroundColor: const Color(0xFFF6F4E8),
-          insetPadding: const EdgeInsets.symmetric(horizontal: 22),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 40),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                for (final store in stores) ...[
-                  _buildStoreChoice(
-                    store: store,
-                    onTap: () {
-                      state.setCurrentStore(store.value);
+                Text(
+                  state.t('home_change_location'),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: _olive,
+                    fontFamily: 'serif',
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (final store in stores) ...[
+                          _buildStoreChoice(
+                            store: store,
+                            onTap: () {
+                              state.setCurrentStore(store.value);
+                              Navigator.pop(dialogContext);
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
                       Navigator.pop(dialogContext);
                     },
-                  ),
-                  const SizedBox(height: 10),
-                ],
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(dialogContext);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _olive,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _olive,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 12,
+                    child: Text(
+                      state.t('home_continue_shopping'),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    state.t('home_continue_shopping'),
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -754,7 +791,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProductsRow(BuildContext context, List<Product> products) {
     return SizedBox(
-      height: 250, // Increased height for larger cards
+      height: 310, // Increased from 290
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
@@ -768,7 +805,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildProductCard(BuildContext context, Product product, AppState state) {
-    const double cardWidth = 140; // Increased from 78
+    const double cardWidth = 165; // Increased from 140
     return SizedBox(
       width: cardWidth,
       child: Column(
@@ -795,7 +832,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     child: Hero(
-                      tag: product.id,
+                      tag: 'home_${product.id}',
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Image.asset(
@@ -820,9 +857,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Color(0xFF5E5436),
-                      fontSize: 11, // Increased from 8.5
-                      fontWeight: FontWeight.w600,
+                      fontSize: 13, // Increased from 11
+                      fontWeight: FontWeight.w700,
                       height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      5,
+                      (i) => const Icon(
+                        Icons.star_rounded,
+                        color: Color(0xFFE0A323),
+                        size: 14,
+                      ),
                     ),
                   ),
                   const Spacer(),
@@ -832,18 +881,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: _olive,
-                      fontSize: 18, // Increased from 15
+                      fontSize: 19, // Increased from 18
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
           ),
           SizedBox(
-            height: 36,
-            width: cardWidth,
+            height: 40,
+            width: cardWidth - 10,
             child: ElevatedButton(
               onPressed: () => _openProductDetails(context, product),
               style: ElevatedButton.styleFrom(
@@ -852,13 +901,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: Text(
-                state.t('view_details'),
+                state.t('home_view_details'),
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -1066,6 +1115,102 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFeedbackRow(BuildContext context) {
+    final feedbacks = [
+      {
+        'flag': '🇬🇧',
+        'name': 'Louis',
+        'text': 'The gift set is perfect for any special occasion.',
+        'stars': 5,
+      },
+      {
+        'flag': '🇩🇪',
+        'name': 'Jasmin',
+        'text': 'The Za’atar is incredibly aromatic and tasty.',
+        'stars': 5,
+      },
+      {
+        'flag': '🇵🇸',
+        'name': 'Sarah',
+        'text': 'Amazing products!',
+        'stars': 5,
+      },
+      {
+        'flag': '🇺🇸',
+        'name': 'Ahmed',
+        'text': 'Rich flavor and authentic Palestinian quality.',
+        'stars': 5,
+      },
+    ];
+
+    return SizedBox(
+      height: 130,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemCount: feedbacks.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 14),
+        itemBuilder: (context, index) {
+          final f = feedbacks[index];
+          return Container(
+            width: 220,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(f['flag'] as String, style: const TextStyle(fontSize: 18)),
+                    const SizedBox(width: 8),
+                    Text(
+                      f['name'] as String,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: _olive,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: List.generate(
+                    f['stars'] as int,
+                    (i) => const Icon(Icons.star, color: Color(0xFFE0A323), size: 14),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Expanded(
+                  child: Text(
+                    f['text'] as String,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black87,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

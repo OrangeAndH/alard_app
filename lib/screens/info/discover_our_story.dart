@@ -119,21 +119,48 @@ class DiscoverOurStory extends StatelessWidget {
   }
 
   Widget _buildHeroImage() {
-    return ClipRRect(
-      child: Image.asset(
-        'assets/dis_photo4.png',
-        width: double.infinity,
-        height: 205,
-        fit: BoxFit.cover,
-        filterQuality: FilterQuality.high,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        ClipRRect(
+          child: Image.asset(
+            'assets/dis_photo4.png',
             width: double.infinity,
             height: 205,
-            color: Colors.brown.shade200,
-          );
-        },
-      ),
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.high,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                width: double.infinity,
+                height: 205,
+                color: Colors.brown.shade200,
+              );
+            },
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          height: 205,
+          color: Colors.black.withValues(alpha: 0.15),
+        ),
+        const Text(
+          "About Al'Ard",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+            fontFamily: 'serif',
+            shadows: [
+              Shadow(
+                color: Colors.black45,
+                blurRadius: 10,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -257,21 +284,27 @@ class DiscoverOurStory extends StatelessWidget {
 
 Widget _buildBottomInfo(dynamic state) {
   return Padding(
-    padding: const EdgeInsets.fromLTRB(16, 6, 16, 20),
+    padding: const EdgeInsets.fromLTRB(16, 6, 16, 30),
     child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _InfoItem(
-          icon: Icons.handshake_outlined,
-          text: state.t('story_fair_trade'),
+        Expanded(
+          child: _InfoItem(
+            icon: Icons.handshake_outlined,
+            text: state.t('story_fair_trade'),
+          ),
         ),
-        _InfoItem(
-          icon: Icons.eco_outlined,
-          text: state.t('story_palestinian_products'),
+        Expanded(
+          child: _InfoItem(
+            icon: Icons.eco_outlined,
+            text: state.t('story_palestinian_products'),
+          ),
         ),
-        _InfoItem(
-          icon: Icons.agriculture_outlined,
-          text: state.t('story_supporting_farmers'),
+        Expanded(
+          child: _InfoItem(
+            icon: Icons.agriculture_outlined,
+            text: state.t('story_supporting_farmers'),
+          ),
         ),
       ],
     ),
@@ -287,16 +320,20 @@ class _InfoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 34, color: const Color(0xFF6B7A2F)),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         Text(
           text,
           textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            fontSize: 11.5,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF2D2D2D),
+            height: 1.2,
           ),
         ),
       ],

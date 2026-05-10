@@ -72,6 +72,7 @@ class Product {
   final String caseLayer;
   final String upc;
   final int catalogPage;
+  final int? ratingCount;
   final List<ProductVariant>? variants;
 
   const Product({
@@ -90,6 +91,7 @@ class Product {
     this.caseLayer = '',
     this.upc = '',
     this.catalogPage = 0,
+    this.ratingCount,
     this.variants,
   });
 
@@ -110,6 +112,7 @@ class Product {
       caseLayer: json['caseLayer'] as String? ?? '',
       upc: json['upc'] as String? ?? '',
       catalogPage: (json['catalogPage'] as num? ?? 0).toInt(),
+      ratingCount: json['ratingCount'] != null ? (json['ratingCount'] as num).toInt() : 120,
       variants: json['variants'] != null
           ? (json['variants'] as List<dynamic>)
               .map((v) => ProductVariant.fromJson(v as Map<String, dynamic>))

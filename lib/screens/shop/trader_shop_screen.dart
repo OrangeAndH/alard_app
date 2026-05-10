@@ -119,8 +119,6 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                             ],
                             _buildAvailabilityText(),
                             const SizedBox(height: 16),
-                            _buildTrendingSearches(),
-                            const SizedBox(height: 16),
                             _buildCategoriesRow(categories),
                             const SizedBox(height: 16),
                             if (!state.productsLoaded)
@@ -374,76 +372,6 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
     );
   }
 
-  Widget _buildTrendingSearches() {
-    final state = AppStateScope.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          state.t('shop_trending_searches'),
-          style: TextStyle(
-            color: _olive,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            fontFamily: 'serif',
-          ),
-        ),
-        const SizedBox(height: 10),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              _trendingChip('Olive Oil'),
-              const SizedBox(width: 12),
-              _trendingChip('Zaatar'),
-              const SizedBox(width: 12),
-              _trendingChip('Organic'),
-              const SizedBox(width: 12),
-              _trendingChip('Gift Boxes'),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _trendingChip(String label) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _searchQuery = label;
-          _searchController.text = label;
-          _selectedCategory = 'All'; // Reset category when searching from trending
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: _background,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 3,
-              offset: Offset(0, 1),
-            ),
-            BoxShadow(
-              color: Colors.white,
-              blurRadius: 3,
-              offset: Offset(-1, -1),
-            ),
-          ],
-        ),
-        child: Text(
-          AppStateScope.of(context).t(label),
-          style: const TextStyle(
-            color: _olive,
-            fontSize: 13,
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildCategoriesRow(List<String> categories) {
     final state = AppStateScope.of(context);
@@ -464,11 +392,19 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
               });
             },
             child: Container(
-              margin: const EdgeInsets.only(right: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
-                color: isSelected ? _olive : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
+                color: isSelected ? _olive : Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+                border: isSelected ? null : Border.all(color: _olive.withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [
@@ -476,8 +412,8 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                     state.t(cat),
                     style: TextStyle(
                       color: isSelected ? Colors.white : _olive,
-                      fontSize: 15,
-                      fontFamily: 'serif',
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                     ),
                   ),
                   if (cat == 'Organic') ...[
@@ -558,7 +494,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                 children: [
                   Positioned.fill(
                     child: Hero(
-                      tag: product.id,
+                      tag: 'trader_shop_${product.id}',
                       child: Image.asset(
                         product.image,
                         fit: BoxFit.contain,

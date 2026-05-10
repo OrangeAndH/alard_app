@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../../state/app_state_scope.dart';
 
 class RecipesScreen extends StatefulWidget {
-  const RecipesScreen({super.key});
+  final VoidCallback? onGoHome;
+  const RecipesScreen({super.key, this.onGoHome});
 
   @override
   State<RecipesScreen> createState() => _RecipesScreenState();
@@ -290,6 +291,28 @@ class _RecipesScreenState extends State<RecipesScreen> {
                       ),
                     );
                   },
+                ),
+              ),
+              PositionedDirectional(
+                start: 4,
+                child: IconButton(
+                  onPressed: () {
+                    if (widget.onGoHome != null) {
+                      widget.onGoHome!();
+                    } else if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints.tightFor(
+                    width: buttonSize,
+                    height: buttonSize,
+                  ),
+                  icon: Icon(
+                    Icons.adaptive.arrow_back,
+                    size: 28,
+                    color: Colors.black87,
+                  ),
                 ),
               ),
               PositionedDirectional(

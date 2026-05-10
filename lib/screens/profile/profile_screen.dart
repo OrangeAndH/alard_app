@@ -14,7 +14,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback? onGoHome;
+  const ProfileScreen({super.key, this.onGoHome});
 
   static const Color _background = Color(0xFFF7F3EE);
   static const Color _cream = Color(0xFFF2EDE6);
@@ -24,6 +25,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
     return Scaffold(
       backgroundColor: _background,
       body: SafeArea(
@@ -31,18 +33,20 @@ class ProfileScreen extends StatelessWidget {
           children: [
             _buildTopBar(context),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 22),
-                child: Column(
-                  children: [
-                    _buildHeroImage(),
-                    const SizedBox(height: 10),
-                    _buildProfileInfo(context),
-                    const SizedBox(height: 16),
-                    _buildMenuList(context),
-                  ],
-                ),
-              ),
+              child: state.isLoggedIn
+                  ? SingleChildScrollView(
+                      padding: const EdgeInsets.only(bottom: 22),
+                      child: Column(
+                        children: [
+                          _buildHeroImage(),
+                          const SizedBox(height: 10),
+                          _buildProfileInfo(context),
+                          const SizedBox(height: 16),
+                          _buildMenuList(context),
+                        ],
+                      ),
+                    )
+                  : _buildGuestProfile(context),
             ),
           ],
         ),
@@ -67,20 +71,19 @@ class ProfileScreen extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(AppStateScope.of(context).t('profile_menu_snack')),
-                      duration: const Duration(milliseconds: 900),
-                    ),
-                  );
+                  if (onGoHome != null) {
+                    onGoHome!();
+                  } else if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
                 },
                 padding: EdgeInsets.zero,
                 constraints: BoxConstraints.tightFor(
                   width: buttonSize,
                   height: buttonSize,
                 ),
-                icon: const Icon(
-                  Icons.menu_rounded,
+                icon: Icon(
+                  Icons.adaptive.arrow_back,
                   size: 30,
                   color: _darkBlue,
                 ),
@@ -446,6 +449,51 @@ class ProfileScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => page),
+    );
+  }
+
+  Widget _buildGuestProfile(BuildContext context) {
+    final state = AppStateScope.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.account_circle_outlined, size: 80, color: Colors.black26),
+            const SizedBox(height: 24),
+            Text(
+              state.t('login_welcome'),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              state.t('profile_placeholder_msg'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.black54, fontSize: 14),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _olive,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text(state.t('login_button'), style: const TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

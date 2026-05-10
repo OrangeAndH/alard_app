@@ -45,20 +45,26 @@ class _MainScreenState extends State<MainScreen> {
         ),
         state.currentUser?.isTrader == true
             ? TraderShopScreen(
+                key: const ValueKey('trader_shop'),
                 initialCategory: _shopCategory,
                 initialQuery: _shopQuery,
                 onGoHome: _goToHome,
               )
             : ShopScreen(
+                key: const ValueKey('customer_shop'),
                 initialCategory: _shopCategory,
                 initialQuery: _shopQuery,
                 onGoHome: _goToHome,
               ),
-        const RecipesScreen(),
+        RecipesScreen(
+          onGoHome: _goToHome,
+        ),
         FeedbackScreen(
           onGoHome: _goToHome,
         ),
-        const ProfileScreen(),
+        ProfileScreen(
+          onGoHome: _goToHome,
+        ),
       ],
     );
   }

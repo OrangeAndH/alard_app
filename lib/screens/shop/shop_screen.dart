@@ -566,7 +566,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 children: [
                   Positioned.fill(
                     child: Hero(
-                      tag: product.id,
+                      tag: 'shop_${product.id}',
                       child: Image.asset(
                         product.image,
                         fit: BoxFit.contain,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../state/app_state.dart';
 import '../../state/app_state_scope.dart';
+import '../auth/login_screen.dart';
 import '../checkout/cart_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -41,10 +42,69 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   }
 
   void _onFavoriteTap(AppState state) {
+    if (!state.isLoggedIn) {
+      _showLoginPrompt(context);
+      return;
+    }
     state.toggleFavorite(widget.product);
     if (state.isFavorite(widget.product.id)) {
       _animController.forward().then((_) => _animController.reverse());
     }
+  }
+
+  void _showLoginPrompt(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.lock_outline_rounded, size: 48, color: Color(0xFF7A8D2F)),
+            const SizedBox(height: 16),
+            const Text(
+              'Login Required',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Please login to add favorites or place orders.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black54),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7A8D2F),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Go to Login', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Maybe Later', style: TextStyle(color: Colors.black45)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -54,27 +114,27 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     final cartKey = _selectedVariant != null
         ? '${widget.product.id}_${_selectedVariant!.id}'
         : widget.product.id;
-    final inCart = state.cartItems.any(
-      (item) => item.cartKey == cartKey,
-    );
     final currentPrice = _selectedVariant?.price ?? widget.product.price;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F3EE),
       body: Stack(
         children: [
-          // Scrollable Content
+          // 1. Main Scrollable Content
           Positioned.fill(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 120), // Space for bottom bar
+              physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
                 children: [
-                  // Top section with background and image
+                  // Header Section (Beige Background + Image)
                   Stack(
                     children: [
-                      // Beige Background Container
+                      // Beige Background with rounded corners
                       Container(
-                        height: MediaQuery.of(context).size.height * 0.45,
+                        height: screenHeight * 0.45,
+                        width: double.infinity,
                         decoration: const BoxDecoration(
                           color: Color(0xFFEEE8DC),
                           borderRadius: BorderRadius.only(
@@ -83,18 +143,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                           ),
                         ),
                       ),
-                      // Top Bar (Empty space to avoid overlap with fixed bar if needed, 
-                      // but here we want the content to start at top)
+                      // Product Image
                       Column(
                         children: [
-                          // Padding for fixed top bar
                           SizedBox(height: MediaQuery.of(context).padding.top + 60),
-                          // The Product Image
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.32,
+                            height: screenHeight * 0.30,
+                            width: double.infinity,
                             child: Center(
                               child: Hero(
-                                tag: widget.product.id,
+                                tag: state.selectedIndex == 0 
+                                    ? 'home_${widget.product.id}' 
+                                    : (state.currentUser?.isTrader == true 
+                                        ? 'trader_shop_${widget.product.id}' 
+                                        : 'shop_${widget.product.id}'),
                                 child: Image.asset(
                                   widget.product.image,
                                   fit: BoxFit.contain,
@@ -107,257 +169,187 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                               ),
                             ),
                           ),
-                          // Content Section
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    _badge(widget.product.category),
-                                    if (widget.product.isBestSeller) ...[
-                                      const SizedBox(width: 8),
-                                      _badge(
-                                        state.t('product_best_seller'),
-                                        bg: const Color(0xFFCEB04B),
-                                        fg: Colors.white,
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  state.t(widget.product.name),
-                                  style: const TextStyle(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2D3112),
-                                    height: 1.15,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  state.t(widget.product.subtitle),
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.star_rounded,
-                                        color: Color(0xFFCEB04B), size: 22),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      widget.product.rating.toString(),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF2D3112),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      state.t('product_ratings_count'),
-                                      style: const TextStyle(
-                                          fontSize: 13, color: Colors.black45),
-                                    ),
-                                    const Spacer(),
-                                    Text(
-                                      state.getFormattedPrice(currentPrice),
-                                      style: const TextStyle(
-                                        fontSize: 26,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF56632C),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                if (widget.product.variants != null &&
-                                    widget.product.variants!.isNotEmpty) ...[
-                                  const SizedBox(height: 24),
-                                  Text(
-                                    state.t('product_select_size'),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF2D3112),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Wrap(
-                                    spacing: 10,
-                                    children:
-                                        widget.product.variants!.map((variant) {
-                                      final isSelected =
-                                          _selectedVariant?.id == variant.id;
-                                      return ChoiceChip(
-                                        label: Text(variant.size),
-                                        selected: isSelected,
-                                        onSelected: (selected) {
-                                          if (selected) {
-                                            setState(
-                                                () => _selectedVariant = variant);
-                                          }
-                                        },
-                                        selectedColor: const Color(0xFF7A8D2F),
-                                        labelStyle: TextStyle(
-                                          color: isSelected
-                                              ? Colors.white
-                                              : Colors.black87,
-                                          fontWeight: isSelected
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                        ),
-                                        backgroundColor: const Color(0xFFE5ECCC),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
-                                          side: isSelected
-                                              ? const BorderSide(
-                                                  color: Color(0xFF56632C),
-                                                  width: 2)
-                                              : BorderSide.none,
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ],
-                                const SizedBox(height: 24),
-                                const Divider(color: Color(0xFFDDD6CC)),
-                                const SizedBox(height: 16),
-                                Text(
-                                  state.t('product_about'),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2D3112),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _getDescription(widget.product, state),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black54,
-                                    height: 1.6,
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                Row(
-                                  children: [
-                                    Text(
-                                      state.t('product_quantity'),
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF2D3112),
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    _quantityButton(
-                                      icon: Icons.remove,
-                                      onTap: () {
-                                        if (_quantity > 1) {
-                                          setState(() => _quantity--);
-                                        }
-                                      },
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16),
-                                      child: Text(
-                                        '$_quantity',
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF2D3112),
-                                        ),
-                                      ),
-                                    ),
-                                    _quantityButton(
-                                      icon: Icons.add,
-                                      onTap: () {
-                                        setState(() => _quantity++);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-          ),
-          // Fixed Top Bar Buttons
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  _circleButton(
-                    icon: Icons.adaptive.arrow_back,
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  const Spacer(),
-                  ScaleTransition(
-                    scale: _scaleAnim,
-                    child: _circleButton(
-                      icon: isFav
-                          ? Icons.favorite_rounded
-                          : Icons.favorite_border_rounded,
-                      iconColor: isFav
-                          ? const Color(0xFFD64F4F)
-                          : Colors.black87,
-                      onTap: () => _onFavoriteTap(state),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CartScreen(),
-                        ),
-                      );
-                    },
-                    child: Stack(
+
+                  // Content Section
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 140), // Large bottom padding for the fixed bar
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _circleButton(
-                          icon: Icons.shopping_cart_outlined,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const CartScreen(),
+                        // Badges
+                        Row(
+                          children: [
+                            _badge(widget.product.category),
+                            if (widget.product.isBestSeller) ...[
+                              const SizedBox(width: 8),
+                              _badge(
+                                state.t('product_best_seller'),
+                                bg: const Color(0xFFCEB04B),
+                                fg: Colors.white,
                               ),
-                            );
-                          },
+                            ],
+                          ],
                         ),
-                        if (state.cartCount > 0)
-                          PositionedDirectional(
-                            end: 0,
-                            top: 0,
-                            child: CircleAvatar(
-                              radius: 9,
-                              backgroundColor: const Color(0xFF7A8D2F),
+                        const SizedBox(height: 16),
+                        // Title & Subtitle
+                        Text(
+                          state.t(widget.product.name),
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2D3112),
+                            height: 1.1,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          state.t(widget.product.subtitle),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        // Rating & Price
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.star_rounded, color: Color(0xFFCEB04B), size: 24),
+                                const SizedBox(width: 4),
+                                Text(
+                                  widget.product.rating.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2D3112),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '(${widget.product.ratingCount ?? 120} ${state.t('product_ratings_count')})',
+                                  style: const TextStyle(fontSize: 14, color: Colors.black45),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              state.getFormattedPrice(currentPrice),
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF56632C),
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        // Size Selection
+                        if (widget.product.variants != null && widget.product.variants!.isNotEmpty) ...[
+                          const SizedBox(height: 28),
+                          Text(
+                            state.t('product_select_size'),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2D3112),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 10,
+                            children: widget.product.variants!.map((variant) {
+                              final isSelected = _selectedVariant?.id == variant.id;
+                              return ChoiceChip(
+                                label: Text(variant.size),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    setState(() => _selectedVariant = variant);
+                                  }
+                                },
+                                selectedColor: const Color(0xFF7A8D2F),
+                                labelStyle: TextStyle(
+                                  color: isSelected ? Colors.white : Colors.black87,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                ),
+                                backgroundColor: const Color(0xFFE5ECCC),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: isSelected
+                                      ? const BorderSide(color: Color(0xFF56632C), width: 1.5)
+                                      : BorderSide.none,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+
+                        const SizedBox(height: 28),
+                        const Divider(color: Color(0xFFDDD6CC)),
+                        const SizedBox(height: 20),
+
+                        // About Section
+                        Text(
+                          state.t('product_about'),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2D3112),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          _getDescription(widget.product, state),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.black87,
+                            height: 1.6,
+                          ),
+                        ),
+
+                        const SizedBox(height: 32),
+                        // Quantity Section
+                        Row(
+                          children: [
+                            Text(
+                              state.t('product_quantity'),
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2D3112),
+                              ),
+                            ),
+                            const Spacer(),
+                            _quantityButton(
+                              icon: Icons.remove,
+                              onTap: () {
+                                if (_quantity > 1) setState(() => _quantity--);
+                              },
+                            ),
+                            Container(
+                              constraints: const BoxConstraints(minWidth: 40),
+                              alignment: Alignment.center,
                               child: Text(
-                                state.cartCount.toString(),
+                                '$_quantity',
                                 style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.white,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2D3112),
                                 ),
                               ),
                             ),
-                          ),
+                            _quantityButton(
+                              icon: Icons.add,
+                              onTap: () => setState(() => _quantity++),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -365,6 +357,48 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               ),
             ),
           ),
+
+          // 2. Fixed Top Buttons (Back, Favorite, Cart)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    _circleButton(
+                      icon: Icons.adaptive.arrow_back,
+                      onTap: () => Navigator.pop(context),
+                    ),
+                    const Spacer(),
+                    ScaleTransition(
+                      scale: _scaleAnim,
+                      child: _circleButton(
+                        icon: isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                        iconColor: isFav ? const Color(0xFFD64F4F) : Colors.black87,
+                        onTap: () => _onFavoriteTap(state),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    _circleButton(
+                      icon: Icons.shopping_cart_outlined,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const CartScreen()),
+                        );
+                      },
+                      badgeCount: state.cartCount,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // 3. Fixed Bottom Bar (Price + Add to Cart)
           Positioned(
             bottom: 0,
             left: 0,
@@ -374,17 +408,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 20,
                 16,
                 20,
-                MediaQuery.of(context).padding.bottom + 16,
+                bottomPadding + 16,
               ),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F3EE),
+                color: Colors.white,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 16,
+                    blurRadius: 15,
                     offset: const Offset(0, -4),
                   ),
                 ],
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Row(
                 children: [
@@ -394,21 +429,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                     children: [
                       Text(
                         state.t('product_total_price'),
-                        style: const TextStyle(fontSize: 12, color: Colors.black45),
+                        style: const TextStyle(fontSize: 13, color: Colors.black45),
                       ),
                       Text(
                         state.getFormattedPrice(currentPrice * _quantity),
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF56632C),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 24),
                   Expanded(
-                    child: ElevatedButton.icon(
+                    child: ElevatedButton(
                       onPressed: () {
                         for (int i = 0; i < _quantity; i++) {
                           state.addToCart(widget.product, variant: _selectedVariant);
@@ -416,40 +451,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              '$_quantity × ${state.t(widget.product.name)}${_selectedVariant != null ? " (${_selectedVariant!.size})" : ""} ${state.t('product_added_to_cart')}',
+                              '$_quantity × ${state.t(widget.product.name)} ${state.t('product_added_to_cart')}',
                             ),
                             backgroundColor: const Color(0xFF56632C),
-                            duration: const Duration(seconds: 2),
                             behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: inCart
-                            ? const Color(0xFF56632C)
-                            : const Color(0xFF7A8D2F),
+                        backgroundColor: const Color(0xFF7A8D2F),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         elevation: 0,
                       ),
-                      icon: Icon(
-                        inCart
-                            ? Icons.shopping_cart_rounded
-                            : Icons.add_shopping_cart_rounded,
-                        size: 20,
-                      ),
-                      label: Text(
-                        inCart ? state.t('product_add_more') : state.t('product_add_to_cart'),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      child: Text(
+                        state.t('product_add_to_cart'),
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -466,24 +485,48 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     required IconData icon,
     required VoidCallback onTap,
     Color iconColor = Colors.black87,
+    int badgeCount = 0,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Icon(icon, size: 28, color: iconColor),
+            child: Icon(icon, size: 24, color: iconColor),
+          ),
+          if (badgeCount > 0)
+            Positioned(
+              right: -2,
+              top: -2,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF7A8D2F),
+                  shape: BoxShape.circle,
+                ),
+                constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                child: Text(
+                  '$badgeCount',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
