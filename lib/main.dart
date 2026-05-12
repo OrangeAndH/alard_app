@@ -4,6 +4,7 @@ import 'state/app_setting.dart';
 import 'state/app_state.dart';
 import 'state/app_state_scope.dart';
 import 'screens/main_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +28,32 @@ class AlardApp extends StatelessWidget {
     return AnimatedBuilder(
       animation: Listenable.merge([settings, appState]),
       builder: (context, _) {
+        final isArabic = appState.isArabic;
+        final baseTheme = ThemeData(brightness: settings.themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light).textTheme;
+        
+        TextTheme textTheme;
+        if (isArabic) {
+          textTheme = GoogleFonts.notoNaskhArabicTextTheme(baseTheme).copyWith(
+            displayLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displayLarge),
+            displayMedium: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displayMedium),
+            displaySmall: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displaySmall),
+            headlineLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineLarge),
+            headlineMedium: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineMedium),
+            headlineSmall: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineSmall),
+            titleLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.titleLarge, fontWeight: FontWeight.bold),
+          );
+        } else {
+          textTheme = GoogleFonts.sourceSans3TextTheme(baseTheme).copyWith(
+            displayLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.displayLarge),
+            displayMedium: GoogleFonts.bodoniModa(textStyle: baseTheme.displayMedium),
+            displaySmall: GoogleFonts.bodoniModa(textStyle: baseTheme.displaySmall),
+            headlineLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineLarge),
+            headlineMedium: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineMedium),
+            headlineSmall: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineSmall),
+            titleLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.titleLarge, fontWeight: FontWeight.bold),
+          );
+        }
+
         return AppSettingsScope(
           settings: settings,
           child: AppStateScope(
@@ -46,6 +73,7 @@ class AlardApp extends StatelessWidget {
               theme: ThemeData(
                 useMaterial3: true,
                 brightness: Brightness.light,
+                textTheme: textTheme,
                 scaffoldBackgroundColor: const Color(0xFFF7F3EE),
                 colorScheme: ColorScheme.fromSeed(
                   seedColor: const Color(0xFF7A8D2F),
@@ -81,6 +109,7 @@ class AlardApp extends StatelessWidget {
               darkTheme: ThemeData(
                 useMaterial3: true,
                 brightness: Brightness.dark,
+                textTheme: textTheme,
                 scaffoldBackgroundColor: const Color(0xFF121212),
                 colorScheme: ColorScheme.fromSeed(
                   seedColor: const Color(0xFF9CAF45),

@@ -332,39 +332,39 @@ class ReviewScreen extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
   }) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: _olive,
-              fontSize: 19,
-              fontFamily: 'serif',
-              fontWeight: FontWeight.w600,
-              shadows: [
-                Shadow(
-                  color: Colors.black26,
-                  blurRadius: 3,
-                  offset: Offset(1, 1),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: _olive,
+                  fontSize: 19,
+                  fontFamily: 'serif',
+                  fontWeight: FontWeight.w600,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black26,
+                      blurRadius: 3,
+                      offset: Offset(1, 1),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-        InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(18),
-          child: Padding(
-            padding: const EdgeInsets.all(3),
-            child: Icon(
+            Icon(
               Icons.adaptive.arrow_forward,
               color: _olive,
               size: 30,
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -478,10 +478,14 @@ class ReviewScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '${item['quantity'] ?? 1}x ${item['name'] ?? 'Product'}${item['variant'] != null ? " (${item['variant']})" : ""}',
-                      style: const TextStyle(fontSize: 14, fontFamily: 'serif'),
+                    Expanded(
+                      child: Text(
+                        '${item['quantity'] ?? 1}x ${item['name'] ?? 'Product'}${item['variant'] != null ? " (${item['variant']})" : ""}',
+                        style: const TextStyle(fontSize: 14, fontFamily: 'serif'),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       state.getFormattedPrice(item['price'] ?? 0.0),
                       style: const TextStyle(fontSize: 14, fontFamily: 'serif'),

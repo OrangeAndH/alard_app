@@ -6,8 +6,13 @@ import '../checkout/cart_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
+  final String? heroTag;
 
-  const ProductDetailScreen({super.key, required this.product});
+  const ProductDetailScreen({
+    super.key,
+    required this.product,
+    this.heroTag,
+  });
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -111,9 +116,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     final isFav = state.isFavorite(widget.product.id);
-    final cartKey = _selectedVariant != null
-        ? '${widget.product.id}_${_selectedVariant!.id}'
-        : widget.product.id;
     final currentPrice = _selectedVariant?.price ?? widget.product.price;
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
@@ -152,11 +154,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                             width: double.infinity,
                             child: Center(
                               child: Hero(
-                                tag: state.selectedIndex == 0 
-                                    ? 'home_${widget.product.id}' 
-                                    : (state.currentUser?.isTrader == true 
-                                        ? 'trader_shop_${widget.product.id}' 
-                                        : 'shop_${widget.product.id}'),
+                                tag: widget.heroTag ??
+                                    (state.selectedIndex == 0
+                                        ? 'home_${widget.product.id}'
+                                        : (state.currentUser?.isTrader == true
+                                            ? 'trader_shop_${widget.product.id}'
+                                            : 'shop_${widget.product.id}')),
                                 child: Image.asset(
                                   widget.product.image,
                                   fit: BoxFit.contain,

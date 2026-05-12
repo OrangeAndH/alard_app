@@ -29,83 +29,81 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-Future<void> login() async {
-  if (_isProcessing) return;
+  Future<void> login() async {
+    if (_isProcessing) return;
 
-  final email = emailController.text.trim();
-  final password = passwordController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
-  if (email.isEmpty || password.isEmpty) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
+    if (email.isEmpty || password.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      }
+      return;
+    }
+
+    setState(() => _isProcessing = true);
+
+    // Note: Updated AuthService to use static methods or instances as needed.
+    // Assuming AuthService.login is available.
+    final bool success = await _authService.login(
+      context: context,
+      email: email,
+      password: password,
+      isTrader: isTrader,
+    );
+
+    if (mounted) setState(() => _isProcessing = false);
+
+    if (success && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
       );
     }
-    return;
   }
 
-  setState(() => _isProcessing = true);
+  Future<void> loginWithGoogle() async {
+    if (_isProcessing) return;
 
-  // Note: Updated AuthService to use static methods or instances as needed.
-  // Assuming AuthService.login is available.
-  final bool success = await _authService.login(
-    context: context,
-    email: email,
-    password: password,
-    isTrader: isTrader,
-  );
+    setState(() => _isProcessing = true);
 
-  if (mounted) setState(() => _isProcessing = false);
-
-  if (success && mounted) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const MainScreen(),
-      ),
+    final bool success = await _authService.loginWithGoogle(
+      context: context,
+      isTrader: isTrader,
     );
+
+    if (mounted) setState(() => _isProcessing = false);
+
+    if (success && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
+    }
   }
-}
 
-Future<void> loginWithGoogle() async {
-  if (_isProcessing) return;
+  Future<void> loginWithApple() async {
+    if (_isProcessing) return;
 
-  setState(() => _isProcessing = true);
+    setState(() => _isProcessing = true);
 
-  final bool success = await _authService.loginWithGoogle(
-    context: context,
-    isTrader: isTrader,
-  );
-
-  if (mounted) setState(() => _isProcessing = false);
-
-  if (success && mounted) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const MainScreen()),
+    final bool success = await _authService.loginWithApple(
+      context: context,
+      isTrader: isTrader,
     );
+
+    if (mounted) setState(() => _isProcessing = false);
+
+    if (success && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
+    }
   }
-}
-
-Future<void> loginWithApple() async {
-  if (_isProcessing) return;
-
-  setState(() => _isProcessing = true);
-
-  final bool success = await _authService.loginWithApple(
-    context: context,
-    isTrader: isTrader,
-  );
-
-  if (mounted) setState(() => _isProcessing = false);
-
-  if (success && mounted) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const MainScreen()),
-    );
-  }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -136,6 +134,7 @@ Future<void> loginWithApple() async {
                         width: 150,
                         height: 150,
                         fit: BoxFit.cover,
+                        alignment: const Alignment(0.12, 0.0), // Shift content right to center it
                       ),
                     ),
                   ),
@@ -243,7 +242,10 @@ Future<void> loginWithApple() async {
                     decoration: InputDecoration(
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                      prefixIconConstraints: const BoxConstraints(minWidth: 46, minHeight: 46),
+                      prefixIconConstraints: const BoxConstraints(
+                        minWidth: 46,
+                        minHeight: 46,
+                      ),
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Image.asset("assets/email.png"),
@@ -268,8 +270,14 @@ Future<void> loginWithApple() async {
                     decoration: InputDecoration(
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                      prefixIconConstraints: const BoxConstraints(minWidth: 46, minHeight: 46),
-                      suffixIconConstraints: const BoxConstraints(minWidth: 46, minHeight: 46),
+                      prefixIconConstraints: const BoxConstraints(
+                        minWidth: 46,
+                        minHeight: 46,
+                      ),
+                      suffixIconConstraints: const BoxConstraints(
+                        minWidth: 46,
+                        minHeight: 46,
+                      ),
                       suffixIcon: IconButton(
                         onPressed: () {
                           setState(() {
@@ -296,30 +304,30 @@ Future<void> loginWithApple() async {
                     ),
                   ),
                 ),
-                 Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 30),
-  child: Align(
-    alignment: Alignment.centerRight,
-    child: GestureDetector(
-      onTap: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const ForgotPasswordScreen(),
-    ),
-  );
-},
-      child: Text(
-        state.t('login_forgot_password'),
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFFF0E7DE),
-        ),
-      ),
-    ),
-  ),
-),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPasswordScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        state.t('login_forgot_password'),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFF0E7DE),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
 
                 Padding(
@@ -421,7 +429,10 @@ Future<void> loginWithApple() async {
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Center(
-                          child: Image.asset("assets/facebook.png", width: 45), // Reusing facebook asset as placeholder
+                          child: Image.asset(
+                            "assets/facebook.png",
+                            width: 45,
+                          ), // Reusing facebook asset as placeholder
                         ),
                       ),
                     ),

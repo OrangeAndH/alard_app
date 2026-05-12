@@ -261,6 +261,9 @@ class AppState extends ChangeNotifier {
   ];
 
   List<PaymentMethod> get paymentMethods => List.unmodifiable(_paymentMethods);
+
+  List<PaymentMethod> get savedCards =>
+      _paymentMethods.where((m) => !m.isCashOnDelivery).toList();
   
   List<Product> _allProducts = [];
 

@@ -114,16 +114,8 @@ class _ShopScreenState extends State<ShopScreen> {
                   children: [
                     _buildTopBar(context, state),
                     Expanded(
-                      child: RefreshIndicator(
-                        color: _olive,
-                        backgroundColor: _cream,
-                        onRefresh: () async {
-                          // Simulate network delay for frontend UX
-                          await Future.delayed(const Duration(milliseconds: 400));
-                          setState(() {});
-                        },
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
                         padding: EdgeInsets.fromLTRB(
                           horizontalPadding,
                           0,
@@ -147,7 +139,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: Text(
                                   state.t('shop_catalog_loading_backup'),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 11,
                                     color: Colors.black45,
                                   ),
@@ -168,7 +160,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                       const SizedBox(height: 10),
                                       Text(
                                         state.t('shop_no_products'),
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 15,
                                           color: Colors.black54,
                                         ),
@@ -199,7 +191,6 @@ class _ShopScreenState extends State<ShopScreen> {
                         ),
                       ),
                     ),
-                    ),
                   ],
                 ),
               ),
@@ -211,20 +202,16 @@ class _ShopScreenState extends State<ShopScreen> {
   }
 
   Widget _buildTopBar(BuildContext context, AppState state) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
+    final barHeight = 60.0;
+    final buttonSize = 42.0;
 
-        final barHeight = (width * 0.16).clamp(56.0, 70.0);
-        final buttonSize = (width * 0.11).clamp(38.0, 46.0);
-
-        return Container(
-          height: barHeight,
-          width: double.infinity,
-          color: _cream,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
+    return Container(
+      height: barHeight,
+      width: double.infinity,
+      color: _cream,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
               Center(
                 child: Image.asset(
                   'assets/321.png',
@@ -307,10 +294,8 @@ class _ShopScreenState extends State<ShopScreen> {
                   ],
                 ),
               ),
-            ],
-          ),
-        );
-      },
+        ],
+      ),
     );
   }
 
@@ -547,7 +532,10 @@ class _ShopScreenState extends State<ShopScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ProductDetailScreen(product: product),
+            builder: (_) => ProductDetailScreen(
+              product: product,
+              heroTag: 'shop_${product.id}',
+            ),
           ),
         ).then((_) => setState(() {}));
       },
