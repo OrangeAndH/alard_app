@@ -26,22 +26,17 @@ class AppSettings extends ChangeNotifier {
   }
 }
 
-class AppSettingsScope extends InheritedWidget {
-  final AppSettings settings;
-
+class AppSettingsScope extends InheritedNotifier<AppSettings> {
   const AppSettingsScope({
     super.key,
-    required this.settings,
+    required AppSettings settings,
     required super.child,
-  });
+  }) : super(notifier: settings);
 
   static AppSettings of(BuildContext context) {
     final AppSettingsScope? scope =
         context.dependOnInheritedWidgetOfExactType<AppSettingsScope>();
     assert(scope != null, 'AppSettingsScope not found in context');
-    return scope!.settings;
+    return scope!.notifier!;
   }
-
-  @override
-  bool updateShouldNotify(AppSettingsScope oldWidget) => true;
 }

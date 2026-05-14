@@ -243,14 +243,12 @@ class _ShopTab extends StatelessWidget {
 
     if (isTrader) {
       return TraderShopScreen(
-        key: const ValueKey('trader_shop'),
         initialCategory: state.shopCategory,
         initialQuery: state.shopQuery,
         onGoHome: () => state.setSelectedIndex(0),
       );
     } else {
       return ShopScreen(
-        key: const ValueKey('customer_shop'),
         initialCategory: state.shopCategory,
         initialQuery: state.shopQuery,
         onGoHome: () => state.setSelectedIndex(0),
