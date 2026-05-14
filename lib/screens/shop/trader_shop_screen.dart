@@ -465,7 +465,9 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
               heroTag: 'trader_shop_${product.id}',
             ),
           ),
-        ).then((_) => setState(() {}));
+        ).then((_) {
+          if (mounted) setState(() {});
+        });
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
@@ -582,7 +584,9 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                     MaterialPageRoute(
                       builder: (_) => ProductDetailScreen(product: product),
                     ),
-                  ).then((_) => setState(() {}));
+                  ).then((_) {
+                    if (mounted) setState(() {});
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _olive,

@@ -17,8 +17,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
 
-  String _shopCategory = 'All';
-  String _shopQuery = '';
+
   void _goToHome() {
     AppStateScope.of(context).setSelectedIndex(0);
   }
@@ -27,35 +26,21 @@ class _MainScreenState extends State<MainScreen> {
     String category = 'All',
     String query = '',
   }) {
-    setState(() {
-      _shopCategory = category;
-      _shopQuery = query;
-    });
-    AppStateScope.of(context).setSelectedIndex(1);
+    final state = AppStateScope.of(context);
+    state.setShopFilters(category: category, query: query);
+    state.setSelectedIndex(1);
   }
 
   Widget _buildCurrentPage() {
     final state = AppStateScope.of(context);
-    
+
     return IndexedStack(
       index: state.selectedIndex,
       children: [
         HomeScreen(
           onGoToShopFilter: _goToShop,
         ),
-        state.currentUser?.isTrader == true
-            ? TraderShopScreen(
-                key: const ValueKey('trader_shop'),
-                initialCategory: _shopCategory,
-                initialQuery: _shopQuery,
-                onGoHome: _goToHome,
-              )
-            : ShopScreen(
-                key: const ValueKey('customer_shop'),
-                initialCategory: _shopCategory,
-                initialQuery: _shopQuery,
-                onGoHome: _goToHome,
-              ),
+        const _ShopTab(),
         RecipesScreen(
           onGoHome: _goToHome,
         ),
@@ -155,10 +140,7 @@ class _MainScreenState extends State<MainScreen> {
     return GestureDetector(
       onTap: () {
         if (index == 1) {
-          setState(() {
-            _shopCategory = 'All';
-            _shopQuery = '';
-          });
+          state.setShopFilters(category: 'All', query: '');
         }
         state.setSelectedIndex(index);
       },
@@ -248,5 +230,31 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
+  }
+}
+
+class _ShopTab extends StatelessWidget {
+  const _ShopTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
+    final isTrader = state.currentUser?.isTrader == true;
+
+    if (isTrader) {
+      return TraderShopScreen(
+        key: const ValueKey('trader_shop'),
+        initialCategory: state.shopCategory,
+        initialQuery: state.shopQuery,
+        onGoHome: () => state.setSelectedIndex(0),
+      );
+    } else {
+      return ShopScreen(
+        key: const ValueKey('customer_shop'),
+        initialCategory: state.shopCategory,
+        initialQuery: state.shopQuery,
+        onGoHome: () => state.setSelectedIndex(0),
+      );
+    }
   }
 }

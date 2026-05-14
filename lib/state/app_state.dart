@@ -31,17 +31,34 @@ class AppState extends ChangeNotifier {
   Locale _locale = const Locale('en');
   String _currentStore = 'Palestine';
   int _selectedIndex = 0;
+  String _shopCategory = 'All';
+  String _shopQuery = '';
 
   AppUser? get currentUser => _currentUser;
   Uint8List? get profileImageBytes => _profileImageBytes;
   bool get isLoggedIn => _currentUser != null;
   int get selectedIndex => _selectedIndex;
+  String get shopCategory => _shopCategory;
+  String get shopQuery => _shopQuery;
 
   void setSelectedIndex(int index) {
     if (_selectedIndex != index) {
       _selectedIndex = index;
       notifyListeners();
     }
+  }
+
+  void setShopFilters({String? category, String? query}) {
+    bool changed = false;
+    if (category != null && _shopCategory != category) {
+      _shopCategory = category;
+      changed = true;
+    }
+    if (query != null && _shopQuery != query) {
+      _shopQuery = query;
+      changed = true;
+    }
+    if (changed) notifyListeners();
   }
 
   String get currentStore => _currentStore;

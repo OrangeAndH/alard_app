@@ -171,9 +171,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               width: 20,
                               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                             )
-                          : Text(
-                              state.t('register_button'),
-                              style: const TextStyle(color: Color(0xFFE4DFC1), fontWeight: FontWeight.bold),
+                          : FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                state.t('register_button'),
+                                style: const TextStyle(color: Color(0xFFE4DFC1), fontWeight: FontWeight.bold),
+                              ),
                             ),
                     ),
                   ),

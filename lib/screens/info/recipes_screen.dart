@@ -224,7 +224,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                             final width = constraints.maxWidth;
                             final itemWidth = (width - 14) / 2;
                             // Calculate item height: image (aspect ratio 1.15) + text/button fixed heights + padding
-                            final itemHeight = (itemWidth / 1.15) + 138;
+                            final itemHeight = (itemWidth / 1.15) + 150;
                             final aspectRatio = itemWidth / itemHeight;
 
                             return GridView.builder(
@@ -575,9 +575,12 @@ class _RecipeCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
-                    AppStateScope.of(context).t('recipes_view_button'),
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      AppStateScope.of(context).t('recipes_view_button'),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ),
               ),

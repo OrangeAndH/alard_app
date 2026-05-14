@@ -343,12 +343,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: Text(
-                        state.t('login_button'),
-                        style: const TextStyle(
-                          color: Color(0xFFE4DFC1),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          state.t('login_button'),
+                          style: const TextStyle(
+                            color: Color(0xFFE4DFC1),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -377,12 +380,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: Text(
-                        state.t('login_create_account'),
-                        style: const TextStyle(
-                          color: Color(0xFFE4DFC1),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          state.t('login_create_account'),
+                          style: const TextStyle(
+                            color: Color(0xFFE4DFC1),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),

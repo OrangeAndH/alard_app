@@ -615,7 +615,10 @@ class _CartScreenState extends State<CartScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Go to Login', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text('Go to Login', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
               ),
             ),
             TextButton(

@@ -62,7 +62,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
             ElevatedButton(
               onPressed: resetPassword,
-              child: const Text("Send Reset Link"),
+              child: const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text("Send Reset Link"),
+              ),
             ),
           ],
         ),

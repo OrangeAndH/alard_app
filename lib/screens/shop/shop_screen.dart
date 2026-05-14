@@ -212,52 +212,52 @@ class _ShopScreenState extends State<ShopScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-              Center(
-                child: Image.asset(
-                  'assets/321.png',
-                  height: 38,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) {
-                    return const Text(
-                      "AL'ARD",
-                      style: TextStyle(
-                        color: _olive,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+          Center(
+            child: Image.asset(
+              'assets/321.png',
+              height: 38,
+              fit: BoxFit.contain,
+              errorBuilder: (_, _, _) {
+                return const Text(
+                  "AL'ARD",
+                  style: TextStyle(
+                    color: _olive,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
+            ),
+          ),
+          PositionedDirectional(
+            start: 4,
+            child: IconButton(
+              onPressed: _goBackToHome,
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints.tightFor(
+                width: buttonSize,
+                height: buttonSize,
+              ),
+              icon: Icon(
+                Icons.adaptive.arrow_back,
+                color: Colors.black,
+                size: 30,
+              ),
+            ),
+          ),
+          PositionedDirectional(
+            end: 4,
+            child: Stack(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CartScreen(),
                       ),
                     );
                   },
-                ),
-              ),
-              PositionedDirectional(
-                start: 4,
-                child: IconButton(
-                  onPressed: _goBackToHome,
-                  padding: EdgeInsets.zero,
-                  constraints: BoxConstraints.tightFor(
-                    width: buttonSize,
-                    height: buttonSize,
-                  ),
-                  icon: Icon(
-                    Icons.adaptive.arrow_back,
-                    color: Colors.black,
-                    size: 30,
-                  ),
-                ),
-              ),
-              PositionedDirectional(
-                end: 4,
-                child: Stack(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const CartScreen(),
-                          ),
-                        );
-                      },
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints.tightFor(
                         width: buttonSize,
@@ -537,7 +537,9 @@ class _ShopScreenState extends State<ShopScreen> {
               heroTag: 'shop_${product.id}',
             ),
           ),
-        ).then((_) => setState(() {}));
+        ).then((_) {
+          if (mounted) setState(() {});
+        });
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
@@ -654,7 +656,9 @@ class _ShopScreenState extends State<ShopScreen> {
                     MaterialPageRoute(
                       builder: (_) => ProductDetailScreen(product: product),
                     ),
-                  ).then((_) => setState(() {}));
+                  ).then((_) {
+                    if (mounted) setState(() {});
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _olive,

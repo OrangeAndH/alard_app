@@ -469,9 +469,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         elevation: 0,
                       ),
-                      child: Text(
-                        state.t('product_add_to_cart'),
-                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          state.t('product_add_to_cart'),
+                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ),

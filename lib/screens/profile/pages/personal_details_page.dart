@@ -256,9 +256,12 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: Text(
-                  state.t('personal_save_changes'),
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    state.t('personal_save_changes'),
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                  ),
                 ),
               ),
             ),
