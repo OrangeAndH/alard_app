@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../state/app_state.dart';
 import '../../state/app_state_scope.dart';
+import '../../widgets/store_dialog.dart';
 import 'review_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -37,6 +38,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String? _selectedCardId;
   bool _saveAddress = true;
   bool _billingSame = true;
+  bool _showOrderSummary = false;
+
+  final _cardNumberController = TextEditingController();
+  final _cardExpiryController = TextEditingController();
+  final _cardSecurityController = TextEditingController();
+  final _cardNameController = TextEditingController();
+  final _discountController = TextEditingController();
 
   final List<Map<String, String>> _countries = const [
     {'name': 'Palestine', 'flag': '🇵🇸'},
@@ -102,7 +110,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         const SizedBox(height: 10),
                         _addressBox(),
                         const SizedBox(height: 7),
-                        _countryRow(),
+                        _countryRow(state),
                         const SizedBox(height: 6),
                         _cityRow(),
                         const SizedBox(height: 6),
@@ -139,6 +147,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         _sameAsShippingBadge(),
                         const SizedBox(height: 24),
                         _totalRow(state),
+                        const SizedBox(height: 18),
+                        _buildOrderSummary(state),
                         const SizedBox(height: 26),
                         _placeOrderButton(context, state, screenWidth),
                       ],
@@ -416,27 +426,39 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _countryRow() {
-    final country = _profileData['country'] ?? 'Palestine';
+  Widget _countryRow(AppState state) {
+    final country = state.currentStore;
+    final flag = state.currentStoreFlag;
 
-    return Container(
-      height: 31,
-      padding: const EdgeInsets.symmetric(horizontal: 11),
-      decoration: _outlineBox(radius: 9),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              '${_countryFlag(country)}  $country',
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: _olive,
-                fontSize: 14,
-                fontFamily: 'serif',
+    return InkWell(
+      onTap: () => showStoreDialog(context),
+      child: Container(
+        height: 31,
+        padding: const EdgeInsets.symmetric(horizontal: 11),
+        decoration: _outlineBox(radius: 9),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                '$flag  $country',
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: _olive,
+                  fontSize: 14,
+                  fontFamily: 'serif',
+                ),
               ),
             ),
-          ),
-        ],
+            const Text(
+              'Change',
+              style: TextStyle(
+                color: _olive,
+                fontSize: 10,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -599,52 +621,258 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Widget _paymentBox(AppState state) {
+    final isCreditCard = _payment == 'Credit Card';
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: _outlineBox(),
       child: Column(
         children: [
-          _paymentLine(
-            state: state,
-            value: 'Credit Card',
-            onTap: () => _showCardSelection(state),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
+          Container(
+            color: isCreditCard ? const Color(0xFFF0F4FF) : Colors.transparent,
+            child: Column(
               children: [
-                if (_payment == 'Credit Card' && _selectedCardId != null)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Text(
-                      '**** ${state.savedCards.firstWhere((c) => c.id == _selectedCardId).cardNumber?.substring((state.savedCards.firstWhere((c) => c.id == _selectedCardId).cardNumber?.length ?? 4) - 4) ?? "Card"}',
-                      style: const TextStyle(
-                        color: _olive,
-                        fontSize: 12,
-                        fontFamily: 'serif',
-                      ),
-                    ),
-                  ),
-                const Text(
-                  'VISA',
-                  style: TextStyle(
-                    color: _olive,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    fontStyle: FontStyle.italic,
+                _paymentLine(
+                  state: state,
+                  value: 'Credit Card',
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.network('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png', height: 16),
+                      const SizedBox(width: 8),
+                      Image.network('https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png', height: 12),
+                    ],
                   ),
                 ),
+                if (isCreditCard) ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: _buildCreditCardForm(state),
+                  ),
+                ],
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.only(left: 34, right: 16),
-            child: Divider(height: 1, color: _line),
-          ),
+          const Divider(height: 1, color: _line),
           _paymentLine(state: state, value: 'Pay when deliver'),
-          const Padding(
-            padding: EdgeInsets.only(left: 34, right: 16),
-            child: Divider(height: 1, color: _line),
-          ),
+          const Divider(height: 1, color: _line),
           _paymentLine(state: state, value: 'Card on delivery'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCreditCardForm(AppState state) {
+    return Column(
+      children: [
+        _buildAloneField(
+          hint: state.t('pay_card_number'),
+          controller: _cardNumberController,
+          icon: Icons.lock_outline,
+        ),
+        const SizedBox(height: 12),
+        _buildAloneField(
+          hint: state.t('pay_expiration_date'),
+          controller: _cardExpiryController,
+        ),
+        const SizedBox(height: 12),
+        _buildAloneField(
+          hint: state.t('pay_security_code'),
+          controller: _cardSecurityController,
+          icon: Icons.help_outline,
+        ),
+        const SizedBox(height: 12),
+        _buildAloneField(
+          hint: state.t('pay_card_holder'),
+          controller: _cardNameController,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAloneField({
+    required String hint,
+    required TextEditingController controller,
+    IconData? icon,
+  }) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.black12),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            const SizedBox(width: 12),
+            Icon(icon, size: 20, color: Colors.black45),
+          ],
+          Expanded(
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: hint,
+                hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderSummary(AppState state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () => setState(() => _showOrderSummary = !_showOrderSummary),
+          child: Row(
+            children: [
+              Icon(
+                _showOrderSummary ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                color: _olive,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                state.t('checkout_order_summary'),
+                style: const TextStyle(
+                  color: _olive,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'serif',
+                ),
+              ),
+              const Spacer(),
+              if (!_showOrderSummary)
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    const Icon(Icons.shopping_cart_outlined, color: _olive, size: 28),
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
+                        child: Text(
+                          '${widget.orderItems.length}',
+                          style: const TextStyle(color: Colors.white, fontSize: 10),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+        if (_showOrderSummary) ...[
+          const SizedBox(height: 16),
+          ...widget.orderItems.map((item) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.black12),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(item['image'] ?? '', fit: BoxFit.cover),
+                      ),
+                    ),
+                    Positioned(
+                      right: -2,
+                      top: -2,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(color: Colors.black87, shape: BoxShape.circle),
+                        child: Text(
+                          '${item['quantity']}',
+                          style: const TextStyle(color: Colors.white, fontSize: 10),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(item['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
+                      Text(item['subtitle'] ?? '', style: const TextStyle(color: Colors.black54, fontSize: 12)),
+                    ],
+                  ),
+                ),
+                Text(state.getFormattedPrice((item['price'] as num).toDouble() * (item['quantity'] as int))),
+              ],
+            ),
+          )),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.black12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextField(
+                    controller: _discountController,
+                    decoration: InputDecoration(
+                      hintText: state.t('checkout_discount_code'),
+                      hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF5F5F5),
+                  foregroundColor: Colors.black54,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: const BorderSide(color: Colors.black12),
+                  ),
+                ),
+                child: Text(state.t('checkout_apply')),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _summaryRow(state.t('checkout_subtotal'), widget.subtotal, state),
+          _summaryRow(state.t('checkout_shipping'), widget.shippingFee, state),
+          const SizedBox(height: 8),
+        ],
+      ],
+    );
+  }
+
+  Widget _summaryRow(String label, double amount, AppState state) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.black87)),
+          Text(state.getFormattedPrice(amount), style: const TextStyle(fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -1148,18 +1376,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  String _countryFlag(String country) {
-    final lower = country.toLowerCase();
-
-    if (lower.contains('palestine')) return '🇵🇸';
-    if (lower.contains('germany')) return '🇩🇪';
-    if (lower.contains('usa') || lower.contains('united states')) return '🇺🇸';
-    if (lower.contains('uae') || lower.contains('emirates')) return '🇦🇪';
-    if (lower.contains('ksa') || lower.contains('saudi')) return '🇸🇦';
-    if (lower.contains('europe') || lower.contains('european')) return '🇪🇺';
-
-    return '🌍';
-  }
   void _showCardSelection(AppState state) {
     showModalBottomSheet(
       context: context,
@@ -1318,27 +1534,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 nameController,
                 TextInputType.name,
               ),
+              _buildDialogField(
+                state.t('pay_expiry'),
+                expiryController,
+                TextInputType.datetime,
+                hint: state.t('pay_expiration_date'),
+              ),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildDialogField(
-                      state.t('pay_expiry'),
-                      expiryController,
-                      TextInputType.datetime,
-                      hint: 'MM/YY',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildDialogField(
-                      state.t('pay_cvv'),
-                      cvvController,
-                      TextInputType.number,
-                      hint: '123',
-                    ),
-                  ),
-                ],
+              _buildDialogField(
+                state.t('pay_cvv'),
+                cvvController,
+                TextInputType.number,
+                hint: state.t('pay_security_code'),
               ),
             ],
           ),

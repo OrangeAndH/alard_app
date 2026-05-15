@@ -12,18 +12,20 @@ class AppState extends ChangeNotifier {
   static const double deliveryFee = 3.0;
 
   static const Map<String, StoreCurrency> _storeCurrencies = {
-    'Palestine': StoreCurrency('Palestine', '₪', 1.0),
-    'Germany': StoreCurrency('Germany', '€', 0.25),
-    'USA': StoreCurrency('USA', '\$', 0.27),
-    'UK': StoreCurrency('UK', '£', 0.21),
-    'France': StoreCurrency('France', '€', 0.25),
-    'Malaysia': StoreCurrency('Malaysia', 'RM', 1.25),
-    'Europe': StoreCurrency('Europe', '€', 0.25),
-    'UAE': StoreCurrency('UAE', 'AED', 0.98),
-    'KSA': StoreCurrency('KSA', 'SAR', 1.0),
-    'Canada': StoreCurrency('Canada', 'C\$', 0.37),
-    'Chile': StoreCurrency('Chile', 'CLP', 255.0),
+    'Palestine': StoreCurrency('Palestine', '₪', 1.0, flag: '🇵🇸'),
+    'Germany': StoreCurrency('Germany', '€', 0.25, flag: '🇩🇪'),
+    'USA': StoreCurrency('USA', '\$', 0.27, flag: '🇺🇸'),
+    'UK': StoreCurrency('UK', '£', 0.21, flag: '🇬🇧'),
+    'France': StoreCurrency('France', '€', 0.25, flag: '🇫🇷'),
+    'Malaysia': StoreCurrency('Malaysia', 'RM', 1.25, flag: '🇲🇾'),
+    'Europe': StoreCurrency('Europe', '€', 0.25, flag: '🇪🇺'),
+    'UAE': StoreCurrency('UAE', 'AED', 0.98, flag: '🇦🇪'),
+    'KSA': StoreCurrency('KSA', 'SAR', 1.0, flag: '🇸🇦'),
+    'Canada': StoreCurrency('Canada', 'C\$', 0.37, flag: '🇨🇦'),
+    'Chile': StoreCurrency('Chile', 'CLP', 255.0, flag: '🇨🇱'),
   };
+
+  String get currentStoreFlag => _storeCurrencies[_currentStore]?.flag ?? '🇵🇸';
 
   AppUser? _currentUser;
   Uint8List? _profileImageBytes;

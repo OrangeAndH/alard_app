@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../state/app_state.dart';
 import '../../state/app_state_scope.dart';
+import '../../widgets/store_dialog.dart';
 import 'payment_screen.dart';
 
 class ShippingScreen extends StatefulWidget {
@@ -370,6 +371,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
 
   Widget _buildLocationRow(AppState state) {
     final country = state.currentStore;
+    final flag = state.currentStoreFlag;
 
     return Row(
       children: [
@@ -381,7 +383,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
         const SizedBox(width: 4),
         Expanded(
           child: Text(
-            '${state.t('checkout_delivering_to')}: ${state.t('store_$country')} 🇵🇸',
+            '${state.t('checkout_delivering_to')}: ${state.t('store_$country')} $flag',
             style: const TextStyle(
               color: _olive,
               fontSize: 12,
@@ -389,12 +391,16 @@ class _ShippingScreenState extends State<ShippingScreen> {
             ),
           ),
         ),
-        Text(
-          state.t('checkout_change_location'),
-          style: const TextStyle(
-            color: _olive,
-            fontSize: 10.5,
-            fontFamily: 'serif',
+        InkWell(
+          onTap: () => showStoreDialog(context),
+          child: Text(
+            state.t('checkout_change_location'),
+            style: const TextStyle(
+              color: _olive,
+              fontSize: 10.5,
+              fontFamily: 'serif',
+              decoration: TextDecoration.underline,
+            ),
           ),
         ),
       ],

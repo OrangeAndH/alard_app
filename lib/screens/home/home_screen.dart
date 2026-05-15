@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../info/discover_our_story.dart';
 import '../../state/app_state.dart';
 import '../../state/app_state_scope.dart';
+import '../../widgets/store_dialog.dart';
 import '../checkout/cart_screen.dart';
 import '../shop/product_detail_screen.dart';
 import '../shop/shop_screen.dart';
@@ -624,137 +625,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showStoreDialog(BuildContext context) {
-    final state = AppStateScope.of(context);
-    final stores = [
-      _StoreChoice(flag: '🇵🇸', name: state.t('store_Palestine'), value: 'Palestine'),
-      _StoreChoice(flag: '🇩🇪', name: state.t('store_Germany'), value: 'Germany'),
-      _StoreChoice(flag: '🇺🇸', name: state.t('store_USA'), value: 'USA'),
-      _StoreChoice(flag: '🇬🇧', name: state.t('store_UK'), value: 'UK'),
-      _StoreChoice(flag: '🇦🇪', name: state.t('store_UAE'), value: 'UAE'),
-      _StoreChoice(flag: '🇸🇦', name: state.t('store_KSA'), value: 'KSA'),
-      _StoreChoice(flag: '🇫🇷', name: state.t('store_France'), value: 'France'),
-      _StoreChoice(flag: '🇨🇦', name: state.t('store_Canada'), value: 'Canada'),
-      _StoreChoice(flag: '🇲🇾', name: state.t('store_Malaysia'), value: 'Malaysia'),
-      _StoreChoice(flag: '🇪🇺', name: state.t('store_Europe'), value: 'Europe'),
-      _StoreChoice(flag: '🇨🇱', name: state.t('store_Chile'), value: 'Chile'),
-    ];
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return Dialog(
-          backgroundColor: const Color(0xFFF6F4E8),
-          insetPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 40),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  state.t('home_change_location'),
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: _olive,
-                    fontFamily: 'serif',
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (final store in stores) ...[
-                          _buildStoreChoice(
-                            store: store,
-                            onTap: () {
-                              state.setCurrentStore(store.value);
-                              Navigator.pop(dialogContext);
-                            },
-                          ),
-                          const SizedBox(height: 10),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(dialogContext);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _olive,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                      ),
-                    ),
-                    child: Text(
-                      state.t('home_continue_shopping'),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    showStoreDialog(context);
   }
 
-  Widget _buildStoreChoice({
-    required _StoreChoice store,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Row(
-          children: [
-            Text(store.flag, style: const TextStyle(fontSize: 24)),
-            Expanded(
-              child: Text(
-                store.name,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontFamily: 'serif',
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Icon(
-              Icons.adaptive.arrow_forward,
-              color: Colors.black54,
-              size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
+
+
 
   Widget _buildSectionHeader({
     required String title,
@@ -1284,17 +1160,6 @@ class _TinyWhyIcon extends StatelessWidget {
   }
 }
 
-class _StoreChoice {
-  final String flag;
-  final String name;
-  final String value;
-
-  const _StoreChoice({
-    required this.flag,
-    required this.name,
-    required this.value,
-  });
-}
 
 class _MenuFilter {
   final String title;

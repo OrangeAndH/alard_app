@@ -288,6 +288,7 @@ class StoreCurrency {
   final String storeName;
   final String symbol;
   final double exchangeRate;
+  final String flag;
 
-  const StoreCurrency(this.storeName, this.symbol, this.exchangeRate);
+  const StoreCurrency(this.storeName, this.symbol, this.exchangeRate, {required this.flag});
 }
