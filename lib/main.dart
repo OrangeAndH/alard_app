@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'firebase_options.dart';
@@ -17,8 +16,6 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    // عدم إبقاء المستخدم مسجلاً للدخول عند إعادة فتح التطبيق بناءً على الإعدادات الخاصة بك
-    await FirebaseAuth.instance.signOut();
   } catch (e) {
     debugPrint('Firebase initialization error: $e');
   }

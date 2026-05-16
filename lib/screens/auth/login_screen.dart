@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
-import '../../state/app_state.dart';
 import '../main_screen.dart';
 import 'forgot_password.dart';
 import 'register_screen.dart';
@@ -96,52 +95,15 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> loginWithApple() async {
-    if (_isProcessing) return;
-
-    setState(() => _isProcessing = true);
-
-    final response = await _authService.loginWithApple(
-      context: context,
-      isTrader: isTrader,
-    );
-
-    if (mounted) setState(() => _isProcessing = false);
-
-    if (response.isSuccess && mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Apple login failed')),
-      );
-    }
-  }
-
   Future<void> loginWithFacebook() async {
     if (_isProcessing) return;
-
-    setState(() => _isProcessing = true);
-
-    final response = await _authService.loginWithFacebook(
-      context: context,
-      isTrader: isTrader,
+    final state = AppStateScope.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(state.t('ui_coming_soon')),
+        duration: const Duration(seconds: 2),
+      ),
     );
-
-    if (mounted) setState(() => _isProcessing = false);
-
-    if (response.isSuccess && mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.message ?? 'Facebook login failed')),
-      );
-    }
   }
 
   @override

@@ -80,22 +80,16 @@ class AuthService {
     required BuildContext context,
     bool isTrader = false,
   }) async {
-    if (context.mounted) {
-      await _updateLocalState(context, null, isTrader);
-      return AuthResponse(isSuccess: true);
-    }
-    return AuthResponse(isSuccess: false, message: 'Facebook login failed');
+    // Facebook OAuth is not yet configured. Returning a user-facing error.
+    return AuthResponse(isSuccess: false, message: 'coming_soon');
   }
 
   Future<AuthResponse> loginWithApple({
     required BuildContext context,
     bool isTrader = false,
   }) async {
-    if (context.mounted) {
-      await _updateLocalState(context, null, isTrader);
-      return AuthResponse(isSuccess: true);
-    }
-    return AuthResponse(isSuccess: false, message: 'Apple login failed');
+    // Apple Sign-In is not yet configured. Returning a user-facing error.
+    return AuthResponse(isSuccess: false, message: 'coming_soon');
   }
 
   // 🔥 الدالة المحدثة لجلب صلاحية الأدمن الحقيقية من السيرفر فوراً عند تسجيل الدخول
@@ -120,42 +114,50 @@ class AuthService {
       return;
     }
 
+    // Read isTrader and isAdmin from Firestore — do NOT overwrite existing values
+    // on re-login. Only write isTrader on first registration (handled in register()).
+    bool isTraderFromFirestore = isTrader;
     bool isAdminFromFirestore = false;
 
-    // حفظ وتحديث المستخدم مع قراءة حقل الـ isAdmin بشكل آمن
     try {
       final userDocRef = FirebaseFirestore.instance
           .collection('users')
           .doc(firebaseUser.uid);
 
-      await userDocRef.set({
-        'name':
-            firebaseUser.displayName ??
-            (isTrader ? 'Trader User' : 'Customer User'),
-        'email': firebaseUser.email ?? '',
-        'phone': firebaseUser.phoneNumber ?? '',
-        'isTrader': isTrader,
-        'lastLogin': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
       final docSnapshot = await userDocRef.get();
       if (docSnapshot.exists) {
+        // Respect existing Firestore values; do not overwrite.
         isAdminFromFirestore = docSnapshot.data()?['isAdmin'] ?? false;
+        isTraderFromFirestore = docSnapshot.data()?['isTrader'] ?? isTrader;
+      } else {
+        // First time this Firebase user is seen — write initial values.
+        await userDocRef.set({
+          'name': firebaseUser.displayName ??
+              (isTrader ? 'Trader User' : 'Customer User'),
+          'email': firebaseUser.email ?? '',
+          'phone': firebaseUser.phoneNumber ?? '',
+          'isTrader': isTrader,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
       }
+
+      // Always update lastLogin timestamp.
+      await userDocRef.set({
+        'lastLogin': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
     } catch (e) {
-      debugPrint('Error saving user to Firestore: $e');
+      debugPrint('Error syncing user to Firestore: $e');
     }
 
     state.setCurrentUser(
       AppUser(
-        name:
-            firebaseUser.displayName ??
-            (isTrader ? 'Trader User' : 'Customer User'),
+        name: firebaseUser.displayName ??
+            (isTraderFromFirestore ? 'Trader User' : 'Customer User'),
         email: firebaseUser.email ?? '',
         phone: firebaseUser.phoneNumber ?? '',
         location: '',
-        isTrader: isTrader,
-        isAdmin: isAdminFromFirestore, // الحفاظ وتمرير الصلاحية هنا
+        isTrader: isTraderFromFirestore,
+        isAdmin: isAdminFromFirestore,
       ),
     );
   }
@@ -195,6 +197,9 @@ class AuthService {
   }
 
   Future<void> logout() async {
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {}
     await _auth.signOut();
   }
 }

@@ -151,6 +151,54 @@ class CartItem {
   double get price => selectedVariant?.price ?? product.price;
 
   double get lineTotal => price * quantity;
+
+  /// Serializes the cart item for SharedPreferences persistence.
+  Map<String, dynamic> toJson() {
+    return {
+      'productId': product.id,
+      'productName': product.name,
+      'productSubtitle': product.subtitle,
+      'productPrice': product.price,
+      'productImage': product.image,
+      'productCategory': product.category,
+      'productStore': product.store,
+      'variantId': selectedVariant?.id,
+      'variantSize': selectedVariant?.size,
+      'variantPrice': selectedVariant?.price,
+      'quantity': quantity,
+    };
+  }
+
+  /// Deserializes a cart item from SharedPreferences. Returns null on parse error.
+  static CartItem? fromJson(Map<String, dynamic> json) {
+    try {
+      final product = Product(
+        id: json['productId'] as String,
+        name: json['productName'] as String,
+        subtitle: json['productSubtitle'] as String? ?? '',
+        price: (json['productPrice'] as num).toDouble(),
+        rating: 4.7,
+        category: json['productCategory'] as String? ?? 'All',
+        image: json['productImage'] as String? ?? '',
+        store: json['productStore'] as String? ?? 'Palestine',
+      );
+      ProductVariant? variant;
+      if (json['variantId'] != null) {
+        variant = ProductVariant(
+          id: json['variantId'] as String,
+          size: json['variantSize'] as String,
+          price: (json['variantPrice'] as num).toDouble(),
+        );
+      }
+      return CartItem(
+        product: product,
+        selectedVariant: variant,
+        quantity: (json['quantity'] as num).toInt(),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 class OrderLine {
@@ -240,6 +288,26 @@ class ShippingAddress {
       isDefault: isDefault ?? this.isDefault,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'details': details,
+      'mailboxAddress': mailboxAddress,
+      'isDefault': isDefault,
+    };
+  }
+
+  factory ShippingAddress.fromJson(Map<String, dynamic> json) {
+    return ShippingAddress(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      details: json['details'] as String? ?? '',
+      mailboxAddress: json['mailboxAddress'] as String? ?? '',
+      isDefault: json['isDefault'] as bool? ?? false,
+    );
+  }
 }
 
 class PaymentMethod {
@@ -290,6 +358,36 @@ class PaymentMethod {
       expiryMonth: expiryMonth ?? this.expiryMonth,
       expiryYear: expiryYear ?? this.expiryYear,
       cvv: cvv ?? this.cvv,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'subtitle': subtitle,
+      'isDefault': isDefault,
+      'isCashOnDelivery': isCashOnDelivery,
+      'cardHolderName': cardHolderName,
+      'cardNumber': cardNumber,
+      'expiryMonth': expiryMonth,
+      'expiryYear': expiryYear,
+      'cvv': cvv,
+    };
+  }
+
+  factory PaymentMethod.fromJson(Map<String, dynamic> json) {
+    return PaymentMethod(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      subtitle: json['subtitle'] as String? ?? '',
+      isDefault: json['isDefault'] as bool? ?? false,
+      isCashOnDelivery: json['isCashOnDelivery'] as bool? ?? false,
+      cardHolderName: json['cardHolderName'] as String?,
+      cardNumber: json['cardNumber'] as String?,
+      expiryMonth: json['expiryMonth'] as String?,
+      expiryYear: json['expiryYear'] as String?,
+      cvv: json['cvv'] as String?,
     );
   }
 }

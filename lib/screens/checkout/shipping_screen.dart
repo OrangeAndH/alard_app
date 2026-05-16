@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../state/app_state.dart';
 import '../../state/app_state_scope.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/checkout_step_bar.dart';
 import '../../widgets/store_dialog.dart';
 import 'payment_screen.dart';
 
@@ -22,11 +24,7 @@ class ShippingScreen extends StatefulWidget {
 }
 
 class _ShippingScreenState extends State<ShippingScreen> {
-  static const Color _background = Color(0xFFF7F3EE);
-  static const Color _cream = Color(0xFFF2EDE6);
-  static const Color _olive = Color(0xFF55682A);
-  static const Color _line = Color(0xFFE3DACE);
-  static const Color _softButton = Color(0xFFF4ECD9);
+  // Colors are centralised in AppColors — no local declarations needed.
 
   String _deliveryTitle = 'Standard International';
   double _shippingFee = 50;
@@ -38,7 +36,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     return Scaffold(
-      backgroundColor: _background,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -101,7 +99,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
         return Container(
           height: barHeight,
           width: double.infinity,
-          color: _cream,
+          color: AppColors.cream,
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -114,7 +112,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
                     return const Text(
                       "AL'ARD",
                       style: TextStyle(
-                        color: _olive,
+                        color: AppColors.olive,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
@@ -147,86 +145,22 @@ class _ShippingScreenState extends State<ShippingScreen> {
     );
   }
 
-  Widget _buildSteps(
-    AppState state, {
-    required String activeStep,
-  }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final fontSize = (width * 0.034).clamp(12.0, 14.0);
+  Widget _buildSteps(AppState state, {required String activeStep}) {
+    final stepIndex = {
+      'step_cart': 0,
+      'step_shipping': 1,
+      'step_payment': 2,
+      'step_review': 3,
+    }[activeStep] ?? 0;
 
-        return Wrap(
-          alignment: WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 4,
-          children: [
-            _stepText(state.t('step_cart'), active: activeStep == 'step_cart', fontSize: fontSize),
-            _stepDivider(fontSize),
-            _stepText(
-              state.t('step_shipping'),
-              active: activeStep == 'step_shipping',
-              fontSize: fontSize,
-            ),
-            _stepDivider(fontSize),
-            _stepText(
-              state.t('step_payment'),
-              active: activeStep == 'step_payment',
-              fontSize: fontSize,
-            ),
-            _stepDivider(fontSize),
-            _stepText(
-              state.t('step_review'),
-              active: activeStep == 'step_review',
-              fontSize: fontSize,
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _stepText(
-    String text, {
-    required bool active,
-    required double fontSize,
-  }) {
-    double lineWidth = 34;
-    if (text == 'Shipping') lineWidth = 52;
-    if (text == 'Payment') lineWidth = 50;
-    if (text == 'Review') lineWidth = 42;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          text,
-          style: TextStyle(
-            color: _olive,
-            fontSize: fontSize,
-            fontFamily: 'serif',
-            fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-          ),
-        ),
-        const SizedBox(height: 2),
-        if (active)
-          Container(
-            height: 2,
-            width: lineWidth,
-            color: _olive,
-          ),
+    return CheckoutStepBar(
+      activeStep: stepIndex,
+      labels: [
+        state.t('step_cart'),
+        state.t('step_shipping'),
+        state.t('step_payment'),
+        state.t('step_review'),
       ],
-    );
-  }
-
-  Widget _stepDivider(double fontSize) {
-    return Text(
-      '—',
-      style: TextStyle(
-        color: _olive,
-        fontSize: fontSize + 2,
-        fontFamily: 'serif',
-      ),
     );
   }
 
@@ -235,7 +169,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
       child: Text(
         AppStateScope.of(context).t('checkout_shipping'),
         style: const TextStyle(
-          color: _olive,
+          color: AppColors.olive,
           fontSize: 20,
           fontFamily: 'serif',
           fontWeight: FontWeight.w500,
@@ -282,7 +216,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
             width: imageSize,
             height: imageSize + 8,
             decoration: BoxDecoration(
-              color: _cream,
+              color: AppColors.cream,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Padding(
@@ -309,7 +243,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: _olive,
+                    color: AppColors.olive,
                     fontSize: titleFont,
                     fontFamily: 'serif',
                     fontWeight: FontWeight.w500,
@@ -322,7 +256,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: _olive,
+                    color: AppColors.olive,
                     fontSize: subFont,
                     fontFamily: 'serif',
                   ),
@@ -339,7 +273,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
               state.getFormattedPrice(lineTotal),
               textAlign: TextAlign.right,
               style: TextStyle(
-                color: _olive,
+                color: AppColors.olive,
                 fontSize: priceFont,
                 fontFamily: 'serif',
               ),
@@ -355,7 +289,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
       width: 48,
       height: 22,
       decoration: BoxDecoration(
-        color: _softButton,
+        color: AppColors.softButton,
         borderRadius: BorderRadius.circular(12),
       ),
       alignment: Alignment.center,
@@ -385,7 +319,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
           child: Text(
             '${state.t('checkout_delivering_to')}: ${state.t('store_$country')} $flag',
             style: const TextStyle(
-              color: _olive,
+              color: AppColors.olive,
               fontSize: 12,
               fontFamily: 'serif',
             ),
@@ -396,7 +330,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
           child: Text(
             state.t('checkout_change_location'),
             style: const TextStyle(
-              color: _olive,
+              color: AppColors.olive,
               fontSize: 10.5,
               fontFamily: 'serif',
               decoration: TextDecoration.underline,
@@ -410,7 +344,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
   Widget _buildDeliveryOptions(AppState state) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: _olive, width: 1),
+        border: Border.all(color: AppColors.olive, width: 1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -421,7 +355,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
             price: 50,
             state: state,
           ),
-          const Divider(height: 1, color: _line),
+          const Divider(height: 1, color: AppColors.line),
           _deliveryLine(
             title: 'Express',
             days: '2-3 days',
@@ -455,7 +389,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
             const SizedBox(width: 8),
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: _olive,
+              color: AppColors.olive,
               size: 17,
             ),
             const SizedBox(width: 8),
@@ -467,7 +401,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
                       title,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: _olive,
+                        color: AppColors.olive,
                         fontSize: 12,
                         fontFamily: 'serif',
                       ),
@@ -477,7 +411,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
                   Text(
                     days,
                     style: const TextStyle(
-                      color: _olive,
+                      color: AppColors.olive,
                       fontSize: 9.5,
                       fontFamily: 'serif',
                     ),
@@ -489,7 +423,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
             Text(
               state.getFormattedPrice(price),
               style: const TextStyle(
-                color: _olive,
+                color: AppColors.olive,
                 fontSize: 12,
                 fontFamily: 'serif',
               ),
@@ -509,24 +443,24 @@ class _ShippingScreenState extends State<ShippingScreen> {
           right: state.getFormattedPrice(widget.subtotal),
           large: true,
         ),
-        const Divider(height: 16, color: _line),
+        const Divider(height: 16, color: AppColors.line),
         _summaryRow(
-          left: '${state.t('checkout_subtotal')}: ${state.getFormattedPrice(widget.subtotal)}',
+          left: state.t('checkout_subtotal'),
           right: state.getFormattedPrice(widget.subtotal),
         ),
         const SizedBox(height: 7),
         _summaryRow(
-          left: '${state.t('checkout_shipping_fee')}: ${state.getFormattedPrice(_shippingFee)}',
+          left: state.t('checkout_shipping_fee'),
           right: state.getFormattedPrice(_shippingFee),
         ),
         const SizedBox(height: 7),
         _summaryRow(
-          left: '${state.t('checkout_vat')}: ${state.getFormattedPrice(_vat)}',
+          left: state.t('checkout_vat'),
           right: state.getFormattedPrice(_vat),
         ),
-        const Divider(height: 16, color: _line),
+        const Divider(height: 16, color: AppColors.line),
         _summaryRow(
-          left: '${state.t('checkout_total')}:',
+          left: state.t('checkout_total'),
           right: state.getFormattedPrice(_total),
           large: true,
         ),
@@ -545,7 +479,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
           child: Text(
             left,
             style: TextStyle(
-              color: _olive,
+              color: AppColors.olive,
               fontSize: large ? 13.5 : 11.5,
               fontFamily: 'serif',
               fontWeight: large ? FontWeight.w500 : FontWeight.w400,
@@ -555,7 +489,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
         Text(
           right,
           style: TextStyle(
-            color: _olive,
+            color: AppColors.olive,
             fontSize: large ? 13.5 : 11.5,
             fontFamily: 'serif',
             fontWeight: large ? FontWeight.w500 : FontWeight.w400,
@@ -576,7 +510,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
               child: Text(
                 state.t('checkout_authentic'),
                 style: const TextStyle(
-                  color: _olive,
+                  color: AppColors.olive,
                   fontSize: 13,
                   fontFamily: 'serif',
                 ),
@@ -588,7 +522,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
               child: Text(
                 state.t('checkout_secure_shipping'),
                 style: const TextStyle(
-                  color: _olive,
+                  color: AppColors.olive,
                   fontSize: 13,
                   fontFamily: 'serif',
                 ),
@@ -605,7 +539,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
               child: Text(
                 state.t('checkout_sustainable'),
                 style: const TextStyle(
-                  color: _olive,
+                  color: AppColors.olive,
                   fontSize: 13,
                   fontFamily: 'serif',
                 ),
@@ -613,7 +547,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
             ),
             const Icon(
               Icons.eco_outlined,
-              color: _olive,
+              color: AppColors.olive,
               size: 28,
             ),
           ],
@@ -649,7 +583,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: _olive,
+            backgroundColor: AppColors.olive,
             foregroundColor: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(

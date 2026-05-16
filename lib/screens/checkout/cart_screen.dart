@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../state/app_state.dart';
 import '../../state/app_state_scope.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/checkout_step_bar.dart';
 import '../auth/login_screen.dart';
 import 'shipping_screen.dart';
 
@@ -14,10 +16,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  static const Color _background = Color(0xFFF7F3EE);
-  static const Color _cream = Color(0xFFF2EDE6);
-  static const Color _olive = Color(0xFF55682A);
-  static const Color _softButton = Color(0xFFF4ECD9);
+  // Colors are centralised in AppColors — no local declarations needed.
   Timer? _qtyTimer;
 
   @override
@@ -46,7 +45,7 @@ class _CartScreenState extends State<CartScreen> {
     final state = AppStateScope.of(context);
 
     return Scaffold(
-      backgroundColor: _background,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -115,7 +114,7 @@ class _CartScreenState extends State<CartScreen> {
         return Container(
           height: barHeight,
           width: double.infinity,
-          color: _cream,
+          color: AppColors.cream,
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -128,7 +127,7 @@ class _CartScreenState extends State<CartScreen> {
                     return const Text(
                       "AL'ARD",
                       style: TextStyle(
-                        color: _olive,
+                        color: AppColors.olive,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
@@ -161,85 +160,22 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildSteps(
-    AppState state, {
-    required String activeStep,
-  }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final fontSize = (width * 0.034).clamp(12.0, 14.0);
+  Widget _buildSteps(AppState state, {required String activeStep}) {
+    final stepIndex = {
+      'step_cart': 0,
+      'step_shipping': 1,
+      'step_payment': 2,
+      'step_review': 3,
+    }[activeStep] ?? 0;
 
-        return Wrap(
-          alignment: WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 4,
-          children: [
-            _stepText(
-              state.t('step_cart'),
-              active: activeStep == 'step_cart',
-              fontSize: fontSize,
-            ),
-            _stepDivider(fontSize),
-            _stepText(
-              state.t('step_shipping'),
-              active: activeStep == 'step_shipping',
-              fontSize: fontSize,
-            ),
-            _stepDivider(fontSize),
-            _stepText(
-              state.t('step_payment'),
-              active: activeStep == 'step_payment',
-              fontSize: fontSize,
-            ),
-            _stepDivider(fontSize),
-            _stepText(
-              state.t('step_review'),
-              active: activeStep == 'step_review',
-              fontSize: fontSize,
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _stepText(
-    String text, {
-    required bool active,
-    required double fontSize,
-  }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          text,
-          style: TextStyle(
-            color: _olive,
-            fontSize: fontSize,
-            fontFamily: 'serif',
-            fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-          ),
-        ),
-        const SizedBox(height: 2),
-        if (active)
-          Container(
-            height: 2,
-            width: fontSize * 3,
-            color: _olive,
-          ),
+    return CheckoutStepBar(
+      activeStep: stepIndex,
+      labels: [
+        state.t('step_cart'),
+        state.t('step_shipping'),
+        state.t('step_payment'),
+        state.t('step_review'),
       ],
-    );
-  }
-
-  Widget _stepDivider(double fontSize) {
-    return Text(
-      '—',
-      style: TextStyle(
-        color: _olive,
-        fontSize: fontSize + 2,
-        fontFamily: 'serif',
-      ),
     );
   }
 
@@ -248,7 +184,7 @@ class _CartScreenState extends State<CartScreen> {
       child: Text(
         state.t('step_cart'),
         style: const TextStyle(
-          color: _olive,
+          color: AppColors.olive,
           fontSize: 20,
           fontFamily: 'serif',
           fontWeight: FontWeight.w500,
@@ -289,7 +225,7 @@ class _CartScreenState extends State<CartScreen> {
             width: imageSize,
             height: imageSize + 8,
             decoration: BoxDecoration(
-              color: _cream,
+              color: AppColors.cream,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Padding(
@@ -316,7 +252,7 @@ class _CartScreenState extends State<CartScreen> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: _olive,
+                    color: AppColors.olive,
                     fontSize: titleFont,
                     fontFamily: 'serif',
                     fontWeight: FontWeight.w500,
@@ -329,7 +265,7 @@ class _CartScreenState extends State<CartScreen> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: _olive,
+                    color: AppColors.olive,
                     fontSize: subFont,
                     fontFamily: 'serif',
                   ),
@@ -349,7 +285,7 @@ class _CartScreenState extends State<CartScreen> {
                   state.getFormattedPrice(item.lineTotal),
                   textAlign: TextAlign.right,
                   style: TextStyle(
-                    color: _olive,
+                    color: AppColors.olive,
                     fontSize: priceFont,
                     fontFamily: 'serif',
                   ),
@@ -362,7 +298,7 @@ class _CartScreenState extends State<CartScreen> {
                   child: Text(
                     state.t('ui_delete'),
                     style: TextStyle(
-                      color: _olive,
+                      color: AppColors.olive,
                       fontSize: screenWidth < 360 ? 9.5 : 10.5,
                       fontFamily: 'serif',
                     ),
@@ -381,7 +317,7 @@ class _CartScreenState extends State<CartScreen> {
       width: 72,
       height: 22,
       decoration: BoxDecoration(
-        color: _softButton,
+        color: AppColors.softButton,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -397,7 +333,7 @@ class _CartScreenState extends State<CartScreen> {
           Container(
             width: 1,
             height: 14,
-            color: _olive.withValues(alpha: 0.35),
+            color: AppColors.olive.withValues(alpha: 0.35),
           ),
           Expanded(
             child: Center(
@@ -413,7 +349,7 @@ class _CartScreenState extends State<CartScreen> {
           Container(
             width: 1,
             height: 14,
-            color: _olive.withValues(alpha: 0.35),
+            color: AppColors.olive.withValues(alpha: 0.35),
           ),
           _qtyButton(
             label: '+',
@@ -446,7 +382,7 @@ class _CartScreenState extends State<CartScreen> {
             child: Text(
               label,
               style: const TextStyle(
-                color: _olive,
+                color: AppColors.olive,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -484,7 +420,7 @@ class _CartScreenState extends State<CartScreen> {
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: _olive,
+            backgroundColor: AppColors.olive,
             foregroundColor: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -527,7 +463,7 @@ class _CartScreenState extends State<CartScreen> {
               Text(
                 state.t('step_cart'),
                 style: const TextStyle(
-                  color: _olive,
+                  color: AppColors.olive,
                   fontSize: 20,
                   fontFamily: 'serif',
                   fontWeight: FontWeight.w500,
@@ -537,7 +473,7 @@ class _CartScreenState extends State<CartScreen> {
               Text(
                 state.t('shop_no_products'),
                 style: const TextStyle(
-                  color: _olive,
+                  color: AppColors.olive,
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                 ),
@@ -554,7 +490,8 @@ class _CartScreenState extends State<CartScreen> {
       return {
         'name': item.product.name,
         'subtitle': _getProductSubText(item),
-        'price': state.isTrader ? item.price * AppState.traderDiscount : item.price,
+        // item.price already reflects trader discount via AppState._getEffectivePrice
+        'price': item.price,
         'quantity': item.quantity,
         'image': item.product.image,
         'variant': item.selectedVariant?.size,
@@ -564,29 +501,18 @@ class _CartScreenState extends State<CartScreen> {
 
   Map<String, String> _getProfileData(AppState state) {
     final user = state.currentUser;
-
-    final name =
-        (user?.name.trim().isNotEmpty == true) ? user!.name : 'Mohammed';
-
-    final email = (user?.email.trim().isNotEmpty == true)
-        ? user!.email
-        : 'Mohammed@gmail.com';
-
-    final phone =
-        (user?.phone.trim().isNotEmpty == true && user?.phone != 'No phone added')
-            ? user!.phone
-            : '+970 593245879';
-
-    final country =
-        (user?.location.trim().isNotEmpty == true) ? user!.location : 'Palestine';
-
     return {
-      'name': name,
-      'email': email,
-      'phone': phone,
-      'country': country,
-      'city': 'Nablus',
-      'postalCode': '10115',
+      'name': user?.name.trim().isNotEmpty == true ? user!.name : '',
+      'email': user?.email.trim().isNotEmpty == true ? user!.email : '',
+      'phone': (user?.phone.trim().isNotEmpty == true &&
+              user?.phone != 'No phone added')
+          ? user!.phone
+          : '',
+      'country': user?.location.trim().isNotEmpty == true
+          ? user!.location
+          : state.currentStore,
+      'city': '',
+      'postalCode': '',
     };
   }
 
@@ -608,10 +534,11 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _showLoginPrompt(BuildContext context) {
+    final state = AppStateScope.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (ctx) => Container(
         padding: const EdgeInsets.all(24),
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -620,44 +547,61 @@ class _CartScreenState extends State<CartScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.lock_outline_rounded, size: 48, color: Color(0xFF7A8D2F)),
+            const Icon(
+              Icons.lock_outline_rounded,
+              size: 48,
+              color: Color(0xFF7A8D2F),
+            ),
             const SizedBox(height: 16),
-            const Text(
-              'Login Required',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Text(
+              state.t('ui_login_required'),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Please login to place orders or save details.',
+            Text(
+              state.t('ui_login_required_body'),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black54),
+              style: const TextStyle(color: Colors.black54),
             ),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(ctx);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const LoginScreen(),
+                    ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF7A8D2F),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                child: const FittedBox(
+                child: FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Text('Go to Login', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    state.t('ui_go_to_login'),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ),
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Maybe Later', style: TextStyle(color: Colors.black45)),
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(
+                state.t('ui_maybe_later'),
+                style: const TextStyle(color: Colors.black45),
+              ),
             ),
           ],
         ),

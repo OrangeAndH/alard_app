@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../state/app_state.dart';
 import '../../state/app_state_scope.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/checkout_step_bar.dart';
 import 'review_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -26,11 +28,7 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  static const Color _background = Color(0xFFF7F3EE);
-  static const Color _cream = Color(0xFFF2EDE6);
-  static const Color _olive = Color(0xFF55682A);
-  static const Color _border = Color(0xFF6B7A35);
-  static const Color _line = Color(0xFFE3DACE);
+  // Colors are centralised in AppColors — no local declarations needed.
 
   late Map<String, String> _profileData;
 
@@ -71,14 +69,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   void initState() {
     super.initState();
-
     _profileData = {
-      'name': widget.profileData['name'] ?? 'Mohammed',
-      'email': widget.profileData['email'] ?? 'Mohammed@gmail.com',
-      'phone': widget.profileData['phone'] ?? '+970 593245879',
-      'country': widget.profileData['country'] ?? 'Palestine',
-      'city': widget.profileData['city'] ?? 'Nablus',
-      'postalCode': widget.profileData['postalCode'] ?? '10115',
+      'name': widget.profileData['name'] ?? '',
+      'email': widget.profileData['email'] ?? '',
+      'phone': widget.profileData['phone'] ?? '',
+      'country': widget.profileData['country'] ?? '',
+      'city': widget.profileData['city'] ?? '',
+      'postalCode': widget.profileData['postalCode'] ?? '',
       'address': widget.profileData['address'] ?? '',
     };
   }
@@ -92,7 +89,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
 
     return Scaffold(
-      backgroundColor: _background,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -136,7 +133,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             });
                           },
                         ),
-                        const Divider(height: 26, color: _line),
+                        const Divider(height: 26, color: AppColors.line),
                         _sectionTitle(
                           '2. ${state.t('checkout_delivery_method')}',
                         ),
@@ -146,7 +143,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         _sectionTitle('3. ${state.t('checkout_payment')}'),
                         const SizedBox(height: 10),
                         _paymentBox(state),
-                        const Divider(height: 26, color: _line),
+                        const Divider(height: 26, color: AppColors.line),
                         _checkRow(
                           value: _billingSame,
                           text: state.t('checkout_billing_address'),
@@ -186,7 +183,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         return Container(
           height: barHeight,
           width: double.infinity,
-          color: _cream,
+          color: AppColors.cream,
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -199,7 +196,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     return const Text(
                       "AL'ARD",
                       style: TextStyle(
-                        color: _olive,
+                        color: AppColors.olive,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
@@ -269,86 +266,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Widget _buildSteps(AppState state, {required String activeStep}) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final fontSize = (width * 0.034).clamp(12.0, 14.0);
+    final stepIndex = {
+      'step_cart': 0,
+      'step_shipping': 1,
+      'step_payment': 2,
+      'step_review': 3,
+    }[activeStep] ?? 0;
 
-        return Center(
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 4,
-            children: [
-              _stepText(
-                state.t('step_cart'),
-                active: activeStep == 'step_cart',
-                fontSize: fontSize,
-              ),
-              _stepDivider(fontSize),
-              _stepText(
-                state.t('step_shipping'),
-                active: activeStep == 'step_shipping',
-                fontSize: fontSize,
-              ),
-              _stepDivider(fontSize),
-              _stepText(
-                state.t('step_payment'),
-                active: activeStep == 'step_payment',
-                fontSize: fontSize,
-              ),
-              _stepDivider(fontSize),
-              _stepText(
-                state.t('step_review'),
-                active: activeStep == 'step_review',
-                fontSize: fontSize,
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _stepText(
-    String text, {
-    required bool active,
-    required double fontSize,
-  }) {
-    double lineWidth = 34;
-
-    if (text == 'Shipping') lineWidth = 52;
-    if (text == 'Payment') lineWidth = 50;
-    if (text == 'Review') lineWidth = 42;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: _olive,
-            fontSize: fontSize,
-            fontFamily: 'serif',
-            fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-          ),
-        ),
-        const SizedBox(height: 2),
-        if (active) Container(height: 2, width: lineWidth, color: _olive),
+    return CheckoutStepBar(
+      activeStep: stepIndex,
+      labels: [
+        state.t('step_cart'),
+        state.t('step_shipping'),
+        state.t('step_payment'),
+        state.t('step_review'),
       ],
-    );
-  }
-
-  Widget _stepDivider(double fontSize) {
-    return Text(
-      '—',
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: _olive,
-        fontSize: fontSize + 2,
-        fontFamily: 'serif',
-      ),
     );
   }
 
@@ -356,7 +288,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return Text(
       text,
       style: const TextStyle(
-        color: _olive,
+        color: AppColors.olive,
         fontSize: 20,
         fontFamily: 'serif',
         shadows: [
@@ -385,7 +317,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 Text(
                   name,
                   style: const TextStyle(
-                    color: _olive,
+                    color: AppColors.olive,
                     fontSize: 14,
                     fontFamily: 'serif',
                   ),
@@ -393,16 +325,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 Text(
                   email,
                   style: const TextStyle(
-                    color: _olive,
+                    color: AppColors.olive,
                     fontSize: 13,
                     fontFamily: 'serif',
                   ),
                 ),
-                const Divider(height: 8, color: _line),
+                const Divider(height: 8, color: AppColors.line),
                 Text(
                   phone,
                   style: const TextStyle(
-                    color: _olive,
+                    color: AppColors.olive,
                     fontSize: 15,
                     fontFamily: 'serif',
                   ),
@@ -416,7 +348,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             borderRadius: BorderRadius.circular(20),
             child: const Padding(
               padding: EdgeInsets.all(6),
-              child: Icon(Icons.edit_outlined, color: _olive, size: 19),
+              child: Icon(Icons.edit_outlined, color: AppColors.olive, size: 19),
             ),
           ),
         ],
@@ -439,7 +371,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               '$flag  $country',
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                color: _olive,
+                color: AppColors.olive,
                 fontSize: 14,
                 fontFamily: 'serif',
               ),
@@ -461,7 +393,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         city,
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(
-          color: _olive,
+          color: AppColors.olive,
           fontSize: 14,
           fontFamily: 'serif',
           height: 1.0,
@@ -471,7 +403,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Widget _postalRow() {
-    final postalCode = _profileData['postalCode'] ?? '10115';
+    final state = AppStateScope.of(context);
+    final postalCode = _profileData['postalCode'] ?? '';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -479,9 +412,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
       child: Row(
         children: [
           Text(
-            postalCode,
-            style: const TextStyle(
-              color: _olive,
+            postalCode.isEmpty ? state.t('ui_not_provided') : postalCode,
+            style: TextStyle(
+              color: postalCode.isEmpty ? AppColors.olive.withValues(alpha: 0.5) : AppColors.olive,
               fontSize: 14,
               fontFamily: 'serif',
             ),
@@ -490,14 +423,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              border: Border.all(color: _border),
+              border: Border.all(color: AppColors.checkoutBorder),
               borderRadius: BorderRadius.circular(12),
             ),
             alignment: Alignment.center,
-            child: const Text(
-              'Postal Code',
-              style: TextStyle(
-                color: _olive,
+            child: Text(
+              state.t('checkout_postal_code'),
+              style: const TextStyle(
+                color: AppColors.olive,
                 fontSize: 11,
                 fontFamily: 'serif',
               ),
@@ -519,14 +452,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
         children: [
           Icon(
             value ? Icons.check_box : Icons.check_box_outline_blank,
-            color: _olive,
+            color: AppColors.olive,
             size: 18,
           ),
           const SizedBox(width: 6),
           Text(
             text,
             style: const TextStyle(
-              color: _olive,
+              color: AppColors.olive,
               fontSize: 14,
               fontFamily: 'serif',
             ),
@@ -550,7 +483,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
           const Padding(
             padding: EdgeInsets.only(left: 34, right: 16),
-            child: Divider(height: 1, color: _line),
+            child: Divider(height: 1, color: AppColors.line),
           ),
           _deliveryReadOnlyLine(
             title: 'Standard International',
@@ -576,7 +509,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           const SizedBox(width: 18),
           Icon(
             selected ? Icons.radio_button_checked : Icons.radio_button_off,
-            color: _olive,
+            color: AppColors.olive,
             size: 18,
           ),
           const SizedBox(width: 14),
@@ -585,7 +518,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               title,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                color: _olive,
+                color: AppColors.olive,
                 fontSize: 15,
                 fontFamily: 'serif',
               ),
@@ -594,7 +527,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           Text(
             state.getFormattedPrice(price),
             style: const TextStyle(
-              color: _olive,
+              color: AppColors.olive,
               fontSize: 13,
               fontFamily: 'serif',
             ),
@@ -621,20 +554,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 Text(
                   'VISA',
                   style: TextStyle(
-                    color: _olive,
+                    color: AppColors.olive,
                     fontSize: 10,
                     fontStyle: FontStyle.italic,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 SizedBox(width: 8),
-                Icon(Icons.credit_card, size: 20, color: _olive),
+                Icon(Icons.credit_card, size: 20, color: AppColors.olive),
               ],
             ),
           ),
-          const Divider(height: 1, color: _line),
+          const Divider(height: 1, color: AppColors.line),
           _paymentLine(state: state, value: 'Pay when deliver'),
-          const Divider(height: 1, color: _line),
+          const Divider(height: 1, color: AppColors.line),
           _paymentLine(state: state, value: 'Card on delivery'),
         ],
       ),
@@ -668,7 +601,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             Text(
               state.t('checkout_payment_methods'),
               style: const TextStyle(
-                color: _olive,
+                color: AppColors.olive,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'serif',
@@ -686,7 +619,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 _showAddCardDialog(state);
               },
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: _olive),
+                side: const BorderSide(color: AppColors.olive),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -696,12 +629,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.add, color: _olive),
+                  const Icon(Icons.add, color: AppColors.olive),
                   const SizedBox(width: 8),
                   Text(
                     state.t('pay_add_new_method'),
                     style: const TextStyle(
-                      color: _olive,
+                      color: AppColors.olive,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -736,7 +669,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   child: Text(
                     state.t('pay_add_new_method'),
                     style: const TextStyle(
-                      color: _olive,
+                      color: AppColors.olive,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'serif',
@@ -782,7 +715,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _olive,
+                        backgroundColor: AppColors.olive,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
@@ -808,7 +741,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return Text(
       text,
       style: const TextStyle(
-        color: _olive,
+        color: AppColors.olive,
         fontSize: 14,
         fontWeight: FontWeight.bold,
       ),
@@ -821,7 +754,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }) {
     return TextField(
       controller: controller,
-      style: const TextStyle(color: _olive),
+      style: const TextStyle(color: AppColors.olive),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.black26),
@@ -837,7 +770,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: _border, width: 1.2),
+          borderSide: const BorderSide(color: AppColors.checkoutBorder, width: 1.2),
         ),
       ),
     );
@@ -855,13 +788,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 _showOrderSummary
                     ? Icons.keyboard_arrow_up
                     : Icons.keyboard_arrow_down,
-                color: _olive,
+                color: AppColors.olive,
               ),
               const SizedBox(width: 8),
               Text(
                 state.t('checkout_order_summary'),
                 style: const TextStyle(
-                  color: _olive,
+                  color: AppColors.olive,
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'serif',
@@ -874,7 +807,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   children: [
                     const Icon(
                       Icons.shopping_cart_outlined,
-                      color: _olive,
+                      color: AppColors.olive,
                       size: 28,
                     ),
                     Positioned(
@@ -999,7 +932,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _olive),
+                      borderSide: const BorderSide(color: AppColors.olive),
                     ),
                   ),
                 ),
@@ -1079,7 +1012,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             const SizedBox(width: 18),
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: _olive,
+              color: AppColors.olive,
               size: 18,
             ),
             const SizedBox(width: 14),
@@ -1088,7 +1021,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 value,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  color: _olive,
+                  color: AppColors.olive,
                   fontSize: 15,
                   fontFamily: 'serif',
                 ),
@@ -1108,17 +1041,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
       height: 22,
       padding: const EdgeInsets.symmetric(horizontal: 9),
       decoration: BoxDecoration(
-        border: Border.all(color: _border),
+        border: Border.all(color: AppColors.checkoutBorder),
         borderRadius: BorderRadius.circular(11),
       ),
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.lock_outline, color: _olive, size: 14),
+          Icon(Icons.lock_outline, color: AppColors.olive, size: 14),
           SizedBox(width: 4),
           Text(
             'Same as shipping',
-            style: TextStyle(color: _olive, fontSize: 10, fontFamily: 'serif'),
+            style: TextStyle(color: AppColors.olive, fontSize: 10, fontFamily: 'serif'),
           ),
         ],
       ),
@@ -1131,7 +1064,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         Text(
           '${state.t('checkout_total')}:',
           style: const TextStyle(
-            color: _olive,
+            color: AppColors.olive,
             fontSize: 20,
             fontFamily: 'serif',
             shadows: [
@@ -1150,7 +1083,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             textAlign: TextAlign.right,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              color: _olive,
+              color: AppColors.olive,
               fontSize: 20,
               fontFamily: 'serif',
               shadows: [
@@ -1184,7 +1117,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               context: context,
               barrierDismissible: false,
               builder: (context) =>
-                  const Center(child: CircularProgressIndicator(color: _olive)),
+                  const Center(child: CircularProgressIndicator(color: AppColors.olive)),
             );
 
             try {
@@ -1256,7 +1189,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: _olive,
+            backgroundColor: AppColors.olive,
             foregroundColor: Colors.white,
             elevation: 0,
             padding: EdgeInsets.zero,
@@ -1323,7 +1256,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 width: dialogWidth,
                 padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
                 decoration: BoxDecoration(
-                  color: _cream,
+                  color: AppColors.cream,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: SingleChildScrollView(
@@ -1336,7 +1269,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             child: Text(
                               'Edit Shipping Address',
                               style: TextStyle(
-                                color: _olive,
+                                color: AppColors.olive,
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -1451,7 +1384,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             Navigator.pop(dialogContext);
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _olive,
+                            backgroundColor: AppColors.olive,
                             foregroundColor: Colors.white,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
@@ -1486,23 +1419,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return DropdownButtonFormField<String>(
       initialValue: value,
       isExpanded: true,
-      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: _olive),
-      dropdownColor: _cream,
-      style: const TextStyle(color: _olive, fontSize: 15),
+      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.olive),
+      dropdownColor: AppColors.cream,
+      style: const TextStyle(color: AppColors.olive, fontSize: 15),
       decoration: InputDecoration(
         filled: true,
-        fillColor: _background,
+        fillColor: AppColors.background,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _border, width: 1.2),
+          borderSide: const BorderSide(color: AppColors.checkoutBorder, width: 1.2),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _border, width: 1.8),
+          borderSide: const BorderSide(color: AppColors.checkoutBorder, width: 1.8),
         ),
       ),
       items: _countries.map((country) {
@@ -1535,23 +1468,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return TextField(
       controller: controller,
       textAlign: centerText ? TextAlign.center : TextAlign.start,
-      style: const TextStyle(color: _olive, fontSize: 15),
+      style: const TextStyle(color: AppColors.olive, fontSize: 15),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: _olive, fontSize: 15),
+        hintStyle: const TextStyle(color: AppColors.olive, fontSize: 15),
         filled: true,
-        fillColor: _background,
+        fillColor: AppColors.background,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _border, width: 1.2),
+          borderSide: const BorderSide(color: AppColors.checkoutBorder, width: 1.2),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _border, width: 1.8),
+          borderSide: const BorderSide(color: AppColors.checkoutBorder, width: 1.8),
         ),
       ),
     );
@@ -1559,7 +1492,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   BoxDecoration _outlineBox({double radius = 9}) {
     return BoxDecoration(
-      border: Border.all(color: _border),
+      border: Border.all(color: AppColors.checkoutBorder),
       borderRadius: BorderRadius.circular(radius),
     );
   }
