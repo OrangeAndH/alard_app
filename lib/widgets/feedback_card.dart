@@ -2,22 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
 
-/// A feedback item data class used by FeedbackScreen.
-class FeedbackItem {
-  final String flag;
-  final String name;
-  final String country;
-  final String text;
-  final int stars;
-
-  const FeedbackItem({
-    required this.flag,
-    required this.name,
-    required this.country,
-    required this.text,
-    required this.stars,
-  });
-}
+import '../../models/content_models.dart';
 
 /// A standalone card that displays a single customer feedback entry.
 /// Used on both FeedbackScreen and HomeScreen.

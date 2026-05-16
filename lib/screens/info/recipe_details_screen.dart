@@ -3,27 +3,7 @@ import 'package:flutter/material.dart';
 import '../../state/app_state_scope.dart';
 import '../../theme/app_colors.dart';
 
-/// Data model for a recipe.
-class RecipeItem {
-  final String title;
-  final String image;
-  final String duration;
-  final List<String> cookingItems;
-  final String description;
-  final List<String> ingredients;
-  final List<String> steps;
-
-  const RecipeItem({
-    required this.title,
-    required this.image,
-    required this.duration,
-    required this.cookingItems,
-    required this.description,
-    required this.ingredients,
-    required this.steps,
-  });
-}
-
+import '../../models/content_models.dart';
 /// Full-screen recipe detail view pushed from RecipesScreen.
 /// Estimated lines: ~185
 class RecipeDetailsScreen extends StatelessWidget {
@@ -45,26 +25,27 @@ class RecipeDetailsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(22),
-                      child: Image.asset(
-                        recipe.image,
-                        width: double.infinity,
-                        height: 240,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
-                          height: 240,
-                          color: AppColors.whyFrameBackground,
-                          child: const Center(
-                            child: Icon(Icons.restaurant_rounded,
-                                size: 50, color: Colors.black38),
-                          ),
-                        ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(22),
+                        child: recipe.image.startsWith('http')
+                            ? Image.network(
+                                recipe.image,
+                                width: double.infinity,
+                                height: 240,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => _errorPlaceholder(),
+                              )
+                            : Image.asset(
+                                recipe.image,
+                                width: double.infinity,
+                                height: 240,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => _errorPlaceholder(),
+                              ),
                       ),
-                    ),
                     const SizedBox(height: 16),
                     Text(
-                      recipe.title,
+                      recipe.title.get(state.locale.languageCode),
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
@@ -95,7 +76,7 @@ class RecipeDetailsScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
-                        recipe.description,
+                        recipe.description.get(state.locale.languageCode),
                         style: const TextStyle(
                             fontSize: 15, height: 1.5, color: Colors.black87),
                       ),
@@ -116,7 +97,7 @@ class RecipeDetailsScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 10),
                             Expanded(
-                              child: Text(item,
+                              child: Text(item.get(state.locale.languageCode),
                                   style: const TextStyle(
                                       fontSize: 15, height: 1.4)),
                             ),
@@ -153,7 +134,7 @@ class RecipeDetailsScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: Text(recipe.steps[i],
+                            child: Text(recipe.steps[i].get(state.locale.languageCode),
                                 style: const TextStyle(
                                     fontSize: 15,
                                     height: 1.5,
@@ -218,6 +199,15 @@ class RecipeDetailsScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+  Widget _errorPlaceholder() {
+    return Container(
+      height: 240,
+      color: AppColors.whyFrameBackground,
+      child: const Center(
+        child: Icon(Icons.restaurant_rounded, size: 50, color: Colors.black38),
+      ),
     );
   }
 }

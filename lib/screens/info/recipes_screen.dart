@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../state/app_state_scope.dart';
 import '../../theme/app_colors.dart';
+import '../../models/content_models.dart';
 import 'recipe_details_screen.dart';
 
-// Re-export so existing code using RecipeItem from recipes_screen still works.
-export 'recipe_details_screen.dart' show RecipeItem, RecipeDetailsScreen;
+// Re-export so existing code using RecipeDetailsScreen still works.
+export 'recipe_details_screen.dart' show RecipeDetailsScreen;
 
 /// Grid-based recipes browser with search and category filtering.
 /// Estimated lines: ~290
@@ -32,35 +33,6 @@ class _RecipesScreenState extends State<RecipesScreen> {
     'recipe_cat_maftoul', 'recipe_cat_black_seed',
   ];
 
-  List<RecipeItem> _buildRecipes(BuildContext context) {
-    final s = AppStateScope.of(context);
-    return [
-      RecipeItem(
-        title: s.t('recipe_1_title'), image: 'assets/10.png', duration: '5 min',
-        cookingItems: ['Olive Oil', 'Zaatar'], description: s.t('recipe_1_desc'),
-        ingredients: [s.t('recipe_1_ing_1'), s.t('recipe_1_ing_2'), s.t('recipe_1_ing_3'), s.t('recipe_1_ing_4')],
-        steps: [s.t('recipe_1_step_1'), s.t('recipe_1_step_2'), s.t('recipe_1_step_3')],
-      ),
-      RecipeItem(
-        title: s.t('recipe_2_title'), image: 'assets/11.png', duration: '10 min',
-        cookingItems: ['Olive Oil', 'Sumac'], description: s.t('recipe_2_desc'),
-        ingredients: [s.t('recipe_2_ing_1'), s.t('recipe_2_ing_2'), s.t('recipe_2_ing_3'), s.t('recipe_2_ing_4'), s.t('recipe_2_ing_5')],
-        steps: [s.t('recipe_2_step_1'), s.t('recipe_2_step_2'), s.t('recipe_2_step_3'), s.t('recipe_2_step_4')],
-      ),
-      RecipeItem(
-        title: s.t('recipe_3_title'), image: 'assets/12.png', duration: '8 min',
-        cookingItems: ['Olive Oil', 'Zaatar'], description: s.t('recipe_3_desc'),
-        ingredients: [s.t('recipe_3_ing_1'), s.t('recipe_3_ing_2'), s.t('recipe_3_ing_3'), s.t('recipe_3_ing_4')],
-        steps: [s.t('recipe_3_step_1'), s.t('recipe_3_step_2'), s.t('recipe_3_step_3'), s.t('recipe_3_step_4')],
-      ),
-      RecipeItem(
-        title: s.t('recipe_4_title'), image: 'assets/13.png', duration: '35 min',
-        cookingItems: ['Olive Oil', 'Zaatar'], description: s.t('recipe_4_desc'),
-        ingredients: [s.t('recipe_4_ing_1'), s.t('recipe_4_ing_2'), s.t('recipe_4_ing_3'), s.t('recipe_4_ing_4')],
-        steps: [s.t('recipe_4_step_1'), s.t('recipe_4_step_2'), s.t('recipe_4_step_3'), s.t('recipe_4_step_4')],
-      ),
-    ];
-  }
 
   String _categoryKey(String item) {
     const map = {
@@ -74,13 +46,26 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   List<RecipeItem> _filtered(BuildContext context) {
     final search = _query.trim().toLowerCase();
-    return _buildRecipes(context).where((r) {
+    final state = AppStateScope.of(context);
+    final allRecipes = state.recipes;
+    
+    if (allRecipes.isEmpty) {
+      return [];
+    }
+
+    return allRecipes.where((r) {
+      final title = r.title.get(state.locale.languageCode).toLowerCase();
+      final desc = r.description.get(state.locale.languageCode).toLowerCase();
+      final ings = r.ingredients.map((e) => e.get(state.locale.languageCode)).join(' ').toLowerCase();
+
       final matchesSearch = search.isEmpty ||
-          r.title.toLowerCase().contains(search) ||
-          r.description.toLowerCase().contains(search) ||
-          r.ingredients.join(' ').toLowerCase().contains(search);
+          title.contains(search) ||
+          desc.contains(search) ||
+          ings.contains(search);
+          
       final matchesCat = _selectedCategory == 'recipe_cat_all' ||
           r.cookingItems.any((i) => _categoryKey(i) == _selectedCategory);
+          
       return matchesSearch && matchesCat;
     }).toList();
   }
@@ -330,15 +315,16 @@ class _RecipeCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
               child: AspectRatio(
                 aspectRatio: 1.15,
-                child: Image.asset(recipe.image, width: double.infinity, fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                        color: _softBeige,
-                        child: const Center(child: Icon(Icons.restaurant_menu, size: 42, color: Colors.black38)))),
+                child: recipe.image.startsWith('http')
+                    ? Image.network(recipe.image, width: double.infinity, fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => _errorPlaceholder())
+                    : Image.asset(recipe.image, width: double.infinity, fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => _errorPlaceholder()),
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 4),
-              child: Text(recipe.title, maxLines: 2, overflow: TextOverflow.ellipsis,
+              child: Text(recipe.title.get(AppStateScope.of(context).locale.languageCode), maxLines: 2, overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.black87)),
             ),
             Padding(
@@ -377,5 +363,11 @@ class _RecipeCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _errorPlaceholder() {
+    return Container(
+        color: _softBeige,
+        child: const Center(child: Icon(Icons.restaurant_menu, size: 42, color: Colors.black38)));
   }
 }

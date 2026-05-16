@@ -10,6 +10,8 @@ import 'currency_state.dart';
 import 'product_state.dart';
 import 'cart_state.dart';
 import 'user_state.dart';
+import 'content_state.dart';
+import '../models/content_models.dart';
 
 export '../models/app_models.dart';
 
@@ -21,6 +23,7 @@ export '../models/app_models.dart';
 ///   [ProductState]   — product loading, filtering, favorites
 ///   [CartState]      — cart mutations, order placement
 ///   [UserState]      — user profile, addresses, payment methods
+///   [ContentState]   — dynamic recipes and feedback from Firestore
 ///
 /// All screens access state via AppStateScope.of(context) — no API change.
 /// Estimated lines: ~230
@@ -30,6 +33,7 @@ class AppState extends ChangeNotifier {
   final ProductState _products = ProductState();
   final CartState _cart = CartState();
   final UserState _user = UserState();
+  final ContentState _content = ContentState();
 
   AppState() {
     _listenToAuthChanges();
@@ -40,6 +44,8 @@ class AppState extends ChangeNotifier {
     await Future.wait([
       _cart.loadPersistedCart(notify: notifyListeners),
       _products.loadPersistedFavorites(notify: notifyListeners),
+      _content.loadRecipes(notifyListeners),
+      _content.loadFeedback(notifyListeners),
     ]);
   }
 
@@ -67,6 +73,7 @@ class AppState extends ChangeNotifier {
               location: data['location'] ?? '',
               isTrader: data['isTrader'] ?? false,
               isAdmin: data['isAdmin'] ?? false,
+              avatarUrl: data['avatarUrl'] ?? firebaseUser.photoURL,
             ),
             notifyListeners,
           );
@@ -79,6 +86,7 @@ class AppState extends ChangeNotifier {
               location: '',
               isTrader: false,
               isAdmin: false,
+              avatarUrl: firebaseUser.photoURL,
             ),
             notifyListeners,
           );
@@ -270,6 +278,17 @@ class AppState extends ChangeNotifier {
   }
 
   // ── Global Logout ────────────────────────────────────────────────
+
+  void clearUserData() => _user.clearUserData();
+
+  // ── Content ──────────────────────────────────────────────────────
+  
+  List<RecipeItem> get recipes => _content.recipes;
+  List<FeedbackItem> get feedback => _content.feedback;
+
+  void addFeedback(FeedbackItem item) {
+    _content.addFeedback(item, notifyListeners);
+  }
 
   void logout() {
     _user.clearUserData();

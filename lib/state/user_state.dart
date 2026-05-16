@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/app_models.dart';
@@ -98,9 +99,32 @@ class UserState {
     _orders.clear();
   }
 
-  void setProfileImageBytes(Uint8List bytes, VoidCallback notify) {
+  Future<void> setProfileImageBytes(Uint8List bytes, VoidCallback notify) async {
     _profileImageBytes = bytes;
     notify();
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    try {
+      final storageRef = FirebaseStorage.instance.ref().child('users/$uid/avatar.jpg');
+      final uploadTask = await storageRef.putData(
+        bytes,
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+      final downloadUrl = await uploadTask.ref.getDownloadURL();
+
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'avatarUrl': downloadUrl,
+      });
+
+      if (_currentUser != null) {
+        _currentUser = _currentUser!.copyWith(avatarUrl: downloadUrl);
+        notify();
+      }
+    } catch (e) {
+      debugPrint('Error uploading profile image: $e');
+    }
   }
 
   void updatePhone(String newPhone, VoidCallback notify) {

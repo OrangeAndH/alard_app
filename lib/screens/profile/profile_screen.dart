@@ -218,9 +218,14 @@ class ProfileScreen extends StatelessWidget {
                           image: MemoryImage(AppStateScope.of(context).profileImageBytes!),
                           fit: BoxFit.cover,
                         )
-                      : null,
+                      : user?.avatarUrl != null
+                          ? DecorationImage(
+                              image: NetworkImage(user!.avatarUrl!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
                 ),
-                child: AppStateScope.of(context).profileImageBytes == null
+                child: AppStateScope.of(context).profileImageBytes == null && user?.avatarUrl == null
                     ? const Icon(
                         Icons.person_outline_rounded,
                         size: 44,

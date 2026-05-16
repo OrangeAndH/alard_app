@@ -1,0 +1,71 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // 1. Users Collection
+    match /users/{userId} {
+      // Users can read/write their own profile
+      allow read, write: if isOwner(userId) || isAdmin();
+      
+      // Prevent users from granting themselves admin or trader privileges
+      allow update: if isOwner(userId) 
+                    && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin', 'isTrader']));
+
+      // Addresses Sub-collection
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+
+      // Payment Methods Sub-collection
+      match /payment_methods/{methodId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // 2. Dynamic Content (Recipes & Feedback)
+    match /content/{document=**} {
+      // Anyone can read dynamic content (recipes, feedback)
+      allow read: if true;
+      
+      // Only admins can modify recipes
+      allow write: if isAdmin();
+    }
+    
+    // Exception: Authenticated users can create feedback items
+    match /content/feedback/items/{itemId} {
+      allow create: if isAuthenticated();
+      // Only admins can update or delete
+      allow update, delete: if isAdmin();
+    }
+
+    // 3. Products
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // 4. Orders
+    match /orders/{orderId} {
+      // Users can only read their own orders. Admins can read all.
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      // Users can create orders for themselves
+      allow create: if isOwner(request.resource.data.userId);
+      // Only admins can update order status
+      allow update, delete: if isAdmin();
+    }
+  }
+}

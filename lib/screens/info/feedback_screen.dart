@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../state/app_state_scope.dart';
 import '../../theme/app_colors.dart';
+import '../../models/content_models.dart';
 import '../../widgets/feedback_card.dart';
 import '../checkout/cart_screen.dart';
 
@@ -32,24 +33,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     {'name': 'Canada', 'flag': '🇨🇦'},
   ];
 
-  final List<FeedbackItem> _feedbacks = const [
-    FeedbackItem(flag: '🇬🇧', name: 'Louis', country: 'United Kingdom',
-        text: 'The gift set is perfect for any special occasion.', stars: 5),
-    FeedbackItem(flag: '🇩🇪', name: 'Jasmin', country: 'Germany',
-        text: "The Za'atar is incredibly aromatic and tasty.", stars: 5),
-    FeedbackItem(flag: '🇵🇸', name: 'Sarah', country: 'Palestine',
-        text: 'Amazing products!', stars: 5),
-    FeedbackItem(flag: '🇺🇸', name: 'Ahmed', country: 'United States',
-        text: 'Rich flavor and authentic Palestinian quality.', stars: 5),
-    FeedbackItem(flag: '🇦🇪', name: 'Lina', country: 'UAE',
-        text: 'Fast delivery and the olive oil quality is excellent.', stars: 5),
-    FeedbackItem(flag: '🇸🇦', name: 'Omar', country: 'Saudi Arabia',
-        text: 'The products feel authentic and very premium.', stars: 5),
-    FeedbackItem(flag: '🇫🇷', name: 'Marie', country: 'France',
-        text: 'Loved the soap and the packaging was beautiful.', stars: 4),
-    FeedbackItem(flag: '🇨🇦', name: 'Adam', country: 'Canada',
-        text: 'Great service and excellent Palestinian flavors.', stars: 5),
-  ];
+  // Hardcoded list removed. Uses AppStateScope.of(context).feedback
 
   @override
   void dispose() {
@@ -92,22 +76,25 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         ? user.name.trim()
         : state.t('customer');
 
+    final item = FeedbackItem(
+      id: '',
+      flag: _flagForCountry(_selectedCountry),
+      name: name,
+      country: LocalizedString(en: _selectedCountry, ar: _selectedCountry),
+      text: LocalizedString(en: comment, ar: comment),
+      stars: _selectedStars,
+    );
+    
+    state.addFeedback(item);
+
+    _commentController.clear();
     setState(() {
-      _feedbacks.insert(0, FeedbackItem(
-        flag: _flagForCountry(_selectedCountry),
-        name: name,
-        country: _selectedCountry,
-        text: comment,
-        stars: _selectedStars,
-      ));
-      _commentController.clear();
       _selectedStars = 5;
-      _selectedCountry = 'Palestine';
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.t('feedback_success')),
-            duration: const Duration(seconds: 1)));
+        SnackBar(content: Text(state.t('feedback_thanks')),
+            backgroundColor: AppColors.olive));
   }
 
   @override
@@ -169,21 +156,21 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  ..._feedbacks
+                  ...AppStateScope.of(context).feedback
                       .where((f) =>
                           _filterCountry == 'All' ||
-                          f.country
+                          f.country.get(AppStateScope.of(context).locale.languageCode)
                               .toLowerCase()
                               .contains(_filterCountry.toLowerCase()) ||
-                          (f.country == 'UAE' &&
+                          (f.country.get(AppStateScope.of(context).locale.languageCode) == 'UAE' &&
                               _filterCountry == 'United Arab Emirates'))
                       .map((item) => Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: FeedbackCard(
                               flag: item.flag,
                               name: item.name,
-                              country: item.country,
-                              text: item.text,
+                              country: item.country.get(AppStateScope.of(context).locale.languageCode),
+                              text: item.text.get(AppStateScope.of(context).locale.languageCode),
                               stars: item.stars,
                             ),
                           )),

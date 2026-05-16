@@ -1,4 +1,3 @@
-
 class AppUser {
   final String name;
   final String email;
@@ -6,6 +5,7 @@ class AppUser {
   final String location;
   final bool isTrader;
   final bool isAdmin;
+  final String? avatarUrl;
 
   const AppUser({
     required this.name,
@@ -14,6 +14,7 @@ class AppUser {
     required this.location,
     required this.isTrader,
     this.isAdmin = false,
+    this.avatarUrl,
   });
 
   String get role {
@@ -28,6 +29,7 @@ class AppUser {
     String? location,
     bool? isTrader,
     bool? isAdmin,
+    String? avatarUrl,
   }) {
     return AppUser(
       name: name ?? this.name,
@@ -36,6 +38,7 @@ class AppUser {
       location: location ?? this.location,
       isTrader: isTrader ?? this.isTrader,
       isAdmin: isAdmin ?? this.isAdmin,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
     );
   }
 }
