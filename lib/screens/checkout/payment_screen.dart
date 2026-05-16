@@ -1,8 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../state/app_state.dart';
 import '../../state/app_state_scope.dart';
-import '../../widgets/store_dialog.dart';
 import 'review_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -996,7 +996,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         fontSize: 14,
                       ),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
                     ),
                   ),
                 ),
@@ -1176,29 +1178,82 @@ class _PaymentScreenState extends State<PaymentScreen> {
         width: width,
         height: 35,
         child: ElevatedButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Order placed successfully'),
-                duration: Duration(milliseconds: 900),
-              ),
+          onPressed: () async {
+            // Show loading
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) =>
+                  const Center(child: CircularProgressIndicator(color: _olive)),
             );
 
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ReviewScreen(
-                  orderItems: widget.orderItems,
-                  profileData: _profileData,
-                  subtotal: widget.subtotal,
-                  shippingFee: widget.shippingFee,
-                  shippingTitle: widget.shippingTitle,
-                  vat: _vat,
-                  total: _total,
-                  paymentMethod: _payment,
-                ),
-              ),
-            );
+            try {
+              final user = state.currentUser;
+              final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+
+              await FirebaseFirestore.instance
+                  .collection('orders')
+                  .doc(orderId)
+                  .set({
+                    'userId': user?.email ?? 'guest',
+                    'customerName': _profileData['name'],
+                    'email': _profileData['email'],
+                    'phone': _profileData['phone'],
+                    'address': _profileData['address'],
+                    'city': _profileData['city'],
+                    'country': _profileData['country'],
+                    'items': widget.orderItems
+                        .map(
+                          (item) => {
+                            'name': item['name'],
+                            'price': item['price'],
+                            'quantity': item['quantity'],
+                            'variant': item['variant'],
+                          },
+                        )
+                        .toList(),
+                    'subtotal': widget.subtotal,
+                    'shippingFee': widget.shippingFee,
+                    'vat': _vat,
+                    'total': _total,
+                    'paymentMethod': _payment,
+                    'date': FieldValue.serverTimestamp(),
+                    'status': 'Pending',
+                  });
+
+              if (context.mounted) {
+                Navigator.pop(context); // Close loading
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Order placed successfully'),
+                    duration: Duration(milliseconds: 900),
+                  ),
+                );
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ReviewScreen(
+                      orderItems: widget.orderItems,
+                      profileData: _profileData,
+                      subtotal: widget.subtotal,
+                      shippingFee: widget.shippingFee,
+                      shippingTitle: widget.shippingTitle,
+                      vat: _vat,
+                      total: _total,
+                      paymentMethod: _payment,
+                    ),
+                  ),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                Navigator.pop(context); // Close loading
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error placing order: $e')),
+                );
+              }
+            }
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: _olive,

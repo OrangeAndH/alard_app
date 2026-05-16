@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
+import '../../state/app_state.dart';
 import '../main_screen.dart';
 import 'forgot_password.dart';
 import 'register_screen.dart';
@@ -483,12 +484,76 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
 
+                const SizedBox(height: 15),
+                _buildQuickLogin(context, state),
                 const SizedBox(height: 30),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+  Widget _buildQuickLogin(BuildContext context, AppState state) {
+    return Column(
+      children: [
+        const Text(
+          'Quick Login (Test)',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Color(0xFFF0E7DE),
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _QuickLoginButton(
+              label: 'Customer',
+              onTap: () {
+                emailController.text = 'hamzamonjed12@gmail.com';
+                passwordController.text = '1234';
+                setState(() => isTrader = false);
+              },
+            ),
+            const SizedBox(width: 12),
+            _QuickLoginButton(
+              label: 'Trader',
+              onTap: () {
+                emailController.text = 'zaid123@gmail.com';
+                passwordController.text = '1234';
+                setState(() => isTrader = true);
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickLoginButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _QuickLoginButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white24,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Colors.white30),
+        ),
+      ),
+      child: Text(label, style: const TextStyle(fontSize: 12)),
     );
   }
 }

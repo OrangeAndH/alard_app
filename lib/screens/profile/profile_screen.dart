@@ -10,6 +10,7 @@ import 'pages/personal_details_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/shipping_addresses_page.dart';
 import '../../state/app_state_scope.dart';
+import '../admin/admin_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 
@@ -340,6 +341,12 @@ class ProfileScreen extends StatelessWidget {
         icon: Icons.settings,
         originalTitle: 'Settings',
       ),
+      if (state.isAdmin)
+        const _ProfileMenuItem(
+          title: 'Admin Dashboard',
+          icon: Icons.admin_panel_settings,
+          originalTitle: 'Admin Dashboard',
+        ),
     ];
 
     return Padding(
@@ -442,6 +449,9 @@ class ProfileScreen extends StatelessWidget {
       case 'Settings':
         page = const SettingsPage();
         break;
+      case 'Admin Dashboard':
+        page = const AdminScreen();
+        break;
       default:
         page = _ProfilePlaceholderPage(title: displayTitle, icon: icon);
     }
@@ -465,12 +475,6 @@ class ProfileScreen extends StatelessWidget {
             Text(
               state.t('login_welcome'),
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              state.t('profile_placeholder_msg'),
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black54, fontSize: 14),
             ),
             const SizedBox(height: 32),
             SizedBox(

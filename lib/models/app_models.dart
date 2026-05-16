@@ -5,6 +5,7 @@ class AppUser {
   final String phone;
   final String location;
   final bool isTrader;
+  final bool isAdmin;
 
   const AppUser({
     required this.name,
@@ -12,9 +13,13 @@ class AppUser {
     required this.phone,
     required this.location,
     required this.isTrader,
+    this.isAdmin = false,
   });
 
-  String get role => isTrader ? 'Trader' : 'Customer';
+  String get role {
+    if (isAdmin) return 'Admin';
+    return isTrader ? 'Trader' : 'Customer';
+  }
 
   AppUser copyWith({
     String? name,
@@ -22,6 +27,7 @@ class AppUser {
     String? phone,
     String? location,
     bool? isTrader,
+    bool? isAdmin,
   }) {
     return AppUser(
       name: name ?? this.name,
@@ -29,6 +35,7 @@ class AppUser {
       phone: phone ?? this.phone,
       location: location ?? this.location,
       isTrader: isTrader ?? this.isTrader,
+      isAdmin: isAdmin ?? this.isAdmin,
     );
   }
 }

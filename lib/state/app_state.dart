@@ -32,6 +32,7 @@ class AppState extends ChangeNotifier {
               phone: data['phone'] ?? user.phoneNumber ?? '',
               location: data['location'] ?? '',
               isTrader: data['isTrader'] ?? false,
+              isAdmin: data['isAdmin'] ?? false,
             );
           } else {
             // Fallback for new social users
@@ -41,6 +42,7 @@ class AppState extends ChangeNotifier {
               phone: user.phoneNumber ?? '',
               location: '',
               isTrader: false,
+              isAdmin: false,
             );
           }
         } catch (e) {
@@ -81,6 +83,7 @@ class AppState extends ChangeNotifier {
   Uint8List? get profileImageBytes => _profileImageBytes;
   bool get isLoggedIn => _currentUser != null;
   bool get isTrader => _currentUser?.isTrader ?? false;
+  bool get isAdmin => _currentUser?.isAdmin ?? false;
   static const double traderDiscount = 0.8; // 20% discount for traders
 
   int get selectedIndex => _selectedIndex;

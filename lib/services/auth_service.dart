@@ -1,11 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart' as google_auth;
 import '../state/app_state.dart';
 import '../state/app_state_scope.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  static final google_auth.GoogleSignIn _googleSignIn =
+      google_auth.GoogleSignIn();
 
   AuthService();
 
@@ -43,10 +46,32 @@ class AuthService {
     required BuildContext context,
     bool isTrader = false,
   }) async {
-    // Immediate Login to bypass environment errors
-    if (context.mounted) {
-      await _updateLocalState(context, null, isTrader);
-      return AuthResponse(isSuccess: true);
+    try {
+      final google_auth.GoogleSignInAccount? googleUser = await _googleSignIn
+          .signIn();
+
+      if (googleUser == null) {
+        return AuthResponse(isSuccess: false, message: 'cancelled');
+      }
+
+      final google_auth.GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
+
+      if (context.mounted) {
+        await _updateLocalState(context, userCredential.user!, isTrader);
+        return AuthResponse(isSuccess: true);
+      }
+    } catch (e) {
+      debugPrint('Google Login Error: $e');
+      return AuthResponse(isSuccess: false, message: e.toString());
     }
     return AuthResponse(isSuccess: false, message: 'Google login failed');
   }
@@ -55,7 +80,6 @@ class AuthService {
     required BuildContext context,
     bool isTrader = false,
   }) async {
-    // Immediate Login to bypass environment errors
     if (context.mounted) {
       await _updateLocalState(context, null, isTrader);
       return AuthResponse(isSuccess: true);
@@ -67,7 +91,6 @@ class AuthService {
     required BuildContext context,
     bool isTrader = false,
   }) async {
-    // Immediate Login to bypass environment errors
     if (context.mounted) {
       await _updateLocalState(context, null, isTrader);
       return AuthResponse(isSuccess: true);
@@ -75,6 +98,7 @@ class AuthService {
     return AuthResponse(isSuccess: false, message: 'Apple login failed');
   }
 
+  // 🔥 الدالة المعدلة التي تقرأ صلاحية الـ Admin فوراً وتحدث الـ AppState
   Future<void> _updateLocalState(
     BuildContext context,
     User? firebaseUser,
@@ -83,7 +107,6 @@ class AuthService {
     final state = AppStateScope.of(context);
 
     if (firebaseUser == null) {
-      // Handle fallback/immediate login
       state.setCurrentUser(
         AppUser(
           name: isTrader ? 'Guest Trader' : 'Guest Customer',
@@ -91,29 +114,40 @@ class AuthService {
           phone: '',
           location: '',
           isTrader: isTrader,
+          isAdmin: false,
         ),
       );
       return;
     }
 
-    // Save/Update user in Firestore
+    bool isAdminFromFirestore = false;
+
+    // حفظ وتحديث البيانات في Firestore وجلب حقل isAdmin
     try {
-      await FirebaseFirestore.instance
+      final userDocRef = FirebaseFirestore.instance
           .collection('users')
-          .doc(firebaseUser.uid)
-          .set({
-            'name':
-                firebaseUser.displayName ??
-                (isTrader ? 'Trader User' : 'Customer User'),
-            'email': firebaseUser.email ?? '',
-            'phone': firebaseUser.phoneNumber ?? '',
-            'isTrader': isTrader,
-            'lastLogin': FieldValue.serverTimestamp(),
-          }, SetOptions(merge: true));
+          .doc(firebaseUser.uid);
+
+      await userDocRef.set({
+        'name':
+            firebaseUser.displayName ??
+            (isTrader ? 'Trader User' : 'Customer User'),
+        'email': firebaseUser.email ?? '',
+        'phone': firebaseUser.phoneNumber ?? '',
+        'isTrader': isTrader,
+        'lastLogin': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // قراءة المستند للتأكد من حالة الأدمن الحقيقية في الفايربيس
+      final docSnapshot = await userDocRef.get();
+      if (docSnapshot.exists) {
+        isAdminFromFirestore = docSnapshot.data()?['isAdmin'] ?? false;
+      }
     } catch (e) {
-      debugPrint('Error saving user to Firestore: $e');
+      debugPrint('Error saving/fetching user from Firestore: $e');
     }
 
+    // تمرير البيانات كاملة للحالة المحلية بما فيها isAdmin الحقيقية
     state.setCurrentUser(
       AppUser(
         name:
@@ -123,6 +157,7 @@ class AuthService {
         phone: firebaseUser.phoneNumber ?? '',
         location: '',
         isTrader: isTrader,
+        isAdmin: isAdminFromFirestore,
       ),
     );
   }
@@ -140,7 +175,7 @@ class AuthService {
       if (userCredential.user != null) {
         await userCredential.user!.updateDisplayName(username);
 
-        // Save to Firestore
+        // حفظ الحساب الجديد في Firestore وحقله الافتراضي للأدمن هو false
         await FirebaseFirestore.instance
             .collection('users')
             .doc(userCredential.user!.uid)
@@ -148,6 +183,7 @@ class AuthService {
               'name': username,
               'email': email,
               'isTrader': isTrader,
+              'isAdmin': false,
               'createdAt': FieldValue.serverTimestamp(),
             });
 

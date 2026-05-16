@@ -17,7 +17,7 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    // User requested to NOT stay logged in when app is reopened
+    // عدم إبقاء المستخدم مسجلاً للدخول عند إعادة فتح التطبيق بناءً على الإعدادات الخاصة بك
     await FirebaseAuth.instance.signOut();
   } catch (e) {
     debugPrint('Firebase initialization error: $e');
@@ -59,23 +59,49 @@ class _AlardAppState extends State<AlardApp> {
 
     if (isArabic) {
       theme = GoogleFonts.notoNaskhArabicTextTheme(baseTheme).copyWith(
-        displayLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displayLarge),
-        displayMedium: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displayMedium),
-        displaySmall: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displaySmall),
-        headlineLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineLarge),
-        headlineMedium: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineMedium),
-        headlineSmall: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineSmall),
-        titleLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.titleLarge, fontWeight: FontWeight.bold),
+        displayLarge: GoogleFonts.notoKufiArabic(
+          textStyle: baseTheme.displayLarge,
+        ),
+        displayMedium: GoogleFonts.notoKufiArabic(
+          textStyle: baseTheme.displayMedium,
+        ),
+        displaySmall: GoogleFonts.notoKufiArabic(
+          textStyle: baseTheme.displaySmall,
+        ),
+        headlineLarge: GoogleFonts.notoKufiArabic(
+          textStyle: baseTheme.headlineLarge,
+        ),
+        headlineMedium: GoogleFonts.notoKufiArabic(
+          textStyle: baseTheme.headlineMedium,
+        ),
+        headlineSmall: GoogleFonts.notoKufiArabic(
+          textStyle: baseTheme.headlineSmall,
+        ),
+        titleLarge: GoogleFonts.notoKufiArabic(
+          textStyle: baseTheme.titleLarge,
+          fontWeight: FontWeight.bold,
+        ),
       );
     } else {
       theme = GoogleFonts.sourceSans3TextTheme(baseTheme).copyWith(
         displayLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.displayLarge),
-        displayMedium: GoogleFonts.bodoniModa(textStyle: baseTheme.displayMedium),
+        displayMedium: GoogleFonts.bodoniModa(
+          textStyle: baseTheme.displayMedium,
+        ),
         displaySmall: GoogleFonts.bodoniModa(textStyle: baseTheme.displaySmall),
-        headlineLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineLarge),
-        headlineMedium: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineMedium),
-        headlineSmall: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineSmall),
-        titleLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.titleLarge, fontWeight: FontWeight.bold),
+        headlineLarge: GoogleFonts.bodoniModa(
+          textStyle: baseTheme.headlineLarge,
+        ),
+        headlineMedium: GoogleFonts.bodoniModa(
+          textStyle: baseTheme.headlineMedium,
+        ),
+        headlineSmall: GoogleFonts.bodoniModa(
+          textStyle: baseTheme.headlineSmall,
+        ),
+        titleLarge: GoogleFonts.bodoniModa(
+          textStyle: baseTheme.titleLarge,
+          fontWeight: FontWeight.bold,
+        ),
       );
     }
 
@@ -92,14 +118,14 @@ class _AlardAppState extends State<AlardApp> {
         notifier: widget.appState,
         child: Builder(
           builder: (context) {
-            // These calls to .of() make AlardApp depend on the notifiers
-            // But since they wrap MaterialApp, the build will happen automatically
             final state = AppStateScope.of(context);
             final settings = AppSettingsScope.of(context);
-            
+
             final isArabic = state.isArabic;
             final themeMode = settings.themeMode;
-            final brightness = themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light;
+            final brightness = themeMode == ThemeMode.dark
+                ? Brightness.dark
+                : Brightness.light;
             final textTheme = _getTextTheme(isArabic, brightness);
 
             return MaterialApp(
@@ -186,6 +212,7 @@ class _AlardAppState extends State<AlardApp> {
                   ),
                 ),
               ),
+              // الشاشة الرئيسية المراقبة لحالة الأدمن والمستخدمين تلقائياً
               home: const MainScreen(),
             );
           },
