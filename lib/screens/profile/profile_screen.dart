@@ -488,7 +488,10 @@ class ProfileScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text(state.t('login_button'), style: const TextStyle(fontWeight: FontWeight.bold)),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(state.t('login_button'), style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
               ),
             ),
           ],
@@ -521,11 +524,14 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         icon: const Icon(Icons.logout_rounded, size: 20),
-        label: Text(
-          state.t('profile_logout'),
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
+        label: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            state.t('profile_logout'),
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
       ),
@@ -621,16 +627,6 @@ class _ProfilePlaceholderPage extends StatelessWidget {
                           color: Colors.black,
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        AppStateScope.of(context).t('profile_placeholder_msg'),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.black54,
-                          fontSize: 14,
-                          height: 1.4,
                         ),
                       ),
                     ],

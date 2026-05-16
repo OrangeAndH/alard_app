@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-
 import '../../state/app_state.dart';
 import '../../state/app_state_scope.dart';
 import '../checkout/cart_screen.dart';
 import 'product_detail_screen.dart';
+import '../../widgets/store_dialog.dart';
 
 class ShopScreen extends StatefulWidget {
   final String initialCategory;
@@ -31,19 +31,6 @@ class _ShopScreenState extends State<ShopScreen> {
   late String _selectedCategory;
   late String _searchQuery;
   late TextEditingController _searchController;
-
-  String _selectedCountry = 'Palestine';
-
-  final List<Map<String, String>> _countries = const [
-    {'name': 'store_Palestine', 'flag': '🇵🇸'},
-    {'name': 'store_Germany', 'flag': '🇩🇪'},
-    {'name': 'store_USA', 'flag': '🇺🇸'},
-    {'name': 'store_UK', 'flag': '🇬🇧'},
-    {'name': 'store_UAE', 'flag': '🇦🇪'},
-    {'name': 'store_KSA', 'flag': '🇸🇦'},
-    {'name': 'store_France', 'flag': '🇫🇷'},
-    {'name': 'store_Canada', 'flag': '🇨🇦'},
-  ];
 
   @override
   void initState() {
@@ -212,52 +199,52 @@ class _ShopScreenState extends State<ShopScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-              Center(
-                child: Image.asset(
-                  'assets/321.png',
-                  height: 38,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) {
-                    return const Text(
-                      "AL'ARD",
-                      style: TextStyle(
-                        color: _olive,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+          Center(
+            child: Image.asset(
+              'assets/321.png',
+              height: 38,
+              fit: BoxFit.contain,
+              errorBuilder: (_, _, _) {
+                return const Text(
+                  "AL'ARD",
+                  style: TextStyle(
+                    color: _olive,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
+            ),
+          ),
+          PositionedDirectional(
+            start: 4,
+            child: IconButton(
+              onPressed: _goBackToHome,
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints.tightFor(
+                width: buttonSize,
+                height: buttonSize,
+              ),
+              icon: Icon(
+                Icons.adaptive.arrow_back,
+                color: Colors.black,
+                size: 30,
+              ),
+            ),
+          ),
+          PositionedDirectional(
+            end: 4,
+            child: Stack(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CartScreen(),
                       ),
                     );
                   },
-                ),
-              ),
-              PositionedDirectional(
-                start: 4,
-                child: IconButton(
-                  onPressed: _goBackToHome,
-                  padding: EdgeInsets.zero,
-                  constraints: BoxConstraints.tightFor(
-                    width: buttonSize,
-                    height: buttonSize,
-                  ),
-                  icon: Icon(
-                    Icons.adaptive.arrow_back,
-                    color: Colors.black,
-                    size: 30,
-                  ),
-                ),
-              ),
-              PositionedDirectional(
-                end: 4,
-                child: Stack(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const CartScreen(),
-                          ),
-                        );
-                      },
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints.tightFor(
                         width: buttonSize,
@@ -391,8 +378,8 @@ class _ShopScreenState extends State<ShopScreen> {
         Expanded(
           child: _smallFilterButton(
             icon: Icons.language_rounded,
-            label: state.t(_selectedCountry),
-            onTap: _showCountryPicker,
+            label: state.t('store_${state.currentStore}'),
+            onTap: () => showStoreDialog(context),
           ),
         ),
       ],
@@ -537,7 +524,9 @@ class _ShopScreenState extends State<ShopScreen> {
               heroTag: 'shop_${product.id}',
             ),
           ),
-        ).then((_) => setState(() {}));
+        ).then((_) {
+          if (mounted) setState(() {});
+        });
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
@@ -654,7 +643,9 @@ class _ShopScreenState extends State<ShopScreen> {
                     MaterialPageRoute(
                       builder: (_) => ProductDetailScreen(product: product),
                     ),
-                  ).then((_) => setState(() {}));
+                  ).then((_) {
+                    if (mounted) setState(() {});
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _olive,
@@ -775,93 +766,6 @@ class _ShopScreenState extends State<ShopScreen> {
     );
   }
 
-  void _showCountryPicker() {
-    final state = AppStateScope.of(context);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return SafeArea(
-          top: false,
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(14, 0, 14, 12),
-            padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
-            decoration: BoxDecoration(
-              color: _cream,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  state.t('home_change_location'),
-                  style: TextStyle(
-                    color: _olive,
-                    fontSize: 18,
-                    fontFamily: 'serif',
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ..._countries.map((country) {
-                  final isSelected = _selectedCountry == country['name'];
-
-                  return InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedCountry = country['name']!;
-                      });
-                      Navigator.pop(sheetContext);
-                    },
-                    borderRadius: BorderRadius.circular(9),
-                    child: Container(
-                      height: 40,
-                      margin: const EdgeInsets.only(bottom: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: isSelected ? _background : Colors.transparent,
-                        border: Border.all(
-                          color: _olive,
-                          width: isSelected ? 1.2 : 0.7,
-                        ),
-                        borderRadius: BorderRadius.circular(9),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            country['flag']!,
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              state.t(country['name']!),
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: _olive,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          if (isSelected)
-                            const Icon(
-                              Icons.check_rounded,
-                              color: _olive,
-                              size: 20,
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   void _clearFilters() {
     setState(() {

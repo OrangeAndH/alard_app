@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/app_models.dart';
 import '../l10n/app_translations.dart';
@@ -9,6 +11,45 @@ import '../l10n/app_translations.dart';
 export '../models/app_models.dart';
 
 class AppState extends ChangeNotifier {
+  AppState() {
+    _listenToAuthChanges();
+  }
+
+  void _listenToAuthChanges() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      if (user == null) {
+        _currentUser = null;
+        notifyListeners();
+      } else {
+        // Fetch additional info from Firestore (like isTrader)
+        try {
+          final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+          if (doc.exists) {
+            final data = doc.data()!;
+            _currentUser = AppUser(
+              name: data['name'] ?? user.displayName ?? 'User',
+              email: user.email ?? '',
+              phone: data['phone'] ?? user.phoneNumber ?? '',
+              location: data['location'] ?? '',
+              isTrader: data['isTrader'] ?? false,
+            );
+          } else {
+            // Fallback for new social users
+            _currentUser = AppUser(
+              name: user.displayName ?? 'User',
+              email: user.email ?? '',
+              phone: user.phoneNumber ?? '',
+              location: '',
+              isTrader: false,
+            );
+          }
+        } catch (e) {
+          debugPrint('Error fetching user profile: $e');
+        }
+        notifyListeners();
+      }
+    });
+  }
   static const double deliveryFee = 3.0;
 
   static const Map<String, StoreCurrency> _storeCurrencies = {
@@ -33,11 +74,18 @@ class AppState extends ChangeNotifier {
   Locale _locale = const Locale('en');
   String _currentStore = 'Palestine';
   int _selectedIndex = 0;
+  String _shopCategory = 'All';
+  String _shopQuery = '';
 
   AppUser? get currentUser => _currentUser;
   Uint8List? get profileImageBytes => _profileImageBytes;
   bool get isLoggedIn => _currentUser != null;
+  bool get isTrader => _currentUser?.isTrader ?? false;
+  static const double traderDiscount = 0.8; // 20% discount for traders
+
   int get selectedIndex => _selectedIndex;
+  String get shopCategory => _shopCategory;
+  String get shopQuery => _shopQuery;
 
   void setSelectedIndex(int index) {
     if (_selectedIndex != index) {
@@ -46,19 +94,48 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  void setShopFilters({String? category, String? query}) {
+    bool changed = false;
+    if (category != null && _shopCategory != category) {
+      _shopCategory = category;
+      changed = true;
+    }
+    if (query != null && _shopQuery != query) {
+      _shopQuery = query;
+      changed = true;
+    }
+    if (changed) notifyListeners();
+  }
+
   String get currentStore => _currentStore;
 
   void setCurrentStore(String storeName) {
     if (_storeCurrencies.containsKey(storeName) && _currentStore != storeName) {
       _currentStore = storeName;
+      
+      // If the new store has no products, try to load/seed them
+      final storeProducts = _allProducts.where((p) => p.store == _currentStore).toList();
+      if (storeProducts.isEmpty) {
+        loadProducts();
+      }
+      
       notifyListeners();
     }
   }
 
+  double _getEffectivePrice(double basePrice) {
+    if (isTrader) {
+      return basePrice * traderDiscount;
+    }
+    return basePrice;
+  }
+
   String getFormattedPrice(double basePrice) {
     if (basePrice <= 0) return t('ui_request_quote');
+    
+    final effectivePrice = _getEffectivePrice(basePrice);
     final currency = _storeCurrencies[_currentStore] ?? _storeCurrencies['Palestine']!;
-    final converted = basePrice * currency.exchangeRate;
+    final converted = effectivePrice * currency.exchangeRate;
     
     if (converted % 1 == 0) {
       return '${converted.toStringAsFixed(0)} ${currency.symbol}';
@@ -176,7 +253,9 @@ class AppState extends ChangeNotifier {
   }
 
   double get cartSubtotal {
-    return _cart.fold(0, (sum, item) => sum + item.lineTotal);
+    return _cart.fold(0.0, (total, item) {
+      return total + (_getEffectivePrice(item.price) * item.quantity);
+    });
   }
 
   double get cartTotal {
@@ -287,18 +366,62 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Product> get products => _allProducts;
+  List<Product> get products {
+    final storeProducts = _allProducts.where((p) => p.store == _currentStore).toList();
+    // Fallback: If current store has no products yet, show Palestine products 
+    // (they will still show correct local currency due to getFormattedPrice logic)
+    if (storeProducts.isEmpty && _allProducts.isNotEmpty) {
+      return _allProducts.where((p) => p.store == 'Palestine').toList();
+    }
+    return storeProducts;
+  }
   bool _productsLoaded = false;
   bool get productsLoaded => _productsLoaded;
 
   List<String> get productCategories {
-    if (_allProducts.isEmpty) return ['All'];
-    final cats = _allProducts.map((p) => p.category).toSet().toList();
+    final storeProducts = products;
+    if (storeProducts.isEmpty) return ['All'];
+    final cats = storeProducts.map((p) => p.category).toSet().toList();
     cats.sort();
     return ['All', ...cats];
   }
 
   Future<void> loadProducts() async {
+    try {
+      final firestore = FirebaseFirestore.instance;
+      final snapshot = await firestore.collection('products').get();
+
+      if (snapshot.docs.isEmpty) {
+        debugPrint('Firestore empty, seeding from local assets...');
+        await _seedProductsFromAssets();
+        return;
+      }
+
+      _allProducts = snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id; // Ensure ID from Firestore is used
+        return Product.fromJson(data);
+      }).toList();
+
+      _productsLoaded = true;
+
+      // If the current store is empty but we have products for other stores,
+      // it means we need to re-seed to populate ALL stores.
+      final storeProducts = _allProducts.where((p) => p.store == _currentStore).toList();
+      if (storeProducts.isEmpty) {
+        debugPrint('Store $_currentStore is empty. Seeding globally to ensure availability...');
+        await _seedProductsFromAssets();
+        return; 
+      }
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading products from Firestore: $e. Falling back to assets.');
+      await _loadProductsFromAssets();
+    }
+  }
+
+  Future<void> _loadProductsFromAssets() async {
     try {
       final String response = await rootBundle.loadString('assets/data/products.json');
       final data = await json.decode(response);
@@ -307,14 +430,66 @@ class AppState extends ChangeNotifier {
       _productsLoaded = true;
       notifyListeners();
     } catch (e) {
-      debugPrint('Error loading products: $e');
+      debugPrint('Error loading products from assets: $e');
     }
   }
 
-  Future<void> loadProductsFromAssets() => loadProducts();
+  Future<void> _seedProductsFromAssets() async {
+    try {
+      final firestore = FirebaseFirestore.instance;
+      
+      // Clear existing products to ensure a fresh global seed
+      final existing = await firestore.collection('products').get();
+      if (existing.docs.isNotEmpty) {
+        final batchDelete = firestore.batch();
+        for (var doc in existing.docs) {
+          batchDelete.delete(doc.reference);
+        }
+        await batchDelete.commit();
+      }
+
+      final List<String> stores = [
+        'Palestine', 'Germany', 'USA', 'UK', 'UAE', 
+        'KSA', 'France', 'Canada', 'Malaysia', 'Europe', 'Chile'
+      ];
+
+      final String response = await rootBundle.loadString('assets/data/products.json');
+      final List<dynamic> productsJson = json.decode(response);
+
+      // Prepare all operations
+      final List<Map<String, dynamic>> allOps = [];
+      for (int i = 0; i < productsJson.length; i++) {
+        final pJson = Map<String, dynamic>.from(productsJson[i]);
+        for (final store in stores) {
+          final productCopy = Map<String, dynamic>.from(pJson);
+          productCopy['store'] = store;
+          final docId = '${pJson['id']}_${store.toLowerCase().replaceAll(' ', '_')}';
+          allOps.add({'id': docId, 'data': productCopy});
+        }
+      }
+
+      // Execute in chunks of 450 (Firestore limit is 500)
+      for (var i = 0; i < allOps.length; i += 450) {
+        final batch = firestore.batch();
+        final chunk = allOps.sublist(i, i + 450 > allOps.length ? allOps.length : i + 450);
+        for (var op in chunk) {
+          final docRef = firestore.collection('products').doc(op['id']);
+          batch.set(docRef, op['data']);
+        }
+        await batch.commit();
+      }
+
+      debugPrint('Global seeding complete for ${allOps.length} documents.');
+      await loadProducts(); // Reload from Firestore
+    } catch (e) {
+      debugPrint('Error seeding products: $e');
+    }
+  }
+
+  Future<void> loadProductsFromAssets() => _loadProductsFromAssets();
 
   List<Product> filteredProducts({String category = 'All', String query = ''}) {
-    return _allProducts.where((p) {
+    return products.where((p) {
       final matchesCat = category == 'All' || p.category == category;
       final matchesQuery = query.isEmpty ||
           p.name.toLowerCase().contains(query.toLowerCase()) ||
@@ -329,7 +504,7 @@ class AppState extends ChangeNotifier {
   }
 
   List<CartItem> get cartItems => _cart;
-  int get cartCount => _cart.fold(0, (sum, item) => sum + item.quantity);
+  int get cartCount => _cart.fold(0, (total, item) => total + item.quantity);
   double get subtotal => cartSubtotal;
 
   void decreaseQuantity(String cartKey) => updateCartQuantity(cartKey, -1);

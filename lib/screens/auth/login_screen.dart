@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Note: Updated AuthService to use static methods or instances as needed.
     // Assuming AuthService.login is available.
-    final bool success = await _authService.login(
+    final response = await _authService.login(
       context: context,
       email: email,
       password: password,
@@ -57,10 +57,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (mounted) setState(() => _isProcessing = false);
 
-    if (success && mounted) {
+    if (response.isSuccess && mounted) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response.message ?? 'Login failed')),
       );
     }
   }
@@ -70,18 +74,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isProcessing = true);
 
-    final bool success = await _authService.loginWithGoogle(
+    final response = await _authService.loginWithGoogle(
       context: context,
       isTrader: isTrader,
     );
 
     if (mounted) setState(() => _isProcessing = false);
 
-    if (success && mounted) {
+    if (response.isSuccess && mounted) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const MainScreen()),
       );
+    } else if (mounted) {
+      if (response.message != 'cancelled') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message ?? 'Google login failed')),
+        );
+      }
     }
   }
 
@@ -90,17 +100,45 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isProcessing = true);
 
-    final bool success = await _authService.loginWithApple(
+    final response = await _authService.loginWithApple(
       context: context,
       isTrader: isTrader,
     );
 
     if (mounted) setState(() => _isProcessing = false);
 
-    if (success && mounted) {
+    if (response.isSuccess && mounted) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Apple login failed')),
+      );
+    }
+  }
+
+  Future<void> loginWithFacebook() async {
+    if (_isProcessing) return;
+
+    setState(() => _isProcessing = true);
+
+    final response = await _authService.loginWithFacebook(
+      context: context,
+      isTrader: isTrader,
+    );
+
+    if (mounted) setState(() => _isProcessing = false);
+
+    if (response.isSuccess && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response.message ?? 'Facebook login failed')),
       );
     }
   }
@@ -343,12 +381,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: Text(
-                        state.t('login_button'),
-                        style: const TextStyle(
-                          color: Color(0xFFE4DFC1),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          state.t('login_button'),
+                          style: const TextStyle(
+                            color: Color(0xFFE4DFC1),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -377,12 +418,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: Text(
-                        state.t('login_create_account'),
-                        style: const TextStyle(
-                          color: Color(0xFFE4DFC1),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          state.t('login_create_account'),
+                          style: const TextStyle(
+                            color: Color(0xFFE4DFC1),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -420,7 +464,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(width: 20),
                     GestureDetector(
-                      onTap: loginWithApple,
+                      onTap: loginWithFacebook,
                       child: Container(
                         width: 100,
                         height: 45,

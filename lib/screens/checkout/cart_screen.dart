@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../state/app_state.dart';
@@ -17,6 +18,28 @@ class _CartScreenState extends State<CartScreen> {
   static const Color _cream = Color(0xFFF2EDE6);
   static const Color _olive = Color(0xFF55682A);
   static const Color _softButton = Color(0xFFF4ECD9);
+  Timer? _qtyTimer;
+
+  @override
+  void dispose() {
+    _qtyTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startContinuousQty(AppState state, String cartKey, bool increase) {
+    _qtyTimer?.cancel();
+    _qtyTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (increase) {
+        state.increaseQuantity(cartKey);
+      } else {
+        state.decreaseQuantity(cartKey);
+      }
+    });
+  }
+
+  void _stopContinuousQty() {
+    _qtyTimer?.cancel();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -368,6 +391,8 @@ class _CartScreenState extends State<CartScreen> {
             onTap: () {
               state.decreaseQuantity(item.cartKey);
             },
+            onLongPressStart: () => _startContinuousQty(state, item.cartKey, false),
+            onLongPressEnd: _stopContinuousQty,
           ),
           Container(
             width: 1,
@@ -395,6 +420,8 @@ class _CartScreenState extends State<CartScreen> {
             onTap: () {
               state.increaseQuantity(item.cartKey);
             },
+            onLongPressStart: () => _startContinuousQty(state, item.cartKey, true),
+            onLongPressEnd: _stopContinuousQty,
           ),
         ],
       ),
@@ -404,18 +431,25 @@ class _CartScreenState extends State<CartScreen> {
   Widget _qtyButton({
     required String label,
     required VoidCallback onTap,
+    required VoidCallback onLongPressStart,
+    required VoidCallback onLongPressEnd,
   }) {
-    return InkWell(
-      onTap: onTap,
-      child: SizedBox(
-        width: 22,
-        child: Center(
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: _olive,
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
+    return GestureDetector(
+      onLongPressStart: (_) => onLongPressStart(),
+      onLongPressEnd: (_) => onLongPressEnd(),
+      onLongPressCancel: onLongPressEnd,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          width: 22,
+          child: Center(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: _olive,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
         ),
@@ -520,7 +554,7 @@ class _CartScreenState extends State<CartScreen> {
       return {
         'name': item.product.name,
         'subtitle': _getProductSubText(item),
-        'price': item.price,
+        'price': state.isTrader ? item.price * AppState.traderDiscount : item.price,
         'quantity': item.quantity,
         'image': item.product.image,
         'variant': item.selectedVariant?.size,
@@ -558,12 +592,12 @@ class _CartScreenState extends State<CartScreen> {
 
   String _getProductSubText(CartItem item) {
     if (item.selectedVariant != null) {
-      return '-${item.selectedVariant!.size.toUpperCase()}';
+      return item.selectedVariant!.size.toUpperCase();
     }
 
     final product = item.product;
     if (product.weight.trim().isNotEmpty) {
-      return '-${product.weight.toUpperCase()}';
+      return product.weight.toUpperCase();
     }
 
     if (product.subtitle.trim().isNotEmpty) {
@@ -615,7 +649,10 @@ class _CartScreenState extends State<CartScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Go to Login', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text('Go to Login', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
               ),
             ),
             TextButton(

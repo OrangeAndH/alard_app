@@ -73,6 +73,7 @@ class Product {
   final String upc;
   final int catalogPage;
   final int? ratingCount;
+  final String store;
   final List<ProductVariant>? variants;
 
   const Product({
@@ -92,6 +93,7 @@ class Product {
     this.upc = '',
     this.catalogPage = 0,
     this.ratingCount,
+    this.store = 'Palestine',
     this.variants,
   });
 
@@ -113,6 +115,7 @@ class Product {
       upc: json['upc'] as String? ?? '',
       catalogPage: (json['catalogPage'] as num? ?? 0).toInt(),
       ratingCount: json['ratingCount'] != null ? (json['ratingCount'] as num).toInt() : 120,
+      store: json['store'] as String? ?? 'Palestine',
       variants: json['variants'] != null
           ? (json['variants'] as List<dynamic>)
               .map((v) => ProductVariant.fromJson(v as Map<String, dynamic>))

@@ -16,6 +16,7 @@
     "upc": "",
     "catalogPage": 1,
     "currency": "NIS",
+    "store": "USA",
     "variants": [
       { "id": "250ml", "size": "250ml", "price": 25.0 },
       { "id": "500ml", "size": "500ml", "price": 45.0 },

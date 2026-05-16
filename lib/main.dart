@@ -1,67 +1,111 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'state/app_setting.dart';
-import 'state/app_state.dart';
-import 'state/app_state_scope.dart';
-import 'screens/main_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-void main() {
+import 'firebase_options.dart';
+import 'state/app_state.dart';
+import 'state/app_setting.dart';
+import 'state/app_state_scope.dart';
+import 'screens/main_screen.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    // User requested to NOT stay logged in when app is reopened
+    await FirebaseAuth.instance.signOut();
+  } catch (e) {
+    debugPrint('Firebase initialization error: $e');
+  }
 
   final appState = AppState();
   final settings = AppSettings();
 
   runApp(AlardApp(settings: settings, appState: appState));
-
-  appState.loadProductsFromAssets();
 }
 
-class AlardApp extends StatelessWidget {
+class AlardApp extends StatefulWidget {
   final AppSettings settings;
   final AppState appState;
 
   const AlardApp({super.key, required this.settings, required this.appState});
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: Listenable.merge([settings, appState]),
-      builder: (context, _) {
-        final isArabic = appState.isArabic;
-        final baseTheme = ThemeData(brightness: settings.themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light).textTheme;
-        
-        TextTheme textTheme;
-        if (isArabic) {
-          textTheme = GoogleFonts.notoNaskhArabicTextTheme(baseTheme).copyWith(
-            displayLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displayLarge),
-            displayMedium: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displayMedium),
-            displaySmall: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displaySmall),
-            headlineLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineLarge),
-            headlineMedium: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineMedium),
-            headlineSmall: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineSmall),
-            titleLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.titleLarge, fontWeight: FontWeight.bold),
-          );
-        } else {
-          textTheme = GoogleFonts.sourceSans3TextTheme(baseTheme).copyWith(
-            displayLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.displayLarge),
-            displayMedium: GoogleFonts.bodoniModa(textStyle: baseTheme.displayMedium),
-            displaySmall: GoogleFonts.bodoniModa(textStyle: baseTheme.displaySmall),
-            headlineLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineLarge),
-            headlineMedium: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineMedium),
-            headlineSmall: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineSmall),
-            titleLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.titleLarge, fontWeight: FontWeight.bold),
-          );
-        }
+  State<AlardApp> createState() => _AlardAppState();
+}
 
-        return AppSettingsScope(
-          settings: settings,
-          child: AppStateScope(
-            notifier: appState,
-            child: MaterialApp(
+class _AlardAppState extends State<AlardApp> {
+  TextTheme? _cachedTextTheme;
+  bool? _cachedIsArabic;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.appState.loadProductsFromAssets();
+  }
+
+  TextTheme _getTextTheme(bool isArabic, Brightness brightness) {
+    if (_cachedTextTheme != null && _cachedIsArabic == isArabic) {
+      return _cachedTextTheme!;
+    }
+
+    final baseTheme = ThemeData(brightness: brightness).textTheme;
+    TextTheme theme;
+
+    if (isArabic) {
+      theme = GoogleFonts.notoNaskhArabicTextTheme(baseTheme).copyWith(
+        displayLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displayLarge),
+        displayMedium: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displayMedium),
+        displaySmall: GoogleFonts.notoKufiArabic(textStyle: baseTheme.displaySmall),
+        headlineLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineLarge),
+        headlineMedium: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineMedium),
+        headlineSmall: GoogleFonts.notoKufiArabic(textStyle: baseTheme.headlineSmall),
+        titleLarge: GoogleFonts.notoKufiArabic(textStyle: baseTheme.titleLarge, fontWeight: FontWeight.bold),
+      );
+    } else {
+      theme = GoogleFonts.sourceSans3TextTheme(baseTheme).copyWith(
+        displayLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.displayLarge),
+        displayMedium: GoogleFonts.bodoniModa(textStyle: baseTheme.displayMedium),
+        displaySmall: GoogleFonts.bodoniModa(textStyle: baseTheme.displaySmall),
+        headlineLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineLarge),
+        headlineMedium: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineMedium),
+        headlineSmall: GoogleFonts.bodoniModa(textStyle: baseTheme.headlineSmall),
+        titleLarge: GoogleFonts.bodoniModa(textStyle: baseTheme.titleLarge, fontWeight: FontWeight.bold),
+      );
+    }
+
+    _cachedTextTheme = theme;
+    _cachedIsArabic = isArabic;
+    return theme;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSettingsScope(
+      settings: widget.settings,
+      child: AppStateScope(
+        notifier: widget.appState,
+        child: Builder(
+          builder: (context) {
+            // These calls to .of() make AlardApp depend on the notifiers
+            // But since they wrap MaterialApp, the build will happen automatically
+            final state = AppStateScope.of(context);
+            final settings = AppSettingsScope.of(context);
+            
+            final isArabic = state.isArabic;
+            final themeMode = settings.themeMode;
+            final brightness = themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light;
+            final textTheme = _getTextTheme(isArabic, brightness);
+
+            return MaterialApp(
               debugShowCheckedModeBanner: false,
-              locale: appState.locale,
-              supportedLocales: appState.supportedLanguages.keys
+              locale: state.locale,
+              supportedLocales: state.supportedLanguages.keys
                   .map((code) => Locale(code))
                   .toList(),
               localizationsDelegates: const [
@@ -69,7 +113,7 @@ class AlardApp extends StatelessWidget {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              themeMode: settings.themeMode,
+              themeMode: themeMode,
               theme: ThemeData(
                 useMaterial3: true,
                 brightness: Brightness.light,
@@ -143,10 +187,10 @@ class AlardApp extends StatelessWidget {
                 ),
               ),
               home: const MainScreen(),
-            ),
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ),
     );
   }
 }

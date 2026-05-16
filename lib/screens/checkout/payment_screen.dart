@@ -35,10 +35,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   late Map<String, String> _profileData;
 
   String _payment = 'Pay when deliver';
-  String? _selectedCardId;
-  bool _saveAddress = true;
   bool _billingSame = true;
   bool _showOrderSummary = false;
+  bool _saveAddress = true;
 
   final _cardNumberController = TextEditingController();
   final _cardExpiryController = TextEditingController();
@@ -49,10 +48,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final List<Map<String, String>> _countries = const [
     {'name': 'Palestine', 'flag': '🇵🇸'},
     {'name': 'Germany', 'flag': '🇩🇪'},
-    {'name': 'United States', 'flag': '🇺🇸'},
-    {'name': 'United Arab Emirates', 'flag': '🇦🇪'},
-    {'name': 'Saudi Arabia', 'flag': '🇸🇦'},
-    {'name': 'European Union', 'flag': '🇪🇺'},
+    {'name': 'USA', 'flag': '🇺🇸'},
+    {'name': 'UAE', 'flag': '🇦🇪'},
+    {'name': 'KSA', 'flag': '🇸🇦'},
+    {'name': 'Europe', 'flag': '🇪🇺'},
+    {'name': 'UK', 'flag': '🇬🇧'},
+    {'name': 'Canada', 'flag': '🇨🇦'},
+    {'name': 'France', 'flag': '🇫🇷'},
+    {'name': 'Malaysia', 'flag': '🇲🇾'},
+    {'name': 'Chile', 'flag': '🇨🇱'},
   ];
 
   double get _vat => widget.subtotal * 0.0135;
@@ -82,6 +86,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
+
+    // Keep local country in sync with global store
+    if (_profileData['country'] != state.currentStore) {
+      _profileData['country'] = state.currentStore;
+    }
+
     return Scaffold(
       backgroundColor: _background,
       body: SafeArea(
@@ -106,7 +116,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       children: [
                         _buildSteps(state, activeStep: 'step_payment'),
                         const SizedBox(height: 18),
-                        _sectionTitle('1. ${state.t('personal_personal_details')}'),
+                        _sectionTitle(
+                          '1. ${state.t('personal_personal_details')}',
+                        ),
                         const SizedBox(height: 10),
                         _addressBox(),
                         const SizedBox(height: 7),
@@ -118,7 +130,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         const SizedBox(height: 12),
                         _checkRow(
                           value: _saveAddress,
-                          text: state.t('addr_save'), // I should add this key or use existing
+                          text: state.t(
+                            'addr_save',
+                          ), // I should add this key or use existing
                           onTap: () {
                             setState(() {
                               _saveAddress = !_saveAddress;
@@ -126,7 +140,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           },
                         ),
                         const Divider(height: 26, color: _line),
-                        _sectionTitle('2. ${state.t('checkout_delivery_method')}'),
+                        _sectionTitle(
+                          '2. ${state.t('checkout_delivery_method')}',
+                        ),
                         const SizedBox(height: 10),
                         _deliveryReadOnlyBox(state),
                         const SizedBox(height: 16),
@@ -255,10 +271,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildSteps(
-    AppState state, {
-    required String activeStep,
-  }) {
+  Widget _buildSteps(AppState state, {required String activeStep}) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -270,7 +283,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 4,
             children: [
-              _stepText(state.t('step_cart'), active: activeStep == 'step_cart', fontSize: fontSize),
+              _stepText(
+                state.t('step_cart'),
+                active: activeStep == 'step_cart',
+                fontSize: fontSize,
+              ),
               _stepDivider(fontSize),
               _stepText(
                 state.t('step_shipping'),
@@ -321,12 +338,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
         ),
         const SizedBox(height: 2),
-        if (active)
-          Container(
-            height: 2,
-            width: lineWidth,
-            color: _olive,
-          ),
+        if (active) Container(height: 2, width: lineWidth, color: _olive),
       ],
     );
   }
@@ -351,11 +363,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         fontSize: 20,
         fontFamily: 'serif',
         shadows: [
-          Shadow(
-            color: Colors.black26,
-            blurRadius: 3,
-            offset: Offset(1, 1),
-          ),
+          Shadow(color: Colors.black26, blurRadius: 3, offset: Offset(1, 1)),
         ],
       ),
     );
@@ -393,10 +401,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     fontFamily: 'serif',
                   ),
                 ),
-                const Divider(
-                  height: 8,
-                  color: _line,
-                ),
+                const Divider(height: 8, color: _line),
                 Text(
                   phone,
                   style: const TextStyle(
@@ -414,11 +419,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             borderRadius: BorderRadius.circular(20),
             child: const Padding(
               padding: EdgeInsets.all(6),
-              child: Icon(
-                Icons.edit_outlined,
-                color: _olive,
-                size: 19,
-              ),
+              child: Icon(Icons.edit_outlined, color: _olive, size: 19),
             ),
           ),
         ],
@@ -430,35 +431,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final country = state.currentStore;
     final flag = state.currentStoreFlag;
 
-    return InkWell(
-      onTap: () => showStoreDialog(context),
-      child: Container(
-        height: 31,
-        padding: const EdgeInsets.symmetric(horizontal: 11),
-        decoration: _outlineBox(radius: 9),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                '$flag  $country',
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: _olive,
-                  fontSize: 14,
-                  fontFamily: 'serif',
-                ),
-              ),
-            ),
-            const Text(
-              'Change',
-              style: TextStyle(
+    return Container(
+      height: 31,
+      padding: const EdgeInsets.symmetric(horizontal: 11),
+      decoration: _outlineBox(radius: 9),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '$flag  $country',
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
                 color: _olive,
-                fontSize: 10,
-                decoration: TextDecoration.underline,
+                fontSize: 14,
+                fontFamily: 'serif',
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -621,34 +611,29 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Widget _paymentBox(AppState state) {
-    final isCreditCard = _payment == 'Credit Card';
-
     return Container(
       decoration: _outlineBox(),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          Container(
-            color: isCreditCard ? const Color(0xFFF0F4FF) : Colors.transparent,
-            child: Column(
+          _paymentLine(
+            state: state,
+            value: 'Credit Card',
+            onTap: () => _showPaymentMethodsBottomSheet(state),
+            trailing: const Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                _paymentLine(
-                  state: state,
-                  value: 'Credit Card',
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.network('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png', height: 16),
-                      const SizedBox(width: 8),
-                      Image.network('https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png', height: 12),
-                    ],
+                Text(
+                  'VISA',
+                  style: TextStyle(
+                    color: _olive,
+                    fontSize: 10,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                if (isCreditCard) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: _buildCreditCardForm(state),
-                  ),
-                ],
+                SizedBox(width: 8),
+                Icon(Icons.credit_card, size: 20, color: _olive),
               ],
             ),
           ),
@@ -661,64 +646,200 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildCreditCardForm(AppState state) {
-    return Column(
-      children: [
-        _buildAloneField(
-          hint: state.t('pay_card_number'),
-          controller: _cardNumberController,
-          icon: Icons.lock_outline,
+  void _showPaymentMethodsBottomSheet(AppState state) {
+    setState(() => _payment = 'Credit Card');
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        const SizedBox(height: 12),
-        _buildAloneField(
-          hint: state.t('pay_expiration_date'),
-          controller: _cardExpiryController,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.black12,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              state.t('checkout_payment_methods'),
+              style: const TextStyle(
+                color: _olive,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'serif',
+              ),
+            ),
+            const SizedBox(height: 32),
+            const Text(
+              'pay no cards',
+              style: TextStyle(color: Colors.black38, fontSize: 16),
+            ),
+            const SizedBox(height: 32),
+            OutlinedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _showAddCardDialog(state);
+              },
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: _olive),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                minimumSize: const Size(double.infinity, 50),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.add, color: _olive),
+                  const SizedBox(width: 8),
+                  Text(
+                    state.t('pay_add_new_method'),
+                    style: const TextStyle(
+                      color: _olive,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
-        const SizedBox(height: 12),
-        _buildAloneField(
-          hint: state.t('pay_security_code'),
-          controller: _cardSecurityController,
-          icon: Icons.help_outline,
-        ),
-        const SizedBox(height: 12),
-        _buildAloneField(
-          hint: state.t('pay_card_holder'),
-          controller: _cardNameController,
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildAloneField({
+  void _showAddCardDialog(AppState state) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0F0E8),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    state.t('pay_add_new_method'),
+                    style: const TextStyle(
+                      color: _olive,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'serif',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _dialogLabel(state.t('pay_card_number')),
+                const SizedBox(height: 8),
+                _dialogField(hint: '', controller: _cardNumberController),
+                const SizedBox(height: 16),
+                _dialogLabel(state.t('pay_card_holder')),
+                const SizedBox(height: 8),
+                _dialogField(hint: '', controller: _cardNameController),
+                const SizedBox(height: 16),
+                _dialogLabel(state.t('Expiry_date')),
+                const SizedBox(height: 8),
+                _dialogField(hint: 'MM/YY', controller: _cardExpiryController),
+                const SizedBox(height: 16),
+                _dialogLabel('CVV'),
+                const SizedBox(height: 8),
+                _dialogField(
+                  hint: 'Security Code',
+                  controller: _cardSecurityController,
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        state.t('ui_cancel'),
+                        style: const TextStyle(
+                          color: Colors.black54,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Logic to save card would go here
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _olive,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(state.t('ui_add')),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _dialogLabel(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        color: _olive,
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _dialogField({
     required String hint,
     required TextEditingController controller,
-    IconData? icon,
   }) {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.black12),
-        borderRadius: BorderRadius.circular(8),
+        color: const Color(0xFFF5F5F0),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
-        children: [
-          if (icon != null) ...[
-            const SizedBox(width: 12),
-            Icon(icon, size: 20, color: Colors.black45),
-          ],
-          Expanded(
-            child: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: hint,
-                hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-            ),
-          ),
-        ],
+      child: TextField(
+        controller: controller,
+        style: const TextStyle(color: _olive),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.black26),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        ),
       ),
     );
   }
@@ -732,7 +853,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
           child: Row(
             children: [
               Icon(
-                _showOrderSummary ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                _showOrderSummary
+                    ? Icons.keyboard_arrow_up
+                    : Icons.keyboard_arrow_down,
                 color: _olive,
               ),
               const SizedBox(width: 8),
@@ -750,16 +873,26 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 Stack(
                   alignment: Alignment.center,
                   children: [
-                    const Icon(Icons.shopping_cart_outlined, color: _olive, size: 28),
+                    const Icon(
+                      Icons.shopping_cart_outlined,
+                      color: _olive,
+                      size: 28,
+                    ),
                     Positioned(
                       right: 0,
                       top: 0,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
+                        decoration: const BoxDecoration(
+                          color: Colors.black,
+                          shape: BoxShape.circle,
+                        ),
                         child: Text(
                           '${widget.orderItems.length}',
-                          style: const TextStyle(color: Colors.white, fontSize: 10),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
                         ),
                       ),
                     ),
@@ -770,89 +903,124 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
         if (_showOrderSummary) ...[
           const SizedBox(height: 16),
-          ...widget.orderItems.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              children: [
-                Stack(
-                  children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.black12),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(item['image'] ?? '', fit: BoxFit.cover),
-                      ),
-                    ),
-                    Positioned(
-                      right: -2,
-                      top: -2,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(color: Colors.black87, shape: BoxShape.circle),
-                        child: Text(
-                          '${item['quantity']}',
-                          style: const TextStyle(color: Colors.white, fontSize: 10),
+          ...widget.orderItems.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.black12),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(
+                            item['image'] ?? '',
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(item['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
-                      Text(item['subtitle'] ?? '', style: const TextStyle(color: Colors.black54, fontSize: 12)),
+                      Positioned(
+                        right: -2,
+                        top: -2,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Colors.black87,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '${item['quantity']}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                Text(state.getFormattedPrice((item['price'] as num).toDouble() * (item['quantity'] as int))),
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['name'] ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          item['subtitle'] ?? '',
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    state.getFormattedPrice(
+                      (item['price'] as num).toDouble() *
+                          (item['quantity'] as int),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          )),
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: Container(
                   height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFFF7F7F7),
                     border: Border.all(color: Colors.black12),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: TextField(
                     controller: _discountController,
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
                     decoration: InputDecoration(
                       hintText: state.t('checkout_discount_code'),
-                      hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
+                      hintStyle: const TextStyle(
+                        color: Colors.black38,
+                        fontSize: 14,
+                      ),
                       border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     ),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF5F5F5),
-                  foregroundColor: Colors.black54,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: const BorderSide(color: Colors.black12),
+              SizedBox(
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF5F5F5),
+                    foregroundColor: Colors.black54,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: const BorderSide(color: Colors.black12),
+                    ),
+                  ),
+                  child: Text(
+                    state.t('checkout_apply'),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
-                child: Text(state.t('checkout_apply')),
               ),
             ],
           ),
@@ -872,7 +1040,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(color: Colors.black87)),
-          Text(state.getFormattedPrice(amount), style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(
+            state.getFormattedPrice(amount),
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
@@ -891,6 +1062,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         setState(() {
           _payment = value;
         });
+        if (state.currentUser?.isTrader ?? false) {
+          // logic here
+        }
         if (onTap != null && value == 'Credit Card') {
           onTap();
         }
@@ -917,7 +1091,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
             ),
-            ?trailing,
+            if (trailing != null) ...[trailing],
             const SizedBox(width: 18),
           ],
         ),
@@ -937,19 +1111,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.lock_outline,
-            color: _olive,
-            size: 14,
-          ),
+          Icon(Icons.lock_outline, color: _olive, size: 14),
           SizedBox(width: 4),
           Text(
             'Same as shipping',
-            style: TextStyle(
-              color: _olive,
-              fontSize: 10,
-              fontFamily: 'serif',
-            ),
+            style: TextStyle(color: _olive, fontSize: 10, fontFamily: 'serif'),
           ),
         ],
       ),
@@ -1047,10 +1213,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             fit: BoxFit.scaleDown,
             child: Text(
               state.t('checkout_place_order'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontFamily: 'serif',
-              ),
+              style: const TextStyle(fontSize: 18, fontFamily: 'serif'),
             ),
           ),
         ),
@@ -1078,9 +1241,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
       text: _profileData['postalCode'] ?? '',
     );
 
-    String selectedCountry = _countries.any(
-      (country) => country['name'] == (_profileData['country'] ?? ''),
-    )
+    String selectedCountry =
+        _countries.any(
+          (country) => country['name'] == (_profileData['country'] ?? ''),
+        )
         ? (_profileData['country'] ?? 'Palestine')
         : 'Palestine';
 
@@ -1092,7 +1256,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         final dialogWidth = screenWidth < 700 ? screenWidth * 0.92 : 620.0;
 
         return StatefulBuilder(
-          builder: (context, setDialogState) {
+          builder: (dialogContext, setDialogState) {
+            final state = AppStateScope.of(context);
             return Dialog(
               backgroundColor: Colors.transparent,
               insetPadding: const EdgeInsets.symmetric(
@@ -1224,6 +1389,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               if ((_profileData['postalCode'] ?? '').isEmpty) {
                                 _profileData['postalCode'] = '10115';
                               }
+
+                              // Sync global store with the selected country in dialog
+                              state.setCurrentStore(selectedCountry);
                             });
 
                             Navigator.pop(dialogContext);
@@ -1265,10 +1433,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       child: DropdownButtonFormField<String>(
         initialValue: value,
         isExpanded: true,
-        icon: const Icon(
-          Icons.keyboard_arrow_down_rounded,
-          color: _olive,
-        ),
+        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: _olive),
         dropdownColor: _cream,
         decoration: InputDecoration(
           filled: true,
@@ -1279,17 +1444,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: _border,
-              width: 1,
-            ),
+            borderSide: const BorderSide(color: _border, width: 1),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: _border,
-              width: 1.2,
-            ),
+            borderSide: const BorderSide(color: _border, width: 1.2),
           ),
         ),
         items: _countries.map((country) {
@@ -1297,19 +1456,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
             value: country['name'],
             child: Row(
               children: [
-                Text(
-                  country['flag']!,
-                  style: const TextStyle(fontSize: 18),
-                ),
+                Text(country['flag']!, style: const TextStyle(fontSize: 18)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     country['name']!,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: _olive,
-                      fontSize: 15,
-                    ),
+                    style: const TextStyle(color: _olive, fontSize: 15),
                   ),
                 ),
               ],
@@ -1334,16 +1487,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
       child: TextField(
         controller: controller,
         textAlign: centerText ? TextAlign.center : TextAlign.start,
-        style: const TextStyle(
-          color: _olive,
-          fontSize: 15,
-        ),
+        style: const TextStyle(color: _olive, fontSize: 15),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(
-            color: _olive,
-            fontSize: 15,
-          ),
+          hintStyle: const TextStyle(color: _olive, fontSize: 15),
           filled: true,
           fillColor: _background,
           contentPadding: const EdgeInsets.symmetric(
@@ -1352,17 +1499,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: _border,
-              width: 1,
-            ),
+            borderSide: const BorderSide(color: _border, width: 1),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: _border,
-              width: 1.2,
-            ),
+            borderSide: const BorderSide(color: _border, width: 1.2),
           ),
         ),
       ),
@@ -1373,257 +1514,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return BoxDecoration(
       border: Border.all(color: _border),
       borderRadius: BorderRadius.circular(radius),
-    );
-  }
-
-  void _showCardSelection(AppState state) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.black12,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              state.t('profile_payment_methods'),
-              style: const TextStyle(
-                color: _olive,
-                fontSize: 18,
-                fontFamily: 'serif',
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (state.savedCards.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: Center(
-                  child: Text(
-                    state.t('pay_no_cards'),
-                    style: const TextStyle(color: Colors.black45),
-                  ),
-                ),
-              )
-            else
-              ...state.savedCards.map((card) => _buildCardOption(card)),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showAddCardDialog(state);
-                },
-                icon: const Icon(Icons.add, size: 18),
-                label: Text(state.t('pay_add_new')),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: _olive,
-                  side: const BorderSide(color: _olive),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCardOption(PaymentMethod card) {
-    final isSelected = _selectedCardId == card.id;
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedCardId = card.id;
-          _payment = 'Credit Card';
-        });
-        Navigator.pop(context);
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isSelected ? _olive : _line,
-            width: isSelected ? 1.5 : 1,
-          ),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: isSelected ? _olive : Colors.black26,
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            const Icon(Icons.credit_card, color: _olive),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Visa **** ${card.cardNumber?.substring((card.cardNumber?.length ?? 4) - 4) ?? ""}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    '${AppStateScope.of(context).t('pay_expires')} ${card.expiryMonth}/${card.expiryYear}',
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showAddCardDialog(AppState state) {
-    final numberController = TextEditingController();
-    final nameController = TextEditingController();
-    final expiryController = TextEditingController();
-    final cvvController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          state.t('pay_add_new'),
-          style: const TextStyle(color: _olive, fontFamily: 'serif'),
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDialogField(
-                state.t('pay_card_number'),
-                numberController,
-                TextInputType.number,
-              ),
-              const SizedBox(height: 12),
-              _buildDialogField(
-                state.t('pay_card_holder'),
-                nameController,
-                TextInputType.name,
-              ),
-              _buildDialogField(
-                state.t('pay_expiry'),
-                expiryController,
-                TextInputType.datetime,
-                hint: state.t('pay_expiration_date'),
-              ),
-              const SizedBox(height: 12),
-              _buildDialogField(
-                state.t('pay_cvv'),
-                cvvController,
-                TextInputType.number,
-                hint: state.t('pay_security_code'),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(state.t('ui_cancel'), style: const TextStyle(color: Colors.black54)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (numberController.text.isNotEmpty) {
-                final expiryParts = expiryController.text.split('/');
-                final month = expiryParts.isNotEmpty ? expiryParts[0] : '12';
-                final year = expiryParts.length > 1 ? expiryParts[1] : '26';
-
-                final newCard = PaymentMethod(
-                  id: 'card_${DateTime.now().millisecondsSinceEpoch}',
-                  title: 'Visa',
-                  subtitle: '**** ${numberController.text.substring(numberController.text.length.clamp(0, 4))}',
-                  cardNumber: numberController.text,
-                  cardHolderName: nameController.text,
-                  expiryMonth: month,
-                  expiryYear: year,
-                  cvv: cvvController.text,
-                );
-
-                state.addPaymentMethod(newCard);
-                setState(() {
-                  _selectedCardId = newCard.id;
-                  _payment = 'Credit Card';
-                });
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Card added successfully')),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _olive,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            child: Text(state.t('ui_add')),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDialogField(
-    String label,
-    TextEditingController controller,
-    TextInputType type, {
-    String? hint,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _olive),
-        ),
-        const SizedBox(height: 4),
-        TextField(
-          controller: controller,
-          keyboardType: type,
-          decoration: InputDecoration(
-            hintText: hint,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: _olive),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

@@ -305,7 +305,10 @@ class ShippingAddressesPage extends StatelessWidget {
 
                 Navigator.pop(dialogContext);
               },
-              child: Text(state.t('ui_add')),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(state.t('ui_add')),
+              ),
             ),
           ],
         );
@@ -347,7 +350,10 @@ class ShippingAddressesPage extends StatelessWidget {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: Text(state.t('ui_delete')),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(state.t('ui_delete')),
+              ),
             ),
           ],
         );

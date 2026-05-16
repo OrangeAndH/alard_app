@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "186705679131",
+    "project_id": "alard-56d33",
+    "storage_bucket": "alard-56d33.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:186705679131:android:08a4975a6d7e899bff79be",
+        "android_client_info": {
+          "package_name": "com.example.alard_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "186705679131-c5bv4es8lfmtb90to4fmimqrqkt4m8mr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.alard_app",
+            "certificate_hash": "eaf1ea094c09c3318d326cf85b43de2575ed8b0d"
+          }
+        },
+        {
+          "client_id": "186705679131-dn946n780klsosg4c23qgjh73794oltu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOqA_nMBFu4VkdmSoJnP4CZeWkrXptG4c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "186705679131-dn946n780klsosg4c23qgjh73794oltu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "186705679131-jk26g25m4dt1tuve8n0sqgbmt1cfoi7m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.alardApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

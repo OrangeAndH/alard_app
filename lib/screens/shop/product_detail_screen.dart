@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../state/app_state.dart';
 import '../../state/app_state_scope.dart';
@@ -24,6 +25,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   ProductVariant? _selectedVariant;
   late AnimationController _animController;
   late Animation<double> _scaleAnim;
+  Timer? _quantityTimer;
 
   @override
   void initState() {
@@ -43,7 +45,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   @override
   void dispose() {
     _animController.dispose();
+    _quantityTimer?.cancel();
     super.dispose();
+  }
+
+  void _updateQuantity(int delta) {
+    setState(() {
+      _quantity = (_quantity + delta).clamp(1, 999);
+    });
+  }
+
+  void _onLongPressStart(int delta) {
+    _quantityTimer?.cancel();
+    _quantityTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      _updateQuantity(delta);
+    });
+  }
+
+  void _onLongPressEnd() {
+    _quantityTimer?.cancel();
   }
 
   void _onFavoriteTap(AppState state) {
@@ -331,9 +351,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                             const Spacer(),
                             _quantityButton(
                               icon: Icons.remove,
-                              onTap: () {
-                                if (_quantity > 1) setState(() => _quantity--);
-                              },
+                              onTap: () => _updateQuantity(-1),
+                              delta: -1,
                             ),
                             Container(
                               constraints: const BoxConstraints(minWidth: 40),
@@ -349,7 +368,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                             ),
                             _quantityButton(
                               icon: Icons.add,
-                              onTap: () => setState(() => _quantity++),
+                              onTap: () => _updateQuantity(1),
+                              delta: 1,
                             ),
                           ],
                         ),
@@ -469,9 +489,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         elevation: 0,
                       ),
-                      child: Text(
-                        state.t('product_add_to_cart'),
-                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          state.t('product_add_to_cart'),
+                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ),
@@ -557,17 +580,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   Widget _quantityButton({
     required IconData icon,
     required VoidCallback onTap,
+    required int delta,
   }) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE5ECCC),
-          borderRadius: BorderRadius.circular(10),
+      onLongPressStart: (_) => _onLongPressStart(delta),
+      onLongPressEnd: (_) => _onLongPressEnd(),
+      onLongPressCancel: () => _onLongPressEnd(),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0F2E8),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 18, color: const Color(0xFF56632C)),
         ),
-        child: Icon(icon, size: 18, color: const Color(0xFF56632C)),
       ),
     );
   }

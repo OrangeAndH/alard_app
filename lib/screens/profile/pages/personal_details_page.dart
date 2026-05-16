@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../state/app_state_scope.dart';
 import 'notifications_page.dart';
+import '../../../widgets/store_dialog.dart';
 
 class PersonalDetailsPage extends StatefulWidget {
   const PersonalDetailsPage({super.key});
@@ -21,7 +22,6 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
 
-  String _country = 'country_palestine';
   bool _initialized = false;
 
   @override
@@ -34,19 +34,6 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
         _emailController.text = user.email;
         _phoneController.text = user.phone;
         
-        // Handle both key format 'country_palestine' and display format 'Palestine'
-        final loc = user.location.toLowerCase();
-        if (loc.contains('palestine')) {
-          _country = 'country_palestine';
-        } else if (loc.contains('germany')) {
-          _country = 'country_germany';
-        } else if (loc.contains('usa')) {
-          _country = 'country_usa';
-        } else if (loc.contains('uae')) {
-          _country = 'country_uae';
-        } else {
-          _country = 'country_palestine';
-        }
       }
       _initialized = true;
     }
@@ -256,9 +243,12 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: Text(
-                  state.t('personal_save_changes'),
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    state.t('personal_save_changes'),
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                  ),
                 ),
               ),
             ),
@@ -306,34 +296,28 @@ class _PersonalDetailsPageState extends State<PersonalDetailsPage> {
 
   Widget _countryDropDown() {
     final state = AppStateScope.of(context);
-    return Container(
-      height: 31,
-      padding: const EdgeInsets.symmetric(horizontal: 9),
-      decoration: BoxDecoration(
-        color: _fieldColor,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _country,
-          isExpanded: true,
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Colors.black,
-          ),
-          style: const TextStyle(color: Colors.black87, fontSize: 13),
-          items: [
-            DropdownMenuItem(value: 'country_palestine', child: Text(state.t('country_palestine'))),
-            DropdownMenuItem(value: 'country_germany', child: Text(state.t('country_germany'))),
-            DropdownMenuItem(value: 'country_usa', child: Text(state.t('country_usa'))),
-            DropdownMenuItem(value: 'country_uae', child: Text(state.t('country_uae'))),
+    return InkWell(
+      onTap: () => showStoreDialog(context),
+      child: Container(
+        height: 31,
+        padding: const EdgeInsets.symmetric(horizontal: 9),
+        decoration: BoxDecoration(
+          color: _fieldColor,
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Row(
+          children: [
+            Text(
+              state.currentStore,
+              style: const TextStyle(color: Colors.black87, fontSize: 13),
+            ),
+            const Spacer(),
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: Colors.black,
+              size: 20,
+            ),
           ],
-          onChanged: (value) {
-            if (value == null) return;
-            setState(() {
-              _country = value;
-            });
-          },
         ),
       ),
     );

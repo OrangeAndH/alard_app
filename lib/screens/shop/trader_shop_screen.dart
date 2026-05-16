@@ -27,13 +27,10 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
   static const Color _olive = Color(0xFF55682A);
   static const Color _gold = Color(0xFFE0A323);
 
-
   late String _selectedCategory;
   late String _searchQuery;
   late TextEditingController _searchController;
   bool _isSearching = false;
-
-
 
   @override
   void initState() {
@@ -57,11 +54,13 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
     }
   }
 
+
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -126,8 +125,9 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                               ),
                             if (products.isEmpty)
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 48),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 48,
+                                ),
                                 child: Center(
                                   child: Column(
                                     children: [
@@ -191,110 +191,104 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-              Center(
-                child: Image.asset(
-                  'assets/321.png',
-                  height: 38,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) {
-                    return const Text(
-                      "AL'ARD",
-                      style: TextStyle(
-                        color: _olive,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  },
-                ),
+          Center(
+            child: Image.asset(
+              'assets/321.png',
+              height: 38,
+              fit: BoxFit.contain,
+              errorBuilder: (_, _, _) {
+                return const Text(
+                  "AL'ARD",
+                  style: TextStyle(
+                    color: _olive,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
+            ),
+          ),
+          PositionedDirectional(
+            start: 4,
+            child: IconButton(
+              onPressed: () => _showHomeMenu(context),
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints.tightFor(
+                width: buttonSize,
+                height: buttonSize,
               ),
-              PositionedDirectional(
-                start: 4,
-                child: IconButton(
-                  onPressed: () => _showHomeMenu(context),
+              icon: const Icon(Icons.menu, color: _olive, size: 34),
+            ),
+          ),
+          PositionedDirectional(
+            end: 4,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _isSearching = !_isSearching;
+                    });
+                  },
                   padding: EdgeInsets.zero,
                   constraints: BoxConstraints.tightFor(
                     width: buttonSize,
                     height: buttonSize,
                   ),
-                  icon: const Icon(
-                    Icons.menu,
-                    color: _olive,
-                    size: 34,
+                  icon: Icon(
+                    _isSearching ? Icons.close_rounded : Icons.search_rounded,
+                    color: Colors.black,
+                    size: 28,
                   ),
                 ),
-              ),
-              PositionedDirectional(
-                end: 4,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                Stack(
                   children: [
                     IconButton(
                       onPressed: () {
-                        setState(() {
-                          _isSearching = !_isSearching;
-                        });
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const CartScreen()),
+                        );
                       },
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints.tightFor(
                         width: buttonSize,
                         height: buttonSize,
                       ),
-                      icon: Icon(
-                        _isSearching ? Icons.close_rounded : Icons.search_rounded,
+                      icon: const Icon(
+                        Icons.shopping_cart_outlined,
                         color: Colors.black,
                         size: 28,
                       ),
                     ),
-                    Stack(
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const CartScreen(),
-                              ),
-                            );
-                          },
-                          padding: EdgeInsets.zero,
-                          constraints: BoxConstraints.tightFor(
-                            width: buttonSize,
-                            height: buttonSize,
+                    if (state.cartCount > 0)
+                      PositionedDirectional(
+                        end: 2,
+                        top: 4,
+                        child: Container(
+                          height: 16,
+                          width: 16,
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            color: _olive,
+                            shape: BoxShape.circle,
                           ),
-                          icon: const Icon(
-                            Icons.shopping_cart_outlined,
-                            color: Colors.black,
-                            size: 28,
-                          ),
-                        ),
-                        if (state.cartCount > 0)
-                          PositionedDirectional(
-                            end: 2,
-                            top: 4,
-                            child: Container(
-                              height: 16,
-                              width: 16,
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                color: _olive,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Text(
-                                state.cartCount.toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                          child: Text(
+                            state.cartCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                      ),
                   ],
                 ),
-              ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -320,7 +314,10 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                 style: const TextStyle(color: Colors.black, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: AppStateScope.of(context).t('shop_search_hint'),
-                  hintStyle: const TextStyle(color: Colors.black54, fontSize: 14),
+                  hintStyle: const TextStyle(
+                    color: Colors.black54,
+                    fontSize: 14,
+                  ),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14),
@@ -357,7 +354,6 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
     );
   }
 
-
   Widget _buildCategoriesRow(List<String> categories) {
     final state = AppStateScope.of(context);
     final displayCategories = categories.where((c) => c != 'All').toList();
@@ -366,7 +362,9 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: displayCategories.map((cat) {
-          final isSelected = _selectedCategory == cat || (cat == 'Oil' && _selectedCategory == 'All');
+          final isSelected =
+              _selectedCategory == cat ||
+              (cat == 'Oil' && _selectedCategory == 'All');
 
           return GestureDetector(
             onTap: () {
@@ -389,7 +387,9 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                     offset: const Offset(0, 2),
                   ),
                 ],
-                border: isSelected ? null : Border.all(color: _olive.withValues(alpha: 0.2)),
+                border: isSelected
+                    ? null
+                    : Border.all(color: _olive.withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [
@@ -398,7 +398,9 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                     style: TextStyle(
                       color: isSelected ? Colors.white : _olive,
                       fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w600,
                     ),
                   ),
                   if (cat == 'Organic') ...[
@@ -450,7 +452,6 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
     required Product product,
     required double cardWidth,
   }) {
-
     final imageHeight = (cardWidth * 0.70).clamp(70.0, 112.0);
     final titleFont = cardWidth < 160 ? 8.2 : 9.2;
     final priceFont = cardWidth < 160 ? 8.2 : 8.8;
@@ -465,7 +466,9 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
               heroTag: 'trader_shop_${product.id}',
             ),
           ),
-        ).then((_) => setState(() {}));
+        ).then((_) {
+          if (mounted) setState(() {});
+        });
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
@@ -498,27 +501,27 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                   ),
                   if (product.isBestSeller)
                     PositionedDirectional(
-                     start: 0,
-                     top: 0,
-                     child: Container(
-                       padding: const EdgeInsets.symmetric(
-                         horizontal: 5,
-                         vertical: 2,
-                       ),
-                       decoration: BoxDecoration(
-                         color: _gold,
-                         borderRadius: BorderRadius.circular(6),
-                       ),
-                       child: Text(
-                         state.t('shop_best'),
-                         style: const TextStyle(
-                           color: Colors.white,
-                           fontSize: 7,
-                           fontWeight: FontWeight.w800,
-                         ),
-                       ),
-                     ),
-                   ),
+                      start: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _gold,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          state.t('shop_best'),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 7,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -565,11 +568,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
             const SizedBox(height: 2),
             Text(
               state.t('shop_regular_price'),
-              style: TextStyle(
-                color: Colors.black45,
-                fontSize: 7,
-                height: 1.0,
-              ),
+              style: TextStyle(color: Colors.black45, fontSize: 7, height: 1.0),
             ),
 
             SizedBox(
@@ -582,7 +581,9 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                     MaterialPageRoute(
                       builder: (_) => ProductDetailScreen(product: product),
                     ),
-                  ).then((_) => setState(() {}));
+                  ).then((_) {
+                    if (mounted) setState(() {});
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _olive,
@@ -611,6 +612,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
     );
   }
 
+
   void _clearFilters() {
     setState(() {
       _selectedCategory = 'All';
@@ -622,16 +624,49 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
   void _showHomeMenu(BuildContext context) {
     final state = AppStateScope.of(context);
     final menuItems = [
-      {'title': state.t('menu_home'), 'category': 'All', 'query': '', 'closeOnly': true},
+      {
+        'title': state.t('menu_home'),
+        'category': 'All',
+        'query': '',
+        'closeOnly': true,
+      },
       {'title': state.t('menu_gifts'), 'category': 'Gift Boxes', 'query': ''},
-      {'title': state.t('menu_olive_oil'), 'category': 'Olive Oil', 'query': ''},
-      {'title': state.t('menu_pickled_olives'), 'category': 'Pickles', 'query': 'olive'},
-      {'title': state.t('menu_cheese'), 'category': 'Dairy', 'query': 'Nabulsi Cheese'},
-      {'title': state.t('menu_herbs'), 'category': 'Herbs & Spices', 'query': ''},
-      {'title': state.t('menu_tahini'), 'category': 'Tahini & Halawa', 'query': 'tahini'},
-      {'title': state.t('menu_hot_sauce'), 'category': 'Herbs & Spices', 'query': 'chili'},
+      {
+        'title': state.t('menu_olive_oil'),
+        'category': 'Olive Oil',
+        'query': '',
+      },
+      {
+        'title': state.t('menu_pickled_olives'),
+        'category': 'Pickles',
+        'query': 'olive',
+      },
+      {
+        'title': state.t('menu_cheese'),
+        'category': 'Dairy',
+        'query': 'Nabulsi Cheese',
+      },
+      {
+        'title': state.t('menu_herbs'),
+        'category': 'Herbs & Spices',
+        'query': '',
+      },
+      {
+        'title': state.t('menu_tahini'),
+        'category': 'Tahini & Halawa',
+        'query': 'tahini',
+      },
+      {
+        'title': state.t('menu_hot_sauce'),
+        'category': 'Herbs & Spices',
+        'query': 'chili',
+      },
       {'title': state.t('menu_grains'), 'category': 'Grains', 'query': ''},
-      {'title': state.t('menu_black_seed'), 'category': 'Natural Products', 'query': 'black seed'},
+      {
+        'title': state.t('menu_black_seed'),
+        'category': 'Natural Products',
+        'query': 'black seed',
+      },
       {'title': state.t('menu_soap'), 'category': 'Soap & Care', 'query': ''},
     ];
 
@@ -673,9 +708,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                       child: Container(
                         height: isHeader ? 53 : 56,
                         width: double.infinity,
-                        color: isHeader
-                            ? const Color(0xFFEDE5DD)
-                            : _background,
+                        color: isHeader ? const Color(0xFFEDE5DD) : _background,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         alignment: AlignmentDirectional.centerStart,
                         child: Text(
