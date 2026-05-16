@@ -87,7 +87,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
 
-    // Keep local country in sync with global store
     if (_profileData['country'] != state.currentStore) {
       _profileData['country'] = state.currentStore;
     }
@@ -121,18 +120,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         ),
                         const SizedBox(height: 10),
                         _addressBox(),
-                        const SizedBox(height: 7),
+                        const SizedBox(height: 8),
                         _countryRow(state),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         _cityRow(),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         _postalRow(),
                         const SizedBox(height: 12),
                         _checkRow(
                           value: _saveAddress,
-                          text: state.t(
-                            'addr_save',
-                          ), // I should add this key or use existing
+                          text: state.t('addr_save'),
                           onTap: () {
                             setState(() {
                               _saveAddress = !_saveAddress;
@@ -427,14 +424,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
+  // 🔥 تم إصلاح الحواف الانضغاطية هنا بنقل التحكم للـ padding بدلاً من height: 31
   Widget _countryRow(AppState state) {
     final country = state.currentStore;
     final flag = state.currentStoreFlag;
 
     return Container(
-      height: 31,
-      padding: const EdgeInsets.symmetric(horizontal: 11),
-      decoration: _outlineBox(radius: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: _outlineBox(radius: 12),
       child: Row(
         children: [
           Expanded(
@@ -457,9 +454,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final city = _profileData['city'] ?? 'Nablus';
 
     return Container(
-      height: 31,
-      padding: const EdgeInsets.symmetric(horizontal: 11),
-      decoration: _outlineBox(radius: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: _outlineBox(radius: 12),
       alignment: Alignment.centerLeft,
       child: Text(
         city,
@@ -468,6 +464,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           color: _olive,
           fontSize: 14,
           fontFamily: 'serif',
+          height: 1.0,
         ),
       ),
     );
@@ -477,9 +474,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final postalCode = _profileData['postalCode'] ?? '10115';
 
     return Container(
-      height: 31,
-      padding: const EdgeInsets.symmetric(horizontal: 11),
-      decoration: _outlineBox(radius: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: _outlineBox(radius: 12),
       child: Row(
         children: [
           Text(
@@ -492,8 +488,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
           const Spacer(),
           Container(
-            height: 21,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               border: Border.all(color: _border),
               borderRadius: BorderRadius.circular(12),
@@ -543,8 +538,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   Widget _deliveryReadOnlyBox(AppState state) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      decoration: _outlineBox(),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: _outlineBox(radius: 12),
       child: Column(
         children: [
           _deliveryReadOnlyLine(
@@ -574,8 +569,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     required bool selected,
     required AppState state,
   }) {
-    return SizedBox(
-      height: 31,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
           const SizedBox(width: 18),
@@ -612,7 +607,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   Widget _paymentBox(AppState state) {
     return Container(
-      decoration: _outlineBox(),
+      decoration: _outlineBox(radius: 12),
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
@@ -784,7 +779,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     const SizedBox(width: 16),
                     ElevatedButton(
                       onPressed: () {
-                        // Logic to save card would go here
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -825,20 +819,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
     required String hint,
     required TextEditingController controller,
   }) {
-    return Container(
-      height: 48,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F0),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: TextField(
-        controller: controller,
-        style: const TextStyle(color: _olive),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.black26),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+    return TextField(
+      controller: controller,
+      style: const TextStyle(color: _olive),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.black26),
+        filled: true,
+        fillColor: const Color(0xFFF5F5F0),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: _border, width: 1.2),
         ),
       ),
     );
@@ -979,26 +978,28 @@ class _PaymentScreenState extends State<PaymentScreen> {
           Row(
             children: [
               Expanded(
-                child: Container(
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF7F7F7),
-                    border: Border.all(color: Colors.black12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: TextField(
-                    controller: _discountController,
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
-                    decoration: InputDecoration(
-                      hintText: state.t('checkout_discount_code'),
-                      hintStyle: const TextStyle(
-                        color: Colors.black38,
-                        fontSize: 14,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                      ),
+                child: TextField(
+                  controller: _discountController,
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  decoration: InputDecoration(
+                    hintText: state.t('checkout_discount_code'),
+                    hintStyle: const TextStyle(
+                      color: Colors.black38,
+                      fontSize: 14,
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF7F7F7),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.black12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: _olive),
                     ),
                   ),
                 ),
@@ -1071,8 +1072,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
           onTap();
         }
       },
-      child: SizedBox(
-        height: 31,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
             const SizedBox(width: 18),
@@ -1179,7 +1180,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
         height: 35,
         child: ElevatedButton(
           onPressed: () async {
-            // Show loading
             showDialog(
               context: context,
               barrierDismissible: false,
@@ -1222,7 +1222,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   });
 
               if (context.mounted) {
-                Navigator.pop(context); // Close loading
+                Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Order placed successfully'),
@@ -1248,7 +1248,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               }
             } catch (e) {
               if (context.mounted) {
-                Navigator.pop(context); // Close loading
+                Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Error placing order: $e')),
                 );
@@ -1445,7 +1445,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 _profileData['postalCode'] = '10115';
                               }
 
-                              // Sync global store with the selected country in dialog
                               state.setCurrentStore(selectedCountry);
                             });
 
@@ -1479,87 +1478,80 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
+  // 🔥 تم حذف السايد بوكس ذو المقاس الثابت 48 وتمرير الارتفاع للحشوة لضمان دائرية الحواف المتقوسة
   Widget _countryDropdownField({
     required String value,
     required ValueChanged<String> onChanged,
   }) {
-    return SizedBox(
-      height: 48,
-      child: DropdownButtonFormField<String>(
-        initialValue: value,
-        isExpanded: true,
-        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: _olive),
-        dropdownColor: _cream,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: _background,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _border, width: 1),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _border, width: 1.2),
-          ),
+    return DropdownButtonFormField<String>(
+      initialValue: value,
+      isExpanded: true,
+      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: _olive),
+      dropdownColor: _cream,
+      style: const TextStyle(color: _olive, fontSize: 15),
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: _background,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
         ),
-        items: _countries.map((country) {
-          return DropdownMenuItem<String>(
-            value: country['name'],
-            child: Row(
-              children: [
-                Text(country['flag']!, style: const TextStyle(fontSize: 18)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    country['name']!,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: _olive, fontSize: 15),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-        onChanged: (value) {
-          if (value == null) return;
-          onChanged(value);
-        },
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: _border, width: 1.2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: _border, width: 1.8),
+        ),
       ),
+      items: _countries.map((country) {
+        return DropdownMenuItem<String>(
+          value: country['name'],
+          child: Row(
+            children: [
+              Text(country['flag']!, style: const TextStyle(fontSize: 18)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(country['name']!, overflow: TextOverflow.ellipsis),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value == null) return;
+        onChanged(value);
+      },
     );
   }
 
+  // 🔥 تم تعديل الحقل ليدعم الحواف الدائرية المتناسقة مع حشوة النصوص (Padding)
   Widget _addressFormField({
     required TextEditingController controller,
     required String hint,
     bool centerText = false,
   }) {
-    return SizedBox(
-      height: 48,
-      child: TextField(
-        controller: controller,
-        textAlign: centerText ? TextAlign.center : TextAlign.start,
-        style: const TextStyle(color: _olive, fontSize: 15),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: const TextStyle(color: _olive, fontSize: 15),
-          filled: true,
-          fillColor: _background,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _border, width: 1),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _border, width: 1.2),
-          ),
+    return TextField(
+      controller: controller,
+      textAlign: centerText ? TextAlign.center : TextAlign.start,
+      style: const TextStyle(color: _olive, fontSize: 15),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: _olive, fontSize: 15),
+        filled: true,
+        fillColor: _background,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: _border, width: 1.2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: _border, width: 1.8),
         ),
       ),
     );

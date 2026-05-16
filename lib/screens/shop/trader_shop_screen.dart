@@ -54,13 +54,11 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
     }
   }
 
-
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -296,38 +294,37 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
 
   Widget _buildSearchBar() {
     return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: Row(
         children: [
           Expanded(
-            child: Container(
-              height: 38,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(19),
-                border: Border.all(color: _olive, width: 1.2),
-              ),
-              child: TextField(
-                controller: _searchController,
-                textAlignVertical: TextAlignVertical.center,
-                style: const TextStyle(color: Colors.black, fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: AppStateScope.of(context).t('shop_search_hint'),
-                  hintStyle: const TextStyle(
-                    color: Colors.black54,
-                    fontSize: 14,
-                  ),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+            child: TextField(
+              controller: _searchController,
+              textAlignVertical: TextAlignVertical.center,
+              style: const TextStyle(color: Colors.black, fontSize: 14),
+              decoration: InputDecoration(
+                hintText: AppStateScope.of(context).t('shop_search_hint'),
+                hintStyle: const TextStyle(color: Colors.black54, fontSize: 14),
+                filled: true,
+                fillColor: Colors.white.withValues(alpha: 0.5),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
                 ),
-                onChanged: (val) {
-                  setState(() {
-                    _searchQuery = val;
-                  });
-                },
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(22),
+                  borderSide: const BorderSide(color: _olive, width: 1.2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(22),
+                  borderSide: const BorderSide(color: _olive, width: 1.8),
+                ),
               ),
+              onChanged: (val) {
+                setState(() {
+                  _searchQuery = val;
+                });
+              },
             ),
           ),
           const SizedBox(width: 8),
@@ -375,7 +372,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
               });
             },
             child: Container(
-              margin: const EdgeInsets.only(right: 12),
+              margin: const EdgeInsets.only(right: 12, top: 4, bottom: 4),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
                 color: isSelected ? _olive : Colors.white,
@@ -453,8 +450,8 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
     required double cardWidth,
   }) {
     final imageHeight = (cardWidth * 0.70).clamp(70.0, 112.0);
-    final titleFont = cardWidth < 160 ? 8.2 : 9.2;
-    final priceFont = cardWidth < 160 ? 8.2 : 8.8;
+    final titleFont = cardWidth < 160 ? 11.0 : 13.0;
+    final priceFont = cardWidth < 160 ? 11.0 : 12.0;
 
     return InkWell(
       onTap: () {
@@ -470,12 +467,19 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
           if (mounted) setState(() {});
         });
       },
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(6, 6, 6, 7),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           children: [
@@ -505,8 +509,8 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                       top: 0,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 5,
-                          vertical: 2,
+                          horizontal: 6,
+                          vertical: 3,
                         ),
                         decoration: BoxDecoration(
                           color: _gold,
@@ -516,7 +520,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                           state.t('shop_best'),
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 7,
+                            fontSize: 8,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -525,7 +529,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text(
               state.t(product.name),
               textAlign: TextAlign.center,
@@ -535,31 +539,31 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                 color: Colors.black,
                 fontSize: titleFont,
                 fontWeight: FontWeight.w800,
-                height: 1.05,
+                height: 1.15,
               ),
             ),
             if (product.subtitle.trim().isNotEmpty) ...[
-              const SizedBox(height: 1),
+              const SizedBox(height: 2),
               Text(
                 state.t(product.subtitle),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: Colors.black.withValues(alpha: 0.75),
-                  fontSize: titleFont - 1,
+                  color: Colors.black.withValues(alpha: 0.65),
+                  fontSize: titleFont - 2,
                   height: 1.0,
                 ),
               ),
             ],
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             Text(
               state.getFormattedPrice(product.price),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Colors.black,
+                color: _olive,
                 fontSize: priceFont,
                 fontWeight: FontWeight.w800,
                 height: 1.0,
@@ -568,12 +572,17 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
             const SizedBox(height: 2),
             Text(
               state.t('shop_regular_price'),
-              style: TextStyle(color: Colors.black45, fontSize: 7, height: 1.0),
+              style: const TextStyle(
+                color: Colors.black45,
+                fontSize: 8,
+                height: 1.0,
+              ),
             ),
-
+            const SizedBox(height: 8),
+            // 🔥 تم تعديل الزر هنا ليكون بارتفاع متناسق (32) لمنع سحق وانضغاط الكلمات داخله
             SizedBox(
               width: double.infinity,
-              height: 24,
+              height: 32,
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -591,7 +600,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                   elevation: 0,
                   padding: EdgeInsets.zero,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 child: FittedBox(
@@ -599,7 +608,7 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
                   child: Text(
                     state.t('home_view_details'),
                     style: const TextStyle(
-                      fontSize: 8.5,
+                      fontSize: 12,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -611,7 +620,6 @@ class _TraderShopScreenState extends State<TraderShopScreen> {
       ),
     );
   }
-
 
   void _clearFilters() {
     setState(() {
