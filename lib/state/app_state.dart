@@ -83,6 +83,7 @@ class AppState extends ChangeNotifier {
             notifyListeners,
           );
         }
+        _user.startSync(notifyListeners);
       } catch (e) {
         debugPrint('Error fetching user profile: $e');
         notifyListeners();
