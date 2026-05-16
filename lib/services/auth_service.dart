@@ -98,7 +98,7 @@ class AuthService {
     return AuthResponse(isSuccess: false, message: 'Apple login failed');
   }
 
-  // 🔥 الدالة المعدلة التي تقرأ صلاحية الـ Admin فوراً وتحدث الـ AppState
+  // 🔥 الدالة المحدثة لجلب صلاحية الأدمن الحقيقية من السيرفر فوراً عند تسجيل الدخول
   Future<void> _updateLocalState(
     BuildContext context,
     User? firebaseUser,
@@ -122,7 +122,7 @@ class AuthService {
 
     bool isAdminFromFirestore = false;
 
-    // حفظ وتحديث البيانات في Firestore وجلب حقل isAdmin
+    // حفظ وتحديث المستخدم مع قراءة حقل الـ isAdmin بشكل آمن
     try {
       final userDocRef = FirebaseFirestore.instance
           .collection('users')
@@ -138,16 +138,14 @@ class AuthService {
         'lastLogin': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      // قراءة المستند للتأكد من حالة الأدمن الحقيقية في الفايربيس
       final docSnapshot = await userDocRef.get();
       if (docSnapshot.exists) {
         isAdminFromFirestore = docSnapshot.data()?['isAdmin'] ?? false;
       }
     } catch (e) {
-      debugPrint('Error saving/fetching user from Firestore: $e');
+      debugPrint('Error saving user to Firestore: $e');
     }
 
-    // تمرير البيانات كاملة للحالة المحلية بما فيها isAdmin الحقيقية
     state.setCurrentUser(
       AppUser(
         name:
@@ -157,7 +155,7 @@ class AuthService {
         phone: firebaseUser.phoneNumber ?? '',
         location: '',
         isTrader: isTrader,
-        isAdmin: isAdminFromFirestore,
+        isAdmin: isAdminFromFirestore, // الحفاظ وتمرير الصلاحية هنا
       ),
     );
   }
@@ -175,7 +173,6 @@ class AuthService {
       if (userCredential.user != null) {
         await userCredential.user!.updateDisplayName(username);
 
-        // حفظ الحساب الجديد في Firestore وحقله الافتراضي للأدمن هو false
         await FirebaseFirestore.instance
             .collection('users')
             .doc(userCredential.user!.uid)
@@ -183,7 +180,6 @@ class AuthService {
               'name': username,
               'email': email,
               'isTrader': isTrader,
-              'isAdmin': false,
               'createdAt': FieldValue.serverTimestamp(),
             });
 

@@ -23,7 +23,10 @@ class AppState extends ChangeNotifier {
       } else {
         // Fetch additional info from Firestore (like isTrader)
         try {
-          final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+          final doc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
           if (doc.exists) {
             final data = doc.data()!;
             _currentUser = AppUser(
@@ -52,6 +55,7 @@ class AppState extends ChangeNotifier {
       }
     });
   }
+
   static const double deliveryFee = 3.0;
 
   static const Map<String, StoreCurrency> _storeCurrencies = {
@@ -68,7 +72,8 @@ class AppState extends ChangeNotifier {
     'Chile': StoreCurrency('Chile', 'CLP', 255.0, flag: '🇨🇱'),
   };
 
-  String get currentStoreFlag => _storeCurrencies[_currentStore]?.flag ?? '🇵🇸';
+  String get currentStoreFlag =>
+      _storeCurrencies[_currentStore]?.flag ?? '🇵🇸';
 
   AppUser? _currentUser;
   Uint8List? _profileImageBytes;
@@ -115,13 +120,15 @@ class AppState extends ChangeNotifier {
   void setCurrentStore(String storeName) {
     if (_storeCurrencies.containsKey(storeName) && _currentStore != storeName) {
       _currentStore = storeName;
-      
+
       // If the new store has no products, try to load/seed them
-      final storeProducts = _allProducts.where((p) => p.store == _currentStore).toList();
+      final storeProducts = _allProducts
+          .where((p) => p.store == _currentStore)
+          .toList();
       if (storeProducts.isEmpty) {
         loadProducts();
       }
-      
+
       notifyListeners();
     }
   }
@@ -135,11 +142,12 @@ class AppState extends ChangeNotifier {
 
   String getFormattedPrice(double basePrice) {
     if (basePrice <= 0) return t('ui_request_quote');
-    
+
     final effectivePrice = _getEffectivePrice(basePrice);
-    final currency = _storeCurrencies[_currentStore] ?? _storeCurrencies['Palestine']!;
+    final currency =
+        _storeCurrencies[_currentStore] ?? _storeCurrencies['Palestine']!;
     final converted = effectivePrice * currency.exchangeRate;
-    
+
     if (converted % 1 == 0) {
       return '${converted.toStringAsFixed(0)} ${currency.symbol}';
     }
@@ -151,7 +159,8 @@ class AppState extends ChangeNotifier {
   bool get isArabic => languageCode == 'ar';
 
   String get userName => _currentUser?.name ?? t('ui_google_user');
-  String get userType => (_currentUser?.isTrader ?? true) ? 'Trader' : 'Customer';
+  String get userType =>
+      (_currentUser?.isTrader ?? true) ? 'Trader' : 'Customer';
   String get phone => _currentUser?.phone ?? '';
 
   final Map<String, String> _supportedLanguages = const {
@@ -193,9 +202,10 @@ class AppState extends ChangeNotifier {
   }
 
   String t(String key) {
-    final translation = AppTranslations.translations[_locale.languageCode]?[key];
+    final translation =
+        AppTranslations.translations[_locale.languageCode]?[key];
     if (translation != null) return translation;
-    
+
     // Fallback: remove common prefixes and replace underscores with spaces
     String result = key;
     final prefixes = ['home_', 'shop_', 'menu_', 'profile_', 'ui_', 'product_'];
@@ -205,7 +215,7 @@ class AppState extends ChangeNotifier {
         break;
       }
     }
-    
+
     return result.replaceAll('_', ' ');
   }
 
@@ -229,7 +239,13 @@ class AppState extends ChangeNotifier {
     if (index != -1) {
       _cart[index].quantity += quantity;
     } else {
-      _cart.add(CartItem(product: product, selectedVariant: variant, quantity: quantity));
+      _cart.add(
+        CartItem(
+          product: product,
+          selectedVariant: variant,
+          quantity: quantity,
+        ),
+      );
     }
     notifyListeners();
   }
@@ -269,39 +285,85 @@ class AppState extends ChangeNotifier {
   final List<AppOrder> _orders = [];
   List<AppOrder> get orders => List.unmodifiable(_orders);
 
-  void placeOrder({
+  // 🔥 الدالة المحدثة لربط ورفع الطلبات إلى سيرفر Firestore لكي يراها الأدمن
+  Future<void> placeOrder({
     required String name,
     required String phone,
     required String address,
     required String mailbox,
     required String note,
     required String paymentMethod,
-  }) {
-    final newOrder = AppOrder(
-      id: 'ORD-${DateTime.now().millisecondsSinceEpoch}',
-      date: DateTime.now(),
-      items: _cart.map((item) => OrderLine(
-        productName: item.product.name,
-        subtitle: item.product.subtitle,
-        image: item.product.image,
-        price: item.price,
-        quantity: item.quantity,
-        variantSize: item.selectedVariant?.size,
-      )).toList(),
-      customerName: name,
-      phone: phone,
-      deliveryAddress: address,
-      mailboxAddress: mailbox,
-      note: note,
-      paymentMethod: paymentMethod,
-      status: 'Pending',
-      subtotal: cartSubtotal,
-      delivery: deliveryFee,
-      total: cartTotal,
-    );
-    _orders.insert(0, newOrder);
-    _cart.clear();
-    notifyListeners();
+  }) async {
+    final orderId = 'ORD-${DateTime.now().millisecondsSinceEpoch}';
+
+    final Map<String, dynamic> orderData = {
+      'id': orderId,
+      'date': FieldValue.serverTimestamp(), // تاريخ السيرفر لضمان الدقة
+      'customerName': name,
+      'phone': phone,
+      'deliveryAddress': address,
+      'mailboxAddress': mailbox,
+      'note': note,
+      'paymentMethod': paymentMethod,
+      'status': 'Pending',
+      'subtotal': cartSubtotal,
+      'delivery': deliveryFee,
+      'total': cartTotal,
+      'items': _cart
+          .map(
+            (item) => {
+              'name': item.product.name,
+              'subtitle': item.product.subtitle,
+              'image': item.product.image,
+              'price': item.price,
+              'quantity': item.quantity,
+              'variantSize': item.selectedVariant?.size,
+            },
+          )
+          .toList(),
+    };
+
+    try {
+      // الرفع إلى الإنترنت في الـ Firestore
+      await FirebaseFirestore.instance
+          .collection('orders')
+          .doc(orderId)
+          .set(orderData);
+
+      // التحديث المحلي المتناسق للشاشات الفورية داخل التطبيق
+      final newLocalOrder = AppOrder(
+        id: orderId,
+        date: DateTime.now(),
+        items: _cart
+            .map(
+              (item) => OrderLine(
+                productName: item.product.name,
+                subtitle: item.product.subtitle,
+                image: item.product.image,
+                price: item.price,
+                quantity: item.quantity,
+                variantSize: item.selectedVariant?.size,
+              ),
+            )
+            .toList(),
+        customerName: name,
+        phone: phone,
+        deliveryAddress: address,
+        mailboxAddress: mailbox,
+        note: note,
+        paymentMethod: paymentMethod,
+        status: 'Pending',
+        subtotal: cartSubtotal,
+        delivery: deliveryFee,
+        total: cartTotal,
+      );
+
+      _orders.insert(0, newLocalOrder);
+      _cart.clear(); // تفريغ السلة بعد نجاح الشراء
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error uploading order to Firestore: $e');
+    }
   }
 
   List<ShippingAddress> _addresses = [
@@ -330,7 +392,9 @@ class AppState extends ChangeNotifier {
   }
 
   void setDefaultAddress(String id) {
-    _addresses = _addresses.map((a) => a.copyWith(isDefault: a.id == id)).toList();
+    _addresses = _addresses
+        .map((a) => a.copyWith(isDefault: a.id == id))
+        .toList();
     notifyListeners();
   }
 
@@ -348,12 +412,14 @@ class AppState extends ChangeNotifier {
 
   List<PaymentMethod> get savedCards =>
       _paymentMethods.where((m) => !m.isCashOnDelivery).toList();
-  
+
   List<Product> _allProducts = [];
 
   void addPaymentMethod(PaymentMethod method) {
     if (method.isDefault) {
-      _paymentMethods = _paymentMethods.map((m) => m.copyWith(isDefault: false)).toList();
+      _paymentMethods = _paymentMethods
+          .map((m) => m.copyWith(isDefault: false))
+          .toList();
     }
     _paymentMethods.add(method);
     notifyListeners();
@@ -365,19 +431,22 @@ class AppState extends ChangeNotifier {
   }
 
   void setDefaultPaymentMethod(String id) {
-    _paymentMethods = _paymentMethods.map((m) => m.copyWith(isDefault: m.id == id)).toList();
+    _paymentMethods = _paymentMethods
+        .map((m) => m.copyWith(isDefault: m.id == id))
+        .toList();
     notifyListeners();
   }
 
   List<Product> get products {
-    final storeProducts = _allProducts.where((p) => p.store == _currentStore).toList();
-    // Fallback: If current store has no products yet, show Palestine products 
-    // (they will still show correct local currency due to getFormattedPrice logic)
+    final storeProducts = _allProducts
+        .where((p) => p.store == _currentStore)
+        .toList();
     if (storeProducts.isEmpty && _allProducts.isNotEmpty) {
       return _allProducts.where((p) => p.store == 'Palestine').toList();
     }
     return storeProducts;
   }
+
   bool _productsLoaded = false;
   bool get productsLoaded => _productsLoaded;
 
@@ -402,34 +471,42 @@ class AppState extends ChangeNotifier {
 
       _allProducts = snapshot.docs.map((doc) {
         final data = doc.data();
-        data['id'] = doc.id; // Ensure ID from Firestore is used
+        data['id'] = doc.id;
         return Product.fromJson(data);
       }).toList();
 
       _productsLoaded = true;
 
-      // If the current store is empty but we have products for other stores,
-      // it means we need to re-seed to populate ALL stores.
-      final storeProducts = _allProducts.where((p) => p.store == _currentStore).toList();
+      final storeProducts = _allProducts
+          .where((p) => p.store == _currentStore)
+          .toList();
       if (storeProducts.isEmpty) {
-        debugPrint('Store $_currentStore is empty. Seeding globally to ensure availability...');
+        debugPrint(
+          'Store $_currentStore is empty. Seeding globally to ensure availability...',
+        );
         await _seedProductsFromAssets();
-        return; 
+        return;
       }
 
       notifyListeners();
     } catch (e) {
-      debugPrint('Error loading products from Firestore: $e. Falling back to assets.');
+      debugPrint(
+        'Error loading products from Firestore: $e. Falling back to assets.',
+      );
       await _loadProductsFromAssets();
     }
   }
 
   Future<void> _loadProductsFromAssets() async {
     try {
-      final String response = await rootBundle.loadString('assets/data/products.json');
+      final String response = await rootBundle.loadString(
+        'assets/data/products.json',
+      );
       final data = await json.decode(response);
       final List<dynamic> productsJson = data;
-      _allProducts = productsJson.map((json) => Product.fromJson(json)).toList();
+      _allProducts = productsJson
+          .map((json) => Product.fromJson(json))
+          .toList();
       _productsLoaded = true;
       notifyListeners();
     } catch (e) {
@@ -440,8 +517,7 @@ class AppState extends ChangeNotifier {
   Future<void> _seedProductsFromAssets() async {
     try {
       final firestore = FirebaseFirestore.instance;
-      
-      // Clear existing products to ensure a fresh global seed
+
       final existing = await firestore.collection('products').get();
       if (existing.docs.isNotEmpty) {
         final batchDelete = firestore.batch();
@@ -452,29 +528,42 @@ class AppState extends ChangeNotifier {
       }
 
       final List<String> stores = [
-        'Palestine', 'Germany', 'USA', 'UK', 'UAE', 
-        'KSA', 'France', 'Canada', 'Malaysia', 'Europe', 'Chile'
+        'Palestine',
+        'Germany',
+        'USA',
+        'UK',
+        'UAE',
+        'KSA',
+        'France',
+        'Canada',
+        'Malaysia',
+        'Europe',
+        'Chile',
       ];
 
-      final String response = await rootBundle.loadString('assets/data/products.json');
+      final String response = await rootBundle.loadString(
+        'assets/data/products.json',
+      );
       final List<dynamic> productsJson = json.decode(response);
 
-      // Prepare all operations
       final List<Map<String, dynamic>> allOps = [];
       for (int i = 0; i < productsJson.length; i++) {
         final pJson = Map<String, dynamic>.from(productsJson[i]);
         for (final store in stores) {
           final productCopy = Map<String, dynamic>.from(pJson);
           productCopy['store'] = store;
-          final docId = '${pJson['id']}_${store.toLowerCase().replaceAll(' ', '_')}';
+          final docId =
+              '${pJson['id']}_${store.toLowerCase().replaceAll(' ', '_')}';
           allOps.add({'id': docId, 'data': productCopy});
         }
       }
 
-      // Execute in chunks of 450 (Firestore limit is 500)
       for (var i = 0; i < allOps.length; i += 450) {
         final batch = firestore.batch();
-        final chunk = allOps.sublist(i, i + 450 > allOps.length ? allOps.length : i + 450);
+        final chunk = allOps.sublist(
+          i,
+          i + 450 > allOps.length ? allOps.length : i + 450,
+        );
         for (var op in chunk) {
           final docRef = firestore.collection('products').doc(op['id']);
           batch.set(docRef, op['data']);
@@ -483,7 +572,7 @@ class AppState extends ChangeNotifier {
       }
 
       debugPrint('Global seeding complete for ${allOps.length} documents.');
-      await loadProducts(); // Reload from Firestore
+      await loadProducts();
     } catch (e) {
       debugPrint('Error seeding products: $e');
     }
@@ -494,7 +583,8 @@ class AppState extends ChangeNotifier {
   List<Product> filteredProducts({String category = 'All', String query = ''}) {
     return products.where((p) {
       final matchesCat = category == 'All' || p.category == category;
-      final matchesQuery = query.isEmpty ||
+      final matchesQuery =
+          query.isEmpty ||
           p.name.toLowerCase().contains(query.toLowerCase()) ||
           p.subtitle.toLowerCase().contains(query.toLowerCase());
       return matchesCat && matchesQuery;
@@ -523,7 +613,7 @@ class AppState extends ChangeNotifier {
 
   List<ShippingAddress> get shippingAddresses => addresses;
   void setDefaultShippingAddress(String id) => setDefaultAddress(id);
-  
+
   void addShippingAddress({
     required String title,
     required String details,

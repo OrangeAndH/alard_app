@@ -116,7 +116,10 @@ class _AdminScreenState extends State<AdminScreen>
                         ),
                         Text(
                           data['email'] ?? 'No Email',
-                          style: TextStyle(color: Colors.black54, fontSize: 13),
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
@@ -208,7 +211,13 @@ class _AdminScreenState extends State<AdminScreen>
           separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final data = orders[index].data() as Map<String, dynamic>;
-            final date = (data['date'] as Timestamp).toDate();
+
+            // 🔥 حماية آمنة ضد القيمة الفارغة للتاريخ المؤقت أثناء المزامنة
+            final timestamp = data['date'] as Timestamp?;
+            final date = timestamp != null
+                ? timestamp.toDate()
+                : DateTime.now();
+
             final items = (data['items'] as List? ?? []);
 
             return Container(
